@@ -1,0 +1,19 @@
+{
+	"name": "Ezren",
+	"race": "Human",
+	"classType": "Mage",
+	"gender": "Male",
+	"age": 33,
+	"height": 70,
+	"weight": 148,
+	"backstory": "A scholar who ran out of books and decided the dungeon would teach him things no library could.",
+	"strength": 7,
+	"constitution": 9,
+	"dexterity": 12,
+	"intelligence": 18,
+	"wisdom": 13,
+	"charisma": 11,
+	"startingEquipment": ["Dagger"],
+	"portrait": "res://Data/Characters/Ezren_Portrait.png",
+	"battleSprite": "res://Data/Characters/Ezren_BattleSprite.png"	
+}

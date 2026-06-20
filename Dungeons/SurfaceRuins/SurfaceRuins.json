@@ -1,0 +1,7 @@
+{
+	"id": "SurfaceRuins",
+	"name": "Surface Ruins",
+	"levels": 1,
+	"entryRooms": ["entrance"],
+	"rooms": ["entrance", "crypt", "guardroom", "collapsed_hall"]
+}

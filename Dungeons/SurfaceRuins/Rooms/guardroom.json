@@ -1,0 +1,10 @@
+{
+	"id": "guardroom",
+	"name": "Old Guard Room",
+	"description": "A rotted table and broken weapons suggest soldiers once kept watch here. Something has been gnawing on the bones in the corner.",
+	"image": "res://Dungeons/SurfaceRuins/Images/guardroom.png",
+	"unique": false,
+	"minOccurrences": 1,
+	"maxOccurrences": 2,
+	"spawnChance": 1.0
+}

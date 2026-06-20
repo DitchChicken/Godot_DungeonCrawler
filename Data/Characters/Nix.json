@@ -1,0 +1,19 @@
+{
+	"name": "Nix",
+	"race": "Halfling",
+	"classType": "Thief",
+	"gender": "Female",
+	"age": 19,
+	"height": 40,
+	"weight": 68,
+	"backstory": "Grew up picking locks for fun. The dungeon is just a bigger lock.",
+	"strength": 8,
+	"constitution": 10,
+	"dexterity": 18,
+	"intelligence": 12,
+	"wisdom": 10,
+	"charisma": 12,
+	"startingEquipment": ["Dagger", "Dagger"],
+	"portrait": "res://Data/Characters/Nix_Portrait.png",
+	"battleSprite": "res://Data/Characters/Nix_BattleSprite.png"	
+}

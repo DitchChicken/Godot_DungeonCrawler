@@ -1,0 +1,19 @@
+{
+	"name": "Yara",
+	"race": "Dwarf",
+	"classType": "Priest",
+	"gender": "Female",
+	"age": 89,
+	"height": 52,
+	"weight": 145,
+	"backstory": "A stone-speaker who tends to the injured and the dying with equal calm.",
+	"strength": 11,
+	"constitution": 15,
+	"dexterity": 8,
+	"intelligence": 11,
+	"wisdom": 17,
+	"charisma": 10,
+	"startingEquipment": ["Club"],
+	"portrait": "res://Data/Characters/Yara_Portrait.png",
+	"battleSprite": "res://Data/Characters/Yara_BattleSprite.png"
+}

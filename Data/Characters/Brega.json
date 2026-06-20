@@ -1,0 +1,19 @@
+{
+	"name": "Brega",
+	"race": "Dwarf",
+	"classType": "Fighter",
+	"gender": "Female",
+	"age": 67,
+	"height": 54,
+	"weight": 160,
+	"backstory": "A clan warrior exiled after refusing a direct order she knew would get her kin killed.",
+	"strength": 15,
+	"constitution": 17,
+	"dexterity": 9,
+	"intelligence": 10,
+	"wisdom": 11,
+	"charisma": 8,
+	"startingEquipment": ["ShortSword", "Buckler", "LeatherArmor"],
+	"portrait": "res://Data/Characters/Brega_Portrait.png",
+	"battleSprite": "res://Data/Characters/Brega_BattleSprite.png"
+}

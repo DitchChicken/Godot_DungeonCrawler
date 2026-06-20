@@ -1,0 +1,42 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="DungeonCrawler"
+run/main_scene="uid://bn3ocufq4oiae"
+config/features=PackedStringArray("4.7", "C#", "Mobile")
+config/icon="res://icon.svg"
+
+[autoload]
+
+GameState="*uid://d0qc01fkekk2h"
+Main="*uid://jixeh2p70ewh"
+PartyHud="*uid://di5rdkbg33sn4"
+CharacterSheet="*uid://u56q2v8haugi"
+
+[display]
+
+window/size/viewport_width=2600
+window/size/viewport_height=1300
+window/stretch/mode="canvas_items"
+
+[dotnet]
+
+project/assembly_name="DungeonCrawler"
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+rendering_device/driver.windows="d3d12"
+renderer/rendering_method="mobile"

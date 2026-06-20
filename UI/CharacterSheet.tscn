@@ -1,0 +1,107 @@
+[gd_scene format=3 uid="uid://u56q2v8haugi"]
+
+[ext_resource type="Script" uid="uid://cw7vfs2w583b8" path="res://UI/CharacterSheet.cs" id="1_vmx8l"]
+
+[node name="CharacterSheet" type="CanvasLayer" unique_id=50346161]
+script = ExtResource("1_vmx8l")
+
+[node name="Panel" type="Panel" parent="." unique_id=1450990331]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackButton" type="Button" parent="Panel" unique_id=344132312]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -8.0
+offset_bottom = 8.0
+grow_horizontal = 0
+text = "X"
+
+[node name="MainContainer" type="HBoxContainer" parent="Panel" unique_id=473648990]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="LeftPanel" type="VBoxContainer" parent="Panel/MainContainer" unique_id=959885085]
+layout_mode = 2
+
+[node name="Portrait" type="TextureRect" parent="Panel/MainContainer/LeftPanel" unique_id=1896830291]
+custom_minimum_size = Vector2(128, 128)
+custom_maximum_size = Vector2(256, 256)
+layout_mode = 2
+
+[node name="StatsPanel" type="VBoxContainer" parent="Panel/MainContainer/LeftPanel" unique_id=148426688]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=346119302]
+layout_mode = 2
+
+[node name="RaceClassLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=49491781]
+layout_mode = 2
+
+[node name="AlignmentLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=1238332216]
+layout_mode = 2
+
+[node name="LevelExpLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=1277744195]
+layout_mode = 2
+
+[node name="StatusLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=1592492974]
+layout_mode = 2
+
+[node name="StrLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=856282170]
+layout_mode = 2
+
+[node name="ConLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=1603458807]
+layout_mode = 2
+
+[node name="DexLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=1619611734]
+layout_mode = 2
+
+[node name="IntLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=208771153]
+layout_mode = 2
+
+[node name="WisLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=460676412]
+layout_mode = 2
+
+[node name="ChaLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=261178775]
+layout_mode = 2
+
+[node name="HpLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=2009529369]
+layout_mode = 2
+
+[node name="ManaLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=224275532]
+layout_mode = 2
+
+[node name="EncumbranceLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=1282233307]
+layout_mode = 2
+
+[node name="BackstoryLabel" type="Label" parent="Panel/MainContainer/LeftPanel" unique_id=1357516599]
+layout_mode = 2
+
+[node name="RightPanel" type="VBoxContainer" parent="Panel/MainContainer" unique_id=1096666954]
+layout_mode = 2
+
+[node name="EquipmentPanel" type="VBoxContainer" parent="Panel/MainContainer/RightPanel" unique_id=1454232823]
+layout_mode = 2
+
+[node name="WeaponLabel" type="Label" parent="Panel/MainContainer/RightPanel/EquipmentPanel" unique_id=1884636924]
+layout_mode = 2
+
+[node name="ArmorLabel" type="Label" parent="Panel/MainContainer/RightPanel/EquipmentPanel" unique_id=1597600117]
+layout_mode = 2
+
+[node name="ShieldLabel" type="Label" parent="Panel/MainContainer/RightPanel/EquipmentPanel" unique_id=1573757109]
+layout_mode = 2
+
+[node name="HelmetLabel" type="Label" parent="Panel/MainContainer/RightPanel/EquipmentPanel" unique_id=283441165]
+layout_mode = 2
+
+[node name="GauntletsLabel" type="Label" parent="Panel/MainContainer/RightPanel/EquipmentPanel" unique_id=1629328687]
+layout_mode = 2
+
+[connection signal="pressed" from="Panel/BackButton" to="." method="_on_back_button_pressed"]

@@ -1,0 +1,10 @@
+{
+	"id": "entrance",
+	"name": "Crumbling Entrance",
+	"description": "Ancient stones mark what was once a grand gateway. Moss clings to the walls and the air smells of damp earth.",
+	"image": "res://Dungeons/SurfaceRuins/Images/entrance.png",
+	"unique": false,
+	"minOccurrences": 1,
+	"maxOccurrences": 1,
+	"spawnChance": 1.0
+}

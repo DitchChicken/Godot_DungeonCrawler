@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://bn3ocufq4oiae"]
+
+[ext_resource type="Script" uid="uid://bu6cw7tisqwb5" path="res://Town/Town.cs" id="1_aig2m"]
+[ext_resource type="Texture2D" uid="uid://6gjmod0mmfr3" path="res://Data/Village/Village_Background.png" id="2_7vhvp"]
+
+[node name="Town" type="Control" unique_id=1163367087]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_aig2m")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1748624090]
+custom_minimum_size = Vector2(1300, 1300)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -650.0
+offset_right = 650.0
+offset_bottom = 1300.0
+grow_horizontal = 2
+texture = ExtResource("2_7vhvp")
+
+[node name="Dungeon" type="Button" parent="." unique_id=657938380]
+layout_mode = 0
+offset_left = 479.0
+offset_top = 490.0
+offset_right = 558.0
+offset_bottom = 521.0
+text = "Dungeon"
+
+[node name="Roster" type="Button" parent="." unique_id=939641104]
+layout_mode = 0
+offset_left = 487.0
+offset_top = 273.0
+offset_right = 546.0
+offset_bottom = 304.0
+text = "Roster"
+
+[connection signal="pressed" from="Dungeon" to="." method="_on_dungeon_pressed"]
+[connection signal="pressed" from="Roster" to="." method="_on_roster_pressed"]

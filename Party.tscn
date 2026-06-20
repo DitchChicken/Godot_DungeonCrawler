@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://uhx6ugqe7gh8"]
+
+[ext_resource type="Script" uid="uid://cwt85kgrvv3t1" path="res://Party.cs" id="1_4fixh"]
+[ext_resource type="Texture2D" uid="uid://cxe2x0k3enmd6" path="res://Dungeon/Sprites/Akeshik Librarium (Download)/Colossal T-Rex Red.png" id="2_cb1p0"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_oybhc"]
+
+[node name="Party" type="CharacterBody2D" unique_id=348203460]
+script = ExtResource("1_4fixh")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=661021621]
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("2_cb1p0")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2010355143]
+shape = SubResource("RectangleShape2D_oybhc")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=835394096]
+position_smoothing_enabled = true

@@ -1,0 +1,10 @@
+{
+	"id": "collapsed_hall",
+	"name": "Collapsed Hall",
+	"description": "The ceiling has given way here, leaving a treacherous path through rubble. Faint carvings on the remaining walls hint at a grander past.",
+	"image": "res://Dungeons/SurfaceRuins/Images/collapsed_hall.png",
+	"unique": true,
+	"minOccurrences": 1,
+	"maxOccurrences": 1,
+	"spawnChance": 0.75
+}

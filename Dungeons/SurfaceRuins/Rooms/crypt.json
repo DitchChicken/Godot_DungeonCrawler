@@ -1,0 +1,10 @@
+{
+	"id": "crypt",
+	"name": "Forgotten Crypt",
+	"description": "Rows of stone sarcophagi line the walls, their lids askew. Whatever rested here has long since stirred.",
+	"image": "res://Dungeons/SurfaceRuins/Images/crypt.png",
+	"unique": false,
+	"minOccurrences": 1,
+	"maxOccurrences": 3,
+	"spawnChance": 1.0
+}

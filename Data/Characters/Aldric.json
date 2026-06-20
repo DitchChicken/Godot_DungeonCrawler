@@ -1,0 +1,19 @@
+{
+	"name": "Aldric",
+	"race": "Human",
+	"classType": "Fighter",
+	"gender": "Male",
+	"age": 28,
+	"height": 72,
+	"weight": 190,
+	"backstory": "A veteran soldier seeking fortune in the depths.",
+	"strength": 16,
+	"constitution": 14,
+	"dexterity": 11,
+	"intelligence": 9,
+	"wisdom": 10,
+	"charisma": 11,
+	"startingEquipment": ["ShortSword", "Buckler", "LeatherArmor"],
+	"portrait": "res://Data/Characters/Aldric_Portrait.png",
+	"battleSprite": "res://Data/Characters/Aldric_BattleSprite.png"
+}

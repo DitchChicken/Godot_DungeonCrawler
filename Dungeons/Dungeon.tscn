@@ -1,0 +1,69 @@
+[gd_scene format=3 uid="uid://hm2gnyn5bflv"]
+
+[ext_resource type="Script" uid="uid://pf5mylbhpbgp" path="res://Dungeons/Dungeon.cs" id="1_5h6mw"]
+
+[node name="Dungeon" type="Control" unique_id=1876372441]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_5h6mw")
+
+[node name="MainContainer" type="MarginContainer" parent="." unique_id=1175379916]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="OverlayContainer" type="HBoxContainer" parent="MainContainer" unique_id=998406999]
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(2600, 1300)
+custom_maximum_size = Vector2(2600, 1300)
+layout_mode = 2
+
+[node name="RoomImage" type="TextureRect" parent="MainContainer" unique_id=230646368]
+layout_mode = 2
+size_flags_vertical = 3
+stretch_mode = 5
+
+[node name="RoomPanel" type="PanelContainer" parent="MainContainer" unique_id=637889071]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+offset_transform_enabled = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/RoomPanel" unique_id=1918410863]
+layout_mode = 2
+
+[node name="RoomName" type="Label" parent="MainContainer/RoomPanel/VBoxContainer" unique_id=534215894]
+custom_maximum_size = Vector2(512, 96)
+layout_mode = 2
+horizontal_alignment = 1
+
+[node name="RoomDescription" type="Label" parent="MainContainer/RoomPanel/VBoxContainer" unique_id=1976115774]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="ActionsPanel" type="PanelContainer" parent="MainContainer" unique_id=810056749]
+custom_minimum_size = Vector2(300, 300)
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="ButtonRow" type="VBoxContainer" parent="MainContainer/ActionsPanel" unique_id=400292985]
+layout_mode = 2
+
+[node name="ExploreButton" type="Button" parent="MainContainer/ActionsPanel/ButtonRow" unique_id=551308957]
+layout_mode = 2
+text = "Explore"
+
+[node name="TownButton" type="Button" parent="MainContainer/ActionsPanel/ButtonRow" unique_id=36490425]
+layout_mode = 2
+text = "Return to Town"
+
+[connection signal="pressed" from="MainContainer/ActionsPanel/ButtonRow/ExploreButton" to="." method="_on_explore_button_pressed"]
+[connection signal="pressed" from="MainContainer/ActionsPanel/ButtonRow/TownButton" to="." method="_on_town_button_pressed"]

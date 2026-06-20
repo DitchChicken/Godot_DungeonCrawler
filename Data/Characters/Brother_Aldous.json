@@ -1,0 +1,19 @@
+{
+	"name": "Brother Aldous",
+	"race": "Human",
+	"classType": "Priest",
+	"gender": "Male",
+	"age": 45,
+	"height": 69,
+	"weight": 175,
+	"backstory": "A wandering monk whose order was destroyed. He carries their teachings and a quiet fury.",
+	"strength": 12,
+	"constitution": 13,
+	"dexterity": 9,
+	"intelligence": 12,
+	"wisdom": 16,
+	"charisma": 13,
+	"startingEquipment": ["Club", "LeatherArmor"],
+	"portrait": "res://Data/Characters/Brother_Aldous_Portrait.png",
+	"battleSprite": "res://Data/Characters/Brother_Aldous_BattleSprite.png"	
+}

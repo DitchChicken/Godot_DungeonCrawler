@@ -1,0 +1,19 @@
+{
+	"name": "Pip",
+	"race": "Halfling",
+	"classType": "Fighter",
+	"gender": "Male",
+	"age": 22,
+	"height": 42,
+	"weight": 75,
+	"backstory": "Smaller than most fighters but twice as stubborn. Left his village to prove everyone wrong.",
+	"strength": 13,
+	"constitution": 13,
+	"dexterity": 14,
+	"intelligence": 10,
+	"wisdom": 9,
+	"charisma": 13,
+	"startingEquipment": ["ShortSword", "Buckler"],
+	"portrait": "res://Data/Characters/Pip_Portrait.png",
+	"battleSprite": "res://Data/Characters/Nix_BattleSprite.png"	
+}

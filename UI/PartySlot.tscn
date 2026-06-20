@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://7m25uit5mbtb"]
+
+[ext_resource type="Script" uid="uid://d3cc8esiegcgq" path="res://UI/PartySlot.cs" id="1_nfjsy"]
+[ext_resource type="Texture2D" uid="uid://ej46uf0hj30e" path="res://Data/Characters/Aldric_Portrait.png" id="2_00nru"]
+[ext_resource type="Texture2D" uid="uid://dt0fy5ijfytbk" path="res://Data/Menus/PartySlot_Background.png" id="2_k600h"]
+
+[node name="PartySlot" type="PanelContainer" unique_id=1373874862]
+custom_minimum_size = Vector2(394, 128)
+custom_maximum_size = Vector2(394, 128)
+offset_right = 64.0
+offset_bottom = 64.0
+script = ExtResource("1_nfjsy")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=2008966243]
+modulate = Color(0.35906908, 0.35906908, 0.35906908, 1)
+layout_mode = 2
+texture = ExtResource("2_k600h")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1206622174]
+layout_mode = 2
+
+[node name="Portrait" type="TextureRect" parent="HBoxContainer" unique_id=1634790974]
+custom_minimum_size = Vector2(128, 128)
+custom_maximum_size = Vector2(128, 128)
+layout_mode = 2
+size_flags_horizontal = 3
+texture = ExtResource("2_00nru")
+stretch_mode = 6
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer" unique_id=280522717]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NameLabel" type="Label" parent="HBoxContainer/VBoxContainer" unique_id=501881670]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Name"
+horizontal_alignment = 1
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer" unique_id=326619852]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HpLabel" type="Label" parent="HBoxContainer/VBoxContainer" unique_id=1635428542]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "HP: 1/1"
+horizontal_alignment = 1
+
+[node name="MpLabel" type="Label" parent="HBoxContainer/VBoxContainer" unique_id=704033249]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "MP: 1/1"
+horizontal_alignment = 1
