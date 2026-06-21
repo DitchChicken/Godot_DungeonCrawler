@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://u56q2v8haugi"]
 
 [ext_resource type="Script" uid="uid://cw7vfs2w583b8" path="res://UI/CharacterSheet.cs" id="1_vmx8l"]
+[ext_resource type="Texture2D" uid="uid://dv5vijy041waj" path="res://Data/Menus/Charecter_Sheet_Background.png" id="2_xgfbc"]
 
 [node name="CharacterSheet" type="CanvasLayer" unique_id=50346161]
 script = ExtResource("1_vmx8l")
@@ -9,8 +10,20 @@ script = ExtResource("1_vmx8l")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -10.0
+offset_top = -238.0
+offset_right = -10.0
+offset_bottom = -238.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="Panel" unique_id=1576928550]
+modulate = Color(0.288518, 0.28851798, 0.28851798, 1)
+layout_mode = 0
+offset_right = 1309.0
+offset_bottom = 1162.0
+texture = ExtResource("2_xgfbc")
+expand_mode = 3
 
 [node name="BackButton" type="Button" parent="Panel" unique_id=344132312]
 layout_mode = 1

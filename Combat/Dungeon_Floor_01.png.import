@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cxe2x0k3enmd6"
-path="res://.godot/imported/Colossal T-Rex Red.png-17fa07e580a6f8ba1ccca3c55cd4216b.ctex"
+uid="uid://b0nvw63f6slwi"
+path="res://.godot/imported/Dungeon_Floor_01.png-cc39f57a403edca71ce233bee42f0a08.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Dungeon/Sprites/Akeshik Librarium (Download)/Colossal T-Rex Red.png"
-dest_files=["res://.godot/imported/Colossal T-Rex Red.png-17fa07e580a6f8ba1ccca3c55cd4216b.ctex"]
+source_file="res://Combat/Dungeon_Floor_01.png"
+dest_files=["res://.godot/imported/Dungeon_Floor_01.png-cc39f57a403edca71ce233bee42f0a08.ctex"]
 
 [params]
 

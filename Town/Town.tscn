@@ -14,14 +14,9 @@ script = ExtResource("1_aig2m")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=1748624090]
 custom_minimum_size = Vector2(1300, 1300)
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -650.0
-offset_right = 650.0
+layout_mode = 0
+offset_right = 1300.0
 offset_bottom = 1300.0
-grow_horizontal = 2
 texture = ExtResource("2_7vhvp")
 
 [node name="Dungeon" type="Button" parent="." unique_id=657938380]

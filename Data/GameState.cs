@@ -18,6 +18,14 @@ public partial class GameState : Node
 	public RoomData CurrentRoom = null;
 	public Dictionary<string, DungeonState> DungeonStates = new Dictionary<string, DungeonState>();
 
+	// Current combat encounter
+	public List<List<string>> CurrentEncounter = new List<List<string>>();
+
+	public void SetEncounter(List<List<string>> formation)
+	{
+		CurrentEncounter = formation;
+	}
+
 	// Party management
 	public bool AddToParty(Character character)
 	{

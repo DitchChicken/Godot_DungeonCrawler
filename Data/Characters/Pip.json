@@ -15,5 +15,5 @@
 	"charisma": 13,
 	"startingEquipment": ["ShortSword", "Buckler"],
 	"portrait": "res://Data/Characters/Pip_Portrait.png",
-	"battleSprite": "res://Data/Characters/Nix_BattleSprite.png"	
+	"battleSprite": "res://Data/Characters/Pip_BattleSprite.png"	
 }

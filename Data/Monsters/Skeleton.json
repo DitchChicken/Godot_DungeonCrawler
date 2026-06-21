@@ -1,0 +1,18 @@
+{
+	"name": "Skeleton",
+	"level": 1,
+	"maxHP": 12,
+	"maxMP": 0,
+	"experienceReward": 25,
+	"goldReward": 5,
+	"initiative": 8,
+	"resistances": {
+		"Slashing": 0.5,
+		"Piercing": 0.5,
+		"Bludgeoning": 1.5,
+		"Fire": 1.0,
+		"Holy": 1.5
+	},
+	"attacks": ["bone_strike"],
+	"sprite": "res://Data/Monsters/Skeleton.png"
+}

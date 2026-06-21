@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 
 public partial class Dungeon : Control
 {
@@ -20,6 +21,10 @@ public partial class Dungeon : Control
 
 		_gameState = GetNode<GameState>("/root/GameState");
 
+		// Debug: auto form party if empty
+		if (DebugFlags.AutoFormPartyOnEmbark && _gameState.Party.Count == 0)
+		AutoFormParty();
+		
 		// Enter the dungeon
 		var room = DungeonManager.EnterDungeon("SurfaceRuins", _gameState);
 		DisplayRoom(room);
@@ -57,6 +62,20 @@ public partial class Dungeon : Control
 		GetNode<Main>("/root/Main").CallDeferred(nameof(Main.SwitchScene), "res://Town/Town.tscn");
 	}
 
+	private void _on_combat_button_pressed()
+	{
+		// Hardcoded test encounter for now
+		var encounter = new List<List<string>>
+		{
+			new List<string> { "skeleton", "skeleton", "skeleton" }, // back row
+			new List<string> { "skeleton", "skeleton" },             // middle row
+			new List<string> { "skeleton" }                          // front row
+		};
+
+		_gameState.SetEncounter(encounter);
+		GetNode<Main>("/root/Main").CallDeferred(nameof(Main.SwitchScene), "res://Combat/Combat.tscn");
+	}
+
 	public override void _Input(InputEvent @event)
 	{
 		/*
@@ -69,5 +88,31 @@ public partial class Dungeon : Control
 			GetViewport().SetInputAsHandled();
 		}
 		*/
+	}	
+	
+	private void AutoFormParty()
+	{
+		var rng = new System.Random();
+		var available = new System.Collections.Generic.List<Character>(_gameState.Stable);
+
+		// Shuffle
+		int n = available.Count;
+		while (n > 1)
+		{
+			n--;
+			int k = rng.Next(n + 1);
+			(available[k], available[n]) = (available[n], available[k]);
+		}
+
+		// Take up to 6
+		int count = System.Math.Min(6, available.Count);
+		for (int i = 0; i < count; i++)
+			_gameState.AddToParty(available[i]);
+
+		GD.Print($"Debug: Auto-formed party with {_gameState.Party.Count} members");
+
+		// Refresh HUD
+		GetNode<PartyHUD>("/root/PartyHud").Refresh();
 	}
+
 }

@@ -65,5 +65,10 @@ text = "Explore"
 layout_mode = 2
 text = "Return to Town"
 
+[node name="CombatButton" type="Button" parent="MainContainer/ActionsPanel/ButtonRow" unique_id=1794877036]
+layout_mode = 2
+text = "Combat"
+
 [connection signal="pressed" from="MainContainer/ActionsPanel/ButtonRow/ExploreButton" to="." method="_on_explore_button_pressed"]
 [connection signal="pressed" from="MainContainer/ActionsPanel/ButtonRow/TownButton" to="." method="_on_town_button_pressed"]
+[connection signal="pressed" from="MainContainer/ActionsPanel/ButtonRow/CombatButton" to="." method="_on_combat_button_pressed"]

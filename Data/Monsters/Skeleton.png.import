@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bi04hf86n170l"
-path="res://.godot/imported/atlas_walls_low-16x16.png-11b1b322f6dbd06e04ed8f94ea1ba3ce.ctex"
+uid="uid://nyowssfbavfn"
+path="res://.godot/imported/Skeleton.png-2a8dbeae7e3e1c62566255bd11b4069c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Dungeon/Sprites/itchi.io/Dungeon Tileset II/atlas_walls_low-16x16.png"
-dest_files=["res://.godot/imported/atlas_walls_low-16x16.png-11b1b322f6dbd06e04ed8f94ea1ba3ce.ctex"]
+source_file="res://Data/Monsters/Skeleton.png"
+dest_files=["res://.godot/imported/Skeleton.png-2a8dbeae7e3e1c62566255bd11b4069c.ctex"]
 
 [params]
 
