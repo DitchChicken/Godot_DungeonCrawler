@@ -11,64 +11,78 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_5h6mw")
 
-[node name="MainContainer" type="MarginContainer" parent="." unique_id=1175379916]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 20
-
-[node name="OverlayContainer" type="HBoxContainer" parent="MainContainer" unique_id=998406999]
-modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(2600, 1300)
-custom_maximum_size = Vector2(2600, 1300)
-layout_mode = 2
-
-[node name="RoomImage" type="TextureRect" parent="MainContainer" unique_id=230646368]
-layout_mode = 2
-size_flags_vertical = 3
+[node name="RoomImage" type="TextureRect" parent="." unique_id=230646368]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.65
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
 stretch_mode = 5
 
-[node name="RoomPanel" type="PanelContainer" parent="MainContainer" unique_id=637889071]
-custom_minimum_size = Vector2(300, 0)
-layout_mode = 2
-size_flags_horizontal = 0
-offset_transform_enabled = true
+[node name="RoomPanel" type="ColorRect" parent="." unique_id=637889071]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.2
+anchor_bottom = 0.65
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.1, 0.8)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer/RoomPanel" unique_id=1918410863]
-layout_mode = 2
+[node name="VBoxContainer" type="VBoxContainer" parent="RoomPanel" unique_id=1918410863]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
-[node name="RoomName" type="Label" parent="MainContainer/RoomPanel/VBoxContainer" unique_id=534215894]
-custom_maximum_size = Vector2(512, 96)
+[node name="RoomName" type="Label" parent="RoomPanel/VBoxContainer" unique_id=534215894]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
 horizontal_alignment = 1
-
-[node name="RoomDescription" type="Label" parent="MainContainer/RoomPanel/VBoxContainer" unique_id=1976115774]
-layout_mode = 2
 autowrap_mode = 3
 
-[node name="ActionsPanel" type="PanelContainer" parent="MainContainer" unique_id=810056749]
-custom_minimum_size = Vector2(300, 300)
+[node name="RoomDescription" type="Label" parent="RoomPanel/VBoxContainer" unique_id=1976115774]
 layout_mode = 2
-size_flags_horizontal = 8
+size_flags_horizontal = 3
+size_flags_vertical = 0
+autowrap_mode = 3
 
-[node name="ButtonRow" type="VBoxContainer" parent="MainContainer/ActionsPanel" unique_id=400292985]
-layout_mode = 2
+[node name="ActionsPanel" type="PanelContainer" parent="." unique_id=810056749]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.8
+anchor_right = 1.0
+anchor_bottom = 0.65
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="ExploreButton" type="Button" parent="MainContainer/ActionsPanel/ButtonRow" unique_id=551308957]
+[node name="ButtonRow" type="VBoxContainer" parent="ActionsPanel" unique_id=400292985]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="ExploreButton" type="Button" parent="ActionsPanel/ButtonRow" unique_id=551308957]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "Explore"
 
-[node name="TownButton" type="Button" parent="MainContainer/ActionsPanel/ButtonRow" unique_id=36490425]
+[node name="TownButton" type="Button" parent="ActionsPanel/ButtonRow" unique_id=36490425]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Return to Town"
 
-[node name="CombatButton" type="Button" parent="MainContainer/ActionsPanel/ButtonRow" unique_id=1794877036]
+[node name="CombatButton" type="Button" parent="ActionsPanel/ButtonRow" unique_id=1794877036]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Combat"
 
-[connection signal="pressed" from="MainContainer/ActionsPanel/ButtonRow/ExploreButton" to="." method="_on_explore_button_pressed"]
-[connection signal="pressed" from="MainContainer/ActionsPanel/ButtonRow/TownButton" to="." method="_on_town_button_pressed"]
-[connection signal="pressed" from="MainContainer/ActionsPanel/ButtonRow/CombatButton" to="." method="_on_combat_button_pressed"]
+[connection signal="pressed" from="ActionsPanel/ButtonRow/ExploreButton" to="." method="_on_explore_button_pressed"]
+[connection signal="pressed" from="ActionsPanel/ButtonRow/TownButton" to="." method="_on_town_button_pressed"]
+[connection signal="pressed" from="ActionsPanel/ButtonRow/CombatButton" to="." method="_on_combat_button_pressed"]

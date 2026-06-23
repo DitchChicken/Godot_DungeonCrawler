@@ -88,54 +88,50 @@ public partial class PartySlot : PanelContainer
 
 		var gameState = GetNode<GameState>("/root/GameState");
 		var partyHud  = GetNode<PartyHUD>("/root/PartyHud");
+		var allSlots  = partyHud.GetAllSlots();
 
-		if (IsHudSlot)
+		// Find source slot if dragging from another HUD slot
+		PartySlot sourceSlot = null;
+		foreach (var slot in allSlots)
 		{
-			var allSlots = partyHud.GetAllSlots();
-			PartySlot sourceSlot = null;
-
-			foreach (var slot in allSlots)
+			if (slot.Character == incomingCharacter)
 			{
-				if (slot.Character == incomingCharacter)
-				{
-					sourceSlot = slot;
-					break;
-				}
+				sourceSlot = slot;
+				break;
 			}
-
-			var existingCharacter = Character;
-
-			// Remove existing character from party if slot was occupied
-			if (existingCharacter != null)
-				gameState.RemoveFromParty(existingCharacter);
-
-			// Add incoming character to party
-			gameState.AddToParty(incomingCharacter);
-
-			// Update slot visuals
-			SetCharacter(incomingCharacter);
-			if (sourceSlot != null)
-				sourceSlot.SetCharacter(existingCharacter);
-
-			// Rebuild party order from HUD slots
-			gameState.Party.Clear();
-			foreach (var slot in allSlots)
-			{
-				if (slot.Character != null)
-					gameState.Party.Add(slot.Character);
-			}
-
-			// Refresh roster if it's currently open
-			var roster = GetTree().Root.GetNodeOrNull<Roster>("Roster");
-			roster?.RefreshPartyStatus();
 		}
-		else
+
+		// Swap if this slot is occupied
+		var existingCharacter = Character;
+
+		// Place incoming character in this slot
+		SetCharacter(incomingCharacter);
+
+		// If came from another HUD slot, put existing there
+		// If came from roster, just clear source slot
+		if (sourceSlot != null)
+			sourceSlot.SetCharacter(existingCharacter);
+
+		// Rebuild party list from slot order
+		gameState.Party.Clear();
+		foreach (var slot in allSlots)
 		{
-			gameState.RemoveFromParty(incomingCharacter);
-			partyHud.Refresh();
+			if (slot.Character != null)
+				gameState.Party.Add(slot.Character);
 		}
+
+		// Update location flags
+		foreach (var character in gameState.Party)
+			character.Location = Location.Party;
+
+		if (existingCharacter != null && !gameState.Party.Contains(existingCharacter))
+			existingCharacter.Location = Location.Stable;
+
+		// Refresh roster status if open
+		var roster = GetTree().Root.GetNodeOrNull<Roster>("Roster");
+		roster?.RefreshPartyStatus();
 	}
-
+	
 	public override void _GuiInput(InputEvent @event)
 	{
 		if (@event is InputEventMouseButton mouse

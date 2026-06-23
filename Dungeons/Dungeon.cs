@@ -13,11 +13,11 @@ public partial class Dungeon : Control
 
 	public override void _Ready()
 	{
-		_roomImage       = GetNode<TextureRect>("MainContainer/RoomImage");
-		_roomName        = GetNode<Label>("MainContainer/RoomPanel/VBoxContainer/RoomName");
-		_roomDescription = GetNode<Label>("MainContainer/RoomPanel/VBoxContainer/RoomDescription");
-		_exploreButton   = GetNode<Button>("MainContainer/ActionsPanel/ButtonRow/ExploreButton");
-		_townButton      = GetNode<Button>("MainContainer/ActionsPanel/ButtonRow/TownButton");
+		_roomImage       = GetNode<TextureRect>("RoomImage");
+		_roomName        = GetNode<Label>("RoomPanel/VBoxContainer/RoomName");
+		_roomDescription = GetNode<Label>("RoomPanel/VBoxContainer/RoomDescription");
+		_exploreButton   = GetNode<Button>("ActionsPanel/ButtonRow/ExploreButton");
+		_townButton      = GetNode<Button>("ActionsPanel/ButtonRow/TownButton");
 
 		_gameState = GetNode<GameState>("/root/GameState");
 
@@ -30,6 +30,32 @@ public partial class Dungeon : Control
 		DisplayRoom(room);
 	}
 
+	private void DebugLayout()
+	{
+		var viewport = GetViewport().GetVisibleRect();
+		GD.Print($"Viewport size: {viewport.Size}");
+
+		var roomPanel    = GetNode<ColorRect>("RoomPanel");
+		var actionsPanel = GetNode<PanelContainer>("ActionsPanel");
+		var roomImage    = GetNode<TextureRect>("RoomImage");
+
+		GD.Print($"RoomPanel rect: {roomPanel.GetRect()}");
+		GD.Print($"RoomPanel bottom edge: {roomPanel.GlobalPosition.Y + roomPanel.Size.Y}");
+
+		GD.Print($"ActionsPanel rect: {actionsPanel.GetRect()}");
+		GD.Print($"ActionsPanel bottom edge: {actionsPanel.GlobalPosition.Y + actionsPanel.Size.Y}");
+
+		GD.Print($"RoomImage rect: {roomImage.GetRect()}");
+		GD.Print($"RoomImage bottom edge: {roomImage.GlobalPosition.Y + roomImage.Size.Y}");
+
+		GD.Print($"HUD top edge should be: {viewport.Size.Y * 0.66f}");
+		
+		GD.Print($"Visible rect: {GetViewport().GetVisibleRect()}");
+		GD.Print($"Canvas transform: {GetViewport().GetFinalTransform()}");
+		
+		GetNode<PartyHUD>("/root/PartyHud").DebugLayout();
+	}
+	
 	private void DisplayRoom(RoomData room)
 	{
 		if (room == null) return;

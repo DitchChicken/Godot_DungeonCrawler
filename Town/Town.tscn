@@ -13,27 +13,37 @@ grow_vertical = 2
 script = ExtResource("1_aig2m")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=1748624090]
-custom_minimum_size = Vector2(1300, 1300)
-layout_mode = 0
-offset_right = 1300.0
-offset_bottom = 1300.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 texture = ExtResource("2_7vhvp")
+stretch_mode = 6
 
-[node name="Dungeon" type="Button" parent="." unique_id=657938380]
-layout_mode = 0
-offset_left = 479.0
-offset_top = 490.0
-offset_right = 558.0
-offset_bottom = 521.0
-text = "Dungeon"
+[node name="ButtonPanel" type="PanelContainer" parent="." unique_id=111111111]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.35
+anchor_top = 0.75
+anchor_right = 0.65
+anchor_bottom = 0.95
+offset_top = -417.0
+offset_bottom = -317.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="Roster" type="Button" parent="." unique_id=939641104]
-layout_mode = 0
-offset_left = 487.0
-offset_top = 273.0
-offset_right = 546.0
-offset_bottom = 304.0
+[node name="VBoxContainer" type="VBoxContainer" parent="ButtonPanel" unique_id=222222222]
+layout_mode = 2
+
+[node name="Roster" type="Button" parent="ButtonPanel/VBoxContainer" unique_id=939641104]
+layout_mode = 2
 text = "Roster"
 
-[connection signal="pressed" from="Dungeon" to="." method="_on_dungeon_pressed"]
-[connection signal="pressed" from="Roster" to="." method="_on_roster_pressed"]
+[node name="Dungeon" type="Button" parent="ButtonPanel/VBoxContainer" unique_id=657938380]
+layout_mode = 2
+text = "Dungeon"
+
+[connection signal="pressed" from="ButtonPanel/VBoxContainer/Roster" to="." method="_on_roster_pressed"]
+[connection signal="pressed" from="ButtonPanel/VBoxContainer/Dungeon" to="." method="_on_dungeon_pressed"]

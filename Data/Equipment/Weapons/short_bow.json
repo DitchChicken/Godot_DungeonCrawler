@@ -1,0 +1,20 @@
+{
+	"id": "short_bow",
+	"name": "Short Bow",
+	"description": "A simple hunting bow adapted for dungeon use.",
+	"slot": "WeaponMain",
+	"rarity": "Common",
+	"goldCost": 15,
+	"weight": 2.0,
+	"isIdentified": true,
+	"durability": 100,
+	"requiredStrength": 6,
+	"requiredDexterity": 10,
+	"baseDamageMin": 1,
+	"baseDamageMax": 6,
+	"magicBonus": 0,
+	"isTwoHanded": true,
+	"range": "Medium",
+	"element": "None",
+	"abilities": []
+}

@@ -1,0 +1,18 @@
+{
+	"id": "club",
+	"name": "Club",
+	"description": "A heavy wooden club. Simple but effective.",
+	"slot": "WeaponMain",
+	"rarity": "Common",
+	"goldCost": 3,
+	"weight": 4.0,
+	"isIdentified": true,
+	"durability": 100,
+	"requiredStrength": 8,
+	"baseDamageMin": 1,
+	"baseDamageMax": 4,
+	"magicBonus": 0,
+	"range": "Melee",
+	"element": "None",
+	"abilities": []
+}

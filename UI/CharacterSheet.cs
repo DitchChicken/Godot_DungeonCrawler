@@ -86,27 +86,24 @@ public partial class CharacterSheet : CanvasLayer
 	private void PositionPanel(CharacterSheetMode mode)
 	{
 		var panel = GetNode<Panel>("Panel");
-		
+
 		switch (mode)
 		{
 			case CharacterSheetMode.Right:
-				// Right half of screen
 				panel.AnchorLeft   = 0.5f;
 				panel.AnchorTop    = 0.0f;
 				panel.AnchorRight  = 1.0f;
-				panel.AnchorBottom = 0.7f;
+				panel.AnchorBottom = 0.65f;
 				break;
 
 			case CharacterSheetMode.Center:
-				// Centered 60% width
 				panel.AnchorLeft   = 0.2f;
-				panel.AnchorTop    = 0.1f;
+				panel.AnchorTop    = 0.05f;
 				panel.AnchorRight  = 0.8f;
-				panel.AnchorBottom = 0.9f;
+				panel.AnchorBottom = 0.65f;
 				break;
 		}
 
-		// Reset offsets so anchors take full effect
 		panel.OffsetLeft   = 0;
 		panel.OffsetTop    = 0;
 		panel.OffsetRight  = 0;

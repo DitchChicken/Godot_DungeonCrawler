@@ -3,7 +3,7 @@ using Godot;
 public partial class Roster : Control
 {
 	private GridContainer _portraitGrid;
-	private PackedScene _slotScene = GD.Load<PackedScene>("res://UI/PartySlot.tscn");
+	private PackedScene _slotScene = GD.Load<PackedScene>("res://UI/RosterSlot.tscn");
 
 	public override void _Ready()
 	{
@@ -16,30 +16,23 @@ public partial class Roster : Control
 	{
 		var gameState = GetNode<GameState>("/root/GameState");
 
-		// Clear existing slots
 		foreach (Node child in _portraitGrid.GetChildren())
 			child.QueueFree();
 
-		// Always show Stable in fixed order
 		foreach (var character in gameState.Stable)
-		{
-			var slot = _slotScene.Instantiate<PartySlot>();
-			_portraitGrid.AddChild(slot);
-			slot.SetCharacter(character);
-
-			// Visually indicate if already in party
-			if (gameState.Party.Contains(character))
-				slot.SetInParty(true);
-		}
+			AddPortraitSlot(character);
 	}
 
 	private void AddPortraitSlot(Character character)
 	{
-		var slot = _slotScene.Instantiate<PartySlot>();
+		var slot = _slotScene.Instantiate<RosterSlot>();
 		_portraitGrid.AddChild(slot);
 		slot.SetCharacter(character);
-	}
 
+		if (GetNode<GameState>("/root/GameState").Party.Contains(character))
+			slot.SetInParty(true);
+	}
+	
 	private void _on_town_pressed()
 	{
 		GetNode<CharacterSheet>("/root/CharacterSheet").Hide();
@@ -64,7 +57,7 @@ public partial class Roster : Control
 		var gameState = GetNode<GameState>("/root/GameState");
 		foreach (var child in _portraitGrid.GetChildren())
 		{
-			if (child is PartySlot slot && slot.Character != null)
+			if (child is RosterSlot slot && slot.Character != null)
 				slot.SetInParty(gameState.Party.Contains(slot.Character));
 		}
 	}

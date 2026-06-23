@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://ccds518hf6fgl"]
+
+[ext_resource type="Script" uid="uid://bqleeou0wnlqr" path="res://UI/RosterSlot.cs" id="1_roster"]
+
+[node name="RosterSlot" type="PanelContainer" unique_id=100000001]
+custom_minimum_size = Vector2(128, 128)
+custom_maximum_size = Vector2(128, 128)
+size_flags_horizontal = 0
+size_flags_vertical = 0
+script = ExtResource("1_roster")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=100000002]
+layout_mode = 2
+
+[node name="Portrait" type="TextureRect" parent="VBoxContainer" unique_id=100000003]
+custom_minimum_size = Vector2(128, 100)
+custom_maximum_size = Vector2(128, 100)
+layout_mode = 2
+stretch_mode = 6
+
+[node name="NameLabel" type="Label" parent="VBoxContainer" unique_id=100000004]
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_alignment = 1

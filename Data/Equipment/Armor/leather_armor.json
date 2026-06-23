@@ -1,0 +1,14 @@
+{
+	"id": "leather_armor",
+	"name": "Leather Armor",
+	"description": "Cured hide stitched into serviceable protection.",
+	"slot": "Chest",
+	"rarity": "Common",
+	"goldCost": 20,
+	"weight": 8.0,
+	"isIdentified": true,
+	"durability": 100,
+	"requiredStrength": 6,
+	"armorClass": 2,
+	"abilities": []
+}

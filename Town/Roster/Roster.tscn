@@ -1,48 +1,53 @@
 [gd_scene format=3 uid="uid://ko3uw05es8mu"]
 
 [ext_resource type="Script" uid="uid://c0qa5607bk32r" path="res://Town/Roster/Roster.cs" id="1_7tcv7"]
-[ext_resource type="Texture2D" uid="uid://c7klobnh0ec7q" path="res://Data/Village/Inn_Background.png" id="2_qcu74"]
 
 [node name="Roster" type="Control" unique_id=2023387577]
-custom_minimum_size = Vector2(2600, 1300)
-custom_maximum_size = Vector2(2600, 1300)
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_7tcv7")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=1535764292]
-custom_minimum_size = Vector2(1300, 1300)
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -650.0
-offset_right = 650.0
-offset_bottom = 1300.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
-texture = ExtResource("2_qcu74")
+grow_vertical = 2
+stretch_mode = 6
 
 [node name="Town" type="Button" parent="." unique_id=836256056]
-layout_mode = 0
-offset_left = 1300.0
-offset_top = 900.0
-offset_right = 1431.0
-offset_bottom = 931.0
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.92
+anchor_right = 0.15
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 text = "Return To Town"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1230385710]
-layout_mode = 0
-offset_right = 1014.0
-offset_bottom = 523.0
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.65
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/separation = 16
 
 [node name="PortraitGrid" type="GridContainer" parent="HBoxContainer" unique_id=320503243]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 columns = 3
 
 [node name="StatsPanel" type="Panel" parent="HBoxContainer" unique_id=1358090993]
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [connection signal="pressed" from="Town" to="." method="_on_town_pressed"]

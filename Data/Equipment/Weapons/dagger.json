@@ -1,0 +1,18 @@
+{
+	"id": "dagger",
+	"name": "Dagger",
+	"description": "Small and easily concealed. Favored by thieves.",
+	"slot": "WeaponMain",
+	"rarity": "Common",
+	"goldCost": 5,
+	"weight": 1.0,
+	"isIdentified": true,
+	"durability": 100,
+	"requiredStrength": 4,
+	"baseDamageMin": 1,
+	"baseDamageMax": 4,
+	"magicBonus": 0,
+	"range": "Melee",
+	"element": "None",
+	"abilities": []
+}
