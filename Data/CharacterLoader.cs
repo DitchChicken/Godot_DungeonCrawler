@@ -75,6 +75,22 @@ public static class CharacterLoader
 		};
 		
 		c.InitializeHP();
+		
+		// Load and equip starting equipment
+		if (def.StartingEquipment != null)
+		{
+			foreach (var equipmentId in def.StartingEquipment)
+			{
+				var item = EquipmentLoader.LoadEquipment(equipmentId);
+				if (item != null)
+				{
+					bool equipped = c.Equip(item);
+					if (!equipped)
+						GD.PrintErr($"{c.Name} could not equip {item.Name} — requirements not met");
+				}
+			}
+		}
+
 		return c;
 	}
 }

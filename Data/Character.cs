@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 
 public enum Race { Human, Dwarf, Halfling }
 public enum ClassType { Fighter, Thief, Priest, Mage }
@@ -54,9 +55,10 @@ public partial class Character : GodotObject
 	public int MaxEncumbrance => CalculateEncumbrance();
 	public int CurrentEncumbrance { get; set; } = 0;
 
-	// Equipment slots — placeholder
-	// public Equipment Weapon, Armor, Shield, Helmet, Gauntlets;
-
+	// Equipment slots
+	public Dictionary<EquipmentSlot, Equipment> EquippedItems { get; set; } 
+		= new Dictionary<EquipmentSlot, Equipment>();
+	
 	// --- Derived Stat Methods ---
 
 	private int CalculateMaxHP()
@@ -70,7 +72,7 @@ public partial class Character : GodotObject
 			ClassType.Mage    => 4,
 			_             => 6
 		};
-		int conModifier = (Constitution - 10) / 2;
+		int conModifier = (TotalConstitution() - 10) / 2;
 		return (baseHP + conModifier) * Level;
 	}
 
@@ -86,8 +88,8 @@ public partial class Character : GodotObject
 			_            => 0
 		};
 		int wisIntModifier = ClassType == ClassType.Mage
-			? (Intelligence - 10) / 2
-			: (Wisdom - 10) / 2;
+			? (TotalIntelligence() - 10) / 2
+			: (TotalWisdom() - 10) / 2;
 
 		return (baseMana + wisIntModifier) * Level;
 	}
@@ -131,4 +133,65 @@ public partial class Character : GodotObject
 		CurrentHP = MaxHP;
 		CurrentMana = MaxMana;
 	}
+	
+	// Equip an item — returns false if requirements not met or slot conflict
+	public bool Equip(Equipment item)
+	{
+		if (!item.CanEquip(this)) return false;
+
+		// Two handed weapons block off-hand slot
+		if (item.IsTwoHanded && EquippedItems.ContainsKey(EquipmentSlot.OffHand))
+			Unequip(EquipmentSlot.OffHand);
+
+		// Equipping to main hand while two-hander equipped — remove two-hander
+		if (item.Slot == EquipmentSlot.OffHand 
+			&& EquippedItems.ContainsKey(EquipmentSlot.WeaponMain)
+			&& EquippedItems[EquipmentSlot.WeaponMain].IsTwoHanded)
+			Unequip(EquipmentSlot.WeaponMain);
+
+		EquippedItems[item.Slot] = item;
+		return true;
+	}
+	
+	// Unequip a slot
+	public Equipment Unequip(EquipmentSlot slot)
+	{
+		if (!EquippedItems.ContainsKey(slot)) return null;
+		var item = EquippedItems[slot];
+		EquippedItems.Remove(slot);
+		return item;
+	}
+	
+	// Get item in a slot
+	public Equipment GetEquipped(EquipmentSlot slot)
+	{
+		return EquippedItems.ContainsKey(slot) ? EquippedItems[slot] : null;
+	}
+
+	// Derived stat helpers that account for equipment
+	public int TotalArmorClass()
+	{
+		int ac = 0;
+		foreach (var item in EquippedItems.Values)
+			ac += item.ArmorClass;
+		return ac;
+	}
+	
+	public int TotalStrength()     => Strength     + EquipmentBonus(e => e.BonusStrength);
+	public int TotalConstitution() => Constitution + EquipmentBonus(e => e.BonusConstitution);
+	public int TotalDexterity()    => Dexterity    + EquipmentBonus(e => e.BonusDexterity);
+	public int TotalIntelligence() => Intelligence + EquipmentBonus(e => e.BonusIntelligence);
+	public int TotalWisdom()       => Wisdom       + EquipmentBonus(e => e.BonusWisdom);
+	public int TotalCharisma()     => Charisma     + EquipmentBonus(e => e.BonusCharisma);
+
+	private int EquipmentBonus(System.Func<Equipment, int> selector)
+	{
+		int total = 0;
+		foreach (var item in EquippedItems.Values)
+			total += selector(item);
+		return total;
+	}
+
+	// Current weapon — main hand, or null
+	public Equipment CurrentWeapon => GetEquipped(EquipmentSlot.WeaponMain);
 }

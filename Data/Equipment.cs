@@ -4,6 +4,7 @@ public enum WeaponRange  { Melee, Short, Medium, Long }
 public enum Rarity       { Common, Uncommon, Rare, Legendary }
 public enum DamageElement { None, Fire, Ice, Lightning, Holy, Shadow }
 
+
 public class Equipment
 {
 	// Identity

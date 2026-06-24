@@ -1,9 +1,11 @@
 using Godot;
 
-public enum CharacterSheetMode { Right, Center }
+public enum CharacterSheetMode { Right, Center };
 
 public partial class CharacterSheet : CanvasLayer
 {
+	private Character _currentCharacter;
+
 	// Left panel
 	private TextureRect _portrait;
 	private Label _nameLabel;
@@ -23,11 +25,7 @@ public partial class CharacterSheet : CanvasLayer
 	private Label _backstoryLabel;
 
 	// Right panel
-	private Label _weaponLabel;
-	private Label _armorLabel;
-	private Label _shieldLabel;
-	private Label _helmetLabel;
-	private Label _gauntletsLabel;
+	private EquipmentDoll _equipmentDoll;
 
 	public override void _Ready()
 	{
@@ -52,14 +50,28 @@ public partial class CharacterSheet : CanvasLayer
 		_manaLabel         = GetNode<Label>(stats + "ManaLabel");
 		_encumbranceLabel  = GetNode<Label>(stats + "EncumbranceLabel");
 		_backstoryLabel    = GetNode<Label>(left + "BackstoryLabel");
+	
+		// Replace right panel with doll
+		var rightPanel = GetNode<VBoxContainer>("Panel/MainContainer/RightPanel");
+		
+		// Remove old equipment labels
+		foreach (Node child in rightPanel.GetChildren())
+			child.QueueFree();
 
-		_weaponLabel       = GetNode<Label>(right + "WeaponLabel");
-		_armorLabel        = GetNode<Label>(right + "ArmorLabel");
-		_shieldLabel       = GetNode<Label>(right + "ShieldLabel");
-		_helmetLabel       = GetNode<Label>(right + "HelmetLabel");
-		_gauntletsLabel    = GetNode<Label>(right + "GauntletsLabel");
+		// Add doll
+		_equipmentDoll = new EquipmentDoll();
+		_equipmentDoll.LayoutMode   = 1;
+		_equipmentDoll.AnchorRight  = 1.0f;
+		_equipmentDoll.AnchorBottom = 1.0f;
+		_equipmentDoll.SizeFlagsHorizontal = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
+		_equipmentDoll.SizeFlagsVertical   = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
 
-		// Start hidden
+		// Wire signals
+		_equipmentDoll.SlotClicked       += OnSlotClicked;
+		_equipmentDoll.SlotDoubleClicked += OnSlotDoubleClicked;
+
+		rightPanel.AddChild(_equipmentDoll);
+
 		Hide();
 	}
 
@@ -73,6 +85,30 @@ public partial class CharacterSheet : CanvasLayer
 		{
 			Hide();
 			GetViewport().SetInputAsHandled();
+		}
+	}
+
+	private void OnSlotClicked(int slot)
+	{
+		var equipmentSlot = (EquipmentSlot)slot;
+		GD.Print($"Slot clicked: {equipmentSlot}");
+		// TODO: Open inventory overlay
+	}
+
+	private void OnSlotDoubleClicked(int slot)
+	{
+		var equipmentSlot = (EquipmentSlot)slot;
+		var item = _currentCharacter?.GetEquipped(equipmentSlot);
+		if (item != null)
+		{
+			_currentCharacter.Unequip(equipmentSlot);
+			_equipmentDoll.Refresh();
+			GD.Print($"Unequipped: {item.Name}");
+		}
+		else
+		{
+			GD.Print($"Empty slot clicked: {equipmentSlot}");
+			// TODO: Open inventory overlay
 		}
 	}
 
@@ -141,17 +177,14 @@ public partial class CharacterSheet : CanvasLayer
 
 		// Backstory
 		_backstoryLabel.Text = character.Backstory ?? "";
-
-		// Equipment placeholders
-		_weaponLabel.Text   = "Weapon: Empty";
-		_armorLabel.Text    = "Armor: Empty";
-		_shieldLabel.Text   = "Shield: Empty";
-		_helmetLabel.Text   = "Helmet: Empty";
-		_gauntletsLabel.Text = "Gauntlets: Empty";
+		
+		// Load doll
+		_equipmentDoll.LoadCharacter(character);
 	}
 
 	private void _on_back_button_pressed()
 	{
 		Hide();
 	}
+
 }

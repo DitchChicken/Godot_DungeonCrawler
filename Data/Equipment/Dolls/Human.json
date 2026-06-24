@@ -1,0 +1,16 @@
+{
+	"id": "Human",
+	"baseImage": "res://Data/Equipment/Dolls//Human_Equip.png",
+	"slots": [
+		{ "slot": "Head",      "x": 0.42, "y": 0.02, "width": 0.16, "height": 0.10 },
+		{ "slot": "Necklace",  "x": 0.44, "y": 0.13, "width": 0.12, "height": 0.07 },
+		{ "slot": "Chest",     "x": 0.36, "y": 0.22, "width": 0.28, "height": 0.18 },
+		{ "slot": "WeaponMain","x": 0.05, "y": 0.25, "width": 0.14, "height": 0.30 },
+		{ "slot": "OffHand",   "x": 0.81, "y": 0.25, "width": 0.14, "height": 0.22 },
+		{ "slot": "Hands",     "x": 0.16, "y": 0.40, "width": 0.12, "height": 0.10 },
+		{ "slot": "RingLeft",  "x": 0.08, "y": 0.52, "width": 0.08, "height": 0.08 },
+		{ "slot": "RingRight", "x": 0.84, "y": 0.52, "width": 0.08, "height": 0.08 },
+		{ "slot": "Feet",      "x": 0.36, "y": 0.70, "width": 0.28, "height": 0.10 },
+		{ "slot": "Ammo",      "x": 0.78, "y": 0.58, "width": 0.10, "height": 0.12 }
+	]
+}

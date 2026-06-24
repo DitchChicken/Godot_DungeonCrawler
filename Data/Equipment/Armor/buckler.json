@@ -2,7 +2,7 @@
 	"id": "buckler",
 	"name": "Buckler",
 	"description": "A small round shield, light enough for quick parries.",
-	"slot": "WeaponOff",
+	"slot": "OffHand",
 	"rarity": "Common",
 	"goldCost": 8,
 	"weight": 3.0,
