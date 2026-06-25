@@ -26,16 +26,17 @@ public partial class CharacterSheet : CanvasLayer
 
 	// Right panel
 	private EquipmentDoll _equipmentDoll;
-
+	private InventoryPanel _inventoryPanel;
+	
+	public Character CurrentCharacter => _currentCharacter;
+	
 	public override void _Ready()
 	{
 		// Wire up all nodes
 		string left = "Panel/MainContainer/LeftPanel/";
 		string stats = left + "StatsPanel/";
-		string right = "Panel/MainContainer/RightPanel/EquipmentPanel/";
+		//string right = "Panel/MainContainer/RightPanel/EquipmentPanel/";
 
-		right = right; //silence warning
-		
 		_portrait          = GetNode<TextureRect>(left + "Portrait");
 		_nameLabel         = GetNode<Label>(stats + "NameLabel");
 		_raceClassLabel    = GetNode<Label>(stats + "RaceClassLabel");
@@ -60,19 +61,35 @@ public partial class CharacterSheet : CanvasLayer
 		foreach (Node child in rightPanel.GetChildren())
 			child.QueueFree();
 
-		// Add doll
+		// Equipment doll - top portion
 		_equipmentDoll = new EquipmentDoll();
-		_equipmentDoll.LayoutMode   = 1;
-		_equipmentDoll.AnchorRight  = 1.0f;
-		_equipmentDoll.AnchorBottom = 1.0f;
 		_equipmentDoll.SizeFlagsHorizontal = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
 		_equipmentDoll.SizeFlagsVertical   = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
+		_equipmentDoll.SlotClicked        += OnSlotClicked;
+		_equipmentDoll.SlotDoubleClicked  += OnSlotDoubleClicked;
+		rightPanel.AddChild(_equipmentDoll);
 
 		// Wire signals
 		_equipmentDoll.SlotClicked       += OnSlotClicked;
 		_equipmentDoll.SlotDoubleClicked += OnSlotDoubleClicked;
 
-		rightPanel.AddChild(_equipmentDoll);
+		// Separator
+		var separator = new HSeparator();
+		rightPanel.AddChild(separator);
+
+		// Inventory label
+		var label = new Label();
+		label.Text                = "Inventory";
+		label.HorizontalAlignment = HorizontalAlignment.Center;
+		rightPanel.AddChild(label);
+
+		// Inventory panel - bottom portion
+		_inventoryPanel = new InventoryPanel();
+		_inventoryPanel.SizeFlagsHorizontal = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
+		_inventoryPanel.SizeFlagsVertical   = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
+		_inventoryPanel.ItemClicked        += OnInventoryItemClicked;
+		_inventoryPanel.ItemDoubleClicked  += OnInventoryItemDoubleClicked;
+		rightPanel.AddChild(_inventoryPanel);		
 
 		Hide();
 	}
@@ -114,6 +131,30 @@ public partial class CharacterSheet : CanvasLayer
 		}
 	}
 
+	private void OnInventoryItemClicked(int slotIndex)
+	{
+		GD.Print($"Inventory slot clicked: {slotIndex}");
+		// TODO: Open vault/transfer UI
+	}
+
+	private void OnInventoryItemDoubleClicked(int slotIndex)
+	{
+		if (_currentCharacter == null) return;
+		var items = _currentCharacter.PersonalInventory.Items;
+		if (slotIndex >= items.Count) return;
+
+		var item = items[slotIndex];
+		GD.Print($"Double clicked: {item.Name}");
+
+		// Try to equip if it has an equipment slot
+		if (_currentCharacter.Equip(item))
+		{
+			_currentCharacter.PersonalInventory.RemoveItem(item);
+			_equipmentDoll.Refresh();
+			_inventoryPanel.Refresh();
+			GD.Print($"Equipped {item.Name} from inventory");
+		}
+	}
 	public void Open(Character character, CharacterSheetMode mode = CharacterSheetMode.Right)
 	{
 		PositionPanel(mode);
@@ -182,6 +223,7 @@ public partial class CharacterSheet : CanvasLayer
 		
 		// Load doll
 		_equipmentDoll.LoadCharacter(character);
+		_inventoryPanel.LoadCharacter(character);
 	}
 
 	private void _on_back_button_pressed()
@@ -189,4 +231,13 @@ public partial class CharacterSheet : CanvasLayer
 		Hide();
 	}
 
+	public void RefreshInventory()
+	{
+		_inventoryPanel?.Refresh();
+	}
+	
+	public void RefreshDoll()
+	{
+		_equipmentDoll?.Refresh();
+	}	
 }

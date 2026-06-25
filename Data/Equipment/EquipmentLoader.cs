@@ -3,13 +3,63 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 
+
 public static class EquipmentLoader
 {
+	
+	private static Equipment CloneEquipment(Equipment source)
+	{
+		return new Equipment
+		{
+			Id                   = source.Id,
+			Name                 = source.Name,
+			Description          = source.Description,
+			Slot                 = source.Slot,
+			Rarity               = source.Rarity,
+			GoldCost             = source.GoldCost,
+			Weight               = source.Weight,
+			IsCursed             = source.IsCursed,
+			IsIdentified         = source.IsIdentified,
+			IsStackable          = source.IsStackable,
+			MaxStack             = source.MaxStack,
+			StackCount           = source.StackCount,
+			Durability           = source.Durability,
+			MaxDurability        = source.MaxDurability,
+			Charges              = source.Charges,
+			RequiredStrength     = source.RequiredStrength,
+			RequiredDexterity    = source.RequiredDexterity,
+			RequiredIntelligence = source.RequiredIntelligence,
+			RequiredLevel        = source.RequiredLevel,
+			BonusStrength        = source.BonusStrength,
+			BonusConstitution    = source.BonusConstitution,
+			BonusDexterity       = source.BonusDexterity,
+			BonusIntelligence    = source.BonusIntelligence,
+			BonusWisdom          = source.BonusWisdom,
+			BonusCharisma        = source.BonusCharisma,
+			BonusHP              = source.BonusHP,
+			BonusMana            = source.BonusMana,
+			ArmorClass           = source.ArmorClass,
+			IsLargeShield        = source.IsLargeShield,
+			BaseDamageMin        = source.BaseDamageMin,
+			BaseDamageMax        = source.BaseDamageMax,
+			MagicBonus           = source.MagicBonus,
+			IsTwoHanded          = source.IsTwoHanded,
+			Range                = source.Range,
+			Element              = source.Element,
+			Abilities            = source.Abilities,
+			Icon                 = source.Icon,
+			UnknownName          = source.UnknownName
+		};
+	}	
+	
 	private static Dictionary<string, Equipment> _cache 
 		= new Dictionary<string, Equipment>();
 
 	public static Equipment LoadEquipment(string equipmentId)
 	{
+		if (_cache.ContainsKey(equipmentId))
+			return CloneEquipment(_cache[equipmentId]); // always clone
+
 		// Return cached version if already loaded
 		if (_cache.ContainsKey(equipmentId))
 			return _cache[equipmentId];
@@ -89,11 +139,12 @@ public static class EquipmentLoader
 			Element             = Enum.Parse<DamageElement>(def.Element ?? "None"),
 			Abilities           = def.Abilities ?? new System.Collections.Generic.List<string>(),
 			UnknownName         = def.UnknownName ?? "Unknown Item",
+			MaxStack            = def.MaxStack,
 			Icon                = def.Icon ?? ""
 		};
 
-		_cache[equipmentId] = equipment;
-		return equipment;
+		_cache[equipmentId] = equipment; // cache template
+		return CloneEquipment(equipment); // return clone
 	}
 
 	public static List<Equipment> LoadEquipmentList(List<string> equipmentIds)

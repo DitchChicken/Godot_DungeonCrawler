@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bu6cw7tisqwb5" path="res://Town/Town.cs" id="1_aig2m"]
 [ext_resource type="Texture2D" uid="uid://6gjmod0mmfr3" path="res://Data/Village/Village_Background.png" id="2_7vhvp"]
 
-[node name="Town" type="Control" unique_id=1163367087]
+[node name="Town" type="Control" unique_id=551874154]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -41,9 +41,14 @@ layout_mode = 2
 layout_mode = 2
 text = "Roster"
 
+[node name="Vault" type="Button" parent="ButtonPanel/VBoxContainer" unique_id=1958578142]
+layout_mode = 2
+text = "Vault"
+
 [node name="Dungeon" type="Button" parent="ButtonPanel/VBoxContainer" unique_id=657938380]
 layout_mode = 2
 text = "Dungeon"
 
 [connection signal="pressed" from="ButtonPanel/VBoxContainer/Roster" to="." method="_on_roster_pressed"]
+[connection signal="pressed" from="ButtonPanel/VBoxContainer/Vault" to="." method="_on_vault_button_pressed"]
 [connection signal="pressed" from="ButtonPanel/VBoxContainer/Dungeon" to="." method="_on_dungeon_pressed"]

@@ -1,7 +1,7 @@
 {
 	"id": "Arrows",
 	"name": "Arrows",
-	"description": "Standard fletched arrows for a short bow.",
+	"description": "Standard fletched arrows. Required for short bows.",
 	"slot": "Ammo",
 	"rarity": "Common",
 	"goldCost": 1,
@@ -9,5 +9,8 @@
 	"isIdentified": true,
 	"isStackable": true,
 	"maxStack": 50,
-	"icon": "res://Data/Equipment/Weapons/Arrows.png"
+	"baseDamageMin": 0,
+	"baseDamageMax": 0,
+	"icon": "res://Data/Equipment/Weapons/Arrows.png",
+	"unknownName": "Unknown Ammo"
 }

@@ -13,7 +13,9 @@
 	"intelligence": 18,
 	"wisdom": 13,
 	"charisma": 11,
-	"startingEquipment": ["Dagger"],
+	"startingEquipment": [
+		{ "id": "Dagger", "count": 1 }
+	],
 	"portrait": "res://Data/Characters/Ezren_Portrait.png",
 	"battleSprite": "res://Data/Characters/Ezren_BattleSprite.png"	
 }

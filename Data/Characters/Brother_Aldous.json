@@ -13,7 +13,10 @@
 	"intelligence": 12,
 	"wisdom": 16,
 	"charisma": 13,
-	"startingEquipment": ["Club", "LeatherArmor"],
+	"startingEquipment": [
+		{ "id": "Club", "count": 1 },
+		{ "id": "LeatherArmor", "count": 1 }
+	],
 	"portrait": "res://Data/Characters/Brother_Aldous_Portrait.png",
 	"battleSprite": "res://Data/Characters/Brother_Aldous_BattleSprite.png"	
 }

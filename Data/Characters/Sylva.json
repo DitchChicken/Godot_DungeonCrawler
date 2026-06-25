@@ -13,7 +13,11 @@
 	"intelligence": 13,
 	"wisdom": 9,
 	"charisma": 14,
-	"startingEquipment": ["Dagger", "ShortBow"],
+	"startingEquipment": [
+		{ "id": "Dagger", "count": 1 },
+		{ "id": "ShortBow", "count": 1 },
+		{ "id": "Arrows", "count": 25 }
+	],
 	"portrait": "res://Data/Characters/Sylva_Portrait.png",
 	"battleSprite": "res://Data/Characters/Sylva_BattleSprite.png"
 }

@@ -76,23 +76,37 @@ public static class CharacterLoader
 		
 		c.Initialize();
 		
-		// Load and equip starting equipment
 		if (def.StartingEquipment != null)
 		{
-			foreach (var equipmentId in def.StartingEquipment)
+			foreach (var entry in def.StartingEquipment)
 			{
-				var item = EquipmentLoader.LoadEquipment(equipmentId);
-				if (item != null)
+				var item = EquipmentLoader.LoadEquipment(entry.Id);
+				if (item == null) continue;
+
+				if (entry.Count > 1 || item.IsStackable)
 				{
+					// Clone the item and set stack count directly
+					item.StackCount = entry.Count;
+					c.PersonalInventory.Items.Add(item);  // add directly as one stack
+				}
+				else
+				{
+					// Single non-stackable items get equipped
 					bool equipped = c.Equip(item);
 					if (!equipped)
-						GD.PrintErr($"{c.Name} could not equip {item.Name} — requirements not met");
+						GD.PrintErr($"{c.Name} could not equip {item.Name}");
 				}
 			}
 		}
 
 		return c;
 	}
+}
+
+public class StartingEquipmentEntry
+{
+	public string Id { get; set; }
+	public int Count { get; set; } = 1;
 }
 
 public class CharacterDef
@@ -111,7 +125,7 @@ public class CharacterDef
 	public int Intelligence { get; set; }
 	public int Wisdom { get; set; }
 	public int Charisma { get; set; }
-	public List<string> StartingEquipment { get; set; }
+	public List<StartingEquipmentEntry> StartingEquipment { get; set; }
 	public string Portrait { get; set; }
 	public string BattleSprite { get; set; }
 }

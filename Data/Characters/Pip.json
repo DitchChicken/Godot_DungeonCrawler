@@ -13,7 +13,11 @@
 	"intelligence": 10,
 	"wisdom": 9,
 	"charisma": 13,
-	"startingEquipment": ["ShortSword", "Buckler"],
+	"startingEquipment": [
+		{ "id": "ShortSword", "count": 1 },
+		{ "id": "Buckler", "count": 1 },
+		{ "id": "Arrows", "count": 25 }
+	],
 	"portrait": "res://Data/Characters/Pip_Portrait.png",
 	"battleSprite": "res://Data/Characters/Pip_BattleSprite.png"	
 }

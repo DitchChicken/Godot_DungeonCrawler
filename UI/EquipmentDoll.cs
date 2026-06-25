@@ -7,8 +7,8 @@ public partial class EquipmentDoll : Control
 	private Character _character;
 	private EquipmentDollDef _dollDef;
 	private TextureRect _baseImage;
-	private Dictionary<EquipmentSlot, Button> _slotButtons 
-		= new Dictionary<EquipmentSlot, Button>();
+	private Dictionary<EquipmentSlot, InventorySlotButton> _slotButtons 
+	= new Dictionary<EquipmentSlot, InventorySlotButton>();
 
 	// Signals
 	[Signal] public delegate void SlotClickedEventHandler(int slot);
@@ -52,21 +52,28 @@ public partial class EquipmentDoll : Control
 		{
 			if (!Enum.TryParse<EquipmentSlot>(slotDef.Slot, out var slot)) continue;
 
-			var btn = new Button();
+			var btn = new InventorySlotButton();
 			btn.LayoutMode   = 1;
 			btn.AnchorLeft   = slotDef.X;
 			btn.AnchorTop    = slotDef.Y;
 			btn.AnchorRight  = slotDef.X + slotDef.Width;
 			btn.AnchorBottom = slotDef.Y + slotDef.Height;
+			btn.MouseFilter  = Control.MouseFilterEnum.Stop;
+			btn.ExpandIcon   = true;
+			btn.IconAlignment = HorizontalAlignment.Center;
 
-			// Style based on equipped state
+			// Set drag data source
+			btn.SourceType  = InventoryDragData.SourceType.PersonalInventory;
+			btn.SlotIndex   = (int)slot;
+			btn.Character   = _character;
+			btn.IsEquipmentSlot = true;
+			
+			// Update visual
 			UpdateSlotVisual(btn, slot);
 
 			// Wire clicks
 			var capturedSlot = slot;
 			btn.Pressed += () => OnSlotPressed(capturedSlot);
-
-			// Double click via timer
 			btn.GuiInput += (inputEvent) =>
 			{
 				if (inputEvent is InputEventMouseButton mouse
@@ -80,7 +87,7 @@ public partial class EquipmentDoll : Control
 		}
 	}
 
-	private void UpdateSlotVisual(Button btn, EquipmentSlot slot)
+	private void UpdateSlotVisual(InventorySlotButton btn, EquipmentSlot slot)
 	{
 		var item = _character?.GetEquipped(slot);
 

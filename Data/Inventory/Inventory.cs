@@ -20,40 +20,47 @@ public class Inventory
 	public int UsedSlots       => Items.Count;
 	public bool IsFull         => UsedSlots >= MaxSlots;
 
-	// Add item — returns remainder count if couldn't fit all
 	public int AddItem(Equipment item, int count = 1)
 	{
+		GD.Print($"AddItem: {item.Name} count:{count} MaxStack:{item.MaxStack} EffectiveMax:{EffectiveMaxStack(item)} IsFull:{IsFull} MaxSlots:{MaxSlots}");
 		int remaining = count;
 
-		// Try to stack on existing stack first
-		if (item.MaxStack > 1)
+		if (item.MaxStack > 1 || EffectiveMaxStack(item) > 1)
 		{
-			var existing = Items.FirstOrDefault(i => 
+			var existing = Items.FirstOrDefault(i =>
 				i.Id == item.Id && i.StackCount < EffectiveMaxStack(item));
+
+			GD.Print($"  Items in inventory:");
+			foreach (var i in Items)
+				GD.Print($"    Id:'{i.Id}' Name:'{i.Name}' Count:{i.StackCount}");
+			GD.Print($"  Looking for Id:'{item.Id}'");
+			GD.Print($"  Existing stack: {existing?.StackCount.ToString() ?? "none"}");
 
 			if (existing != null)
 			{
 				int canAdd  = EffectiveMaxStack(item) - existing.StackCount;
 				int adding  = System.Math.Min(canAdd, remaining);
+				GD.Print($"  canAdd:{canAdd} adding:{adding}");
 				existing.StackCount += adding;
 				remaining           -= adding;
+				GD.Print($"  Stack now:{existing.StackCount} remaining:{remaining}");
 			}
 		}
 
-		// Add new stacks for remainder
+		// Add as new stack(s) only if needed
 		while (remaining > 0 && !IsFull)
 		{
 			if (MaxWeight > 0 && CurrentWeight + item.Weight > MaxWeight)
 				break;
 
-			var newStack = CloneItem(item);
-			int stackSize = System.Math.Min(remaining, EffectiveMaxStack(item));
+			var newStack       = CloneItem(item);
+			int stackSize      = System.Math.Min(remaining, EffectiveMaxStack(item));
 			newStack.StackCount = stackSize;
 			remaining          -= stackSize;
 			Items.Add(newStack);
 		}
 
-		return remaining; // returns how many couldn't fit
+		return remaining;
 	}
 
 	// Remove item — returns how many were actually removed
@@ -82,9 +89,13 @@ public class Inventory
 	public int CountItem(string itemId) =>
 		Items.Where(i => i.Id == itemId).Sum(i => i.StackCount);
 
-	private int EffectiveMaxStack(Equipment item) =>
-		MaxStackSize == 0 ? item.MaxStack : System.Math.Min(item.MaxStack, MaxStackSize);
-
+	private int EffectiveMaxStack(Equipment item)
+	{
+		if (MaxStackSize == 0) return int.MaxValue; // unlimited
+		if (item.MaxStack == 0) return int.MaxValue; // item has no limit
+		return System.Math.Min(item.MaxStack, MaxStackSize);
+	}
+	
 	private Equipment CloneItem(Equipment item)
 	{
 		// Shallow clone for stacking

@@ -7,6 +7,8 @@ public partial class GameState : Node
 	public List<Character> Party  = new List<Character>();
 	public List<Character> Stable = new List<Character>();
 
+	public Inventory PartyVault = new Inventory(1024, 0, 0);
+	
 	// Economy
 	public int Gold = 1000;
 
@@ -21,9 +23,6 @@ public partial class GameState : Node
 	// Current combat encounter
 	public List<List<string>> CurrentEncounter = new List<List<string>>();
 
-	// Party vault — 1024 slots, unlimited weight, unlimited stack size
-	public Inventory Vault = new Inventory(1024, 0, 0);
-	
 	public void SetEncounter(List<List<string>> formation)
 	{
 		CurrentEncounter = formation;
@@ -58,6 +57,9 @@ public partial class GameState : Node
 		var roster = CharacterLoader.LoadRoster();
 		foreach (var character in roster)
 			AddToStable(character);
+			
+		if (DebugFlags.AutoFormPartyOnEmbark)
+			AutoFormParty();
 	}
 	
 	public void ReturnToTown()
@@ -73,4 +75,25 @@ public partial class GameState : Node
 			DungeonStates[dungeonId] = new DungeonState();
 		return DungeonStates[dungeonId];
 	}	
+	
+	private void AutoFormParty()
+	{
+		if (Party.Count > 0) return; // don't overwrite existing party
+
+		var rng       = new System.Random();
+		var available = new System.Collections.Generic.List<Character>(Stable);
+		int n         = available.Count;
+		while (n > 1)
+		{
+			n--;
+			int k = rng.Next(n + 1);
+			(available[k], available[n]) = (available[n], available[k]);
+		}
+
+		int count = System.Math.Min(6, available.Count);
+		for (int i = 0; i < count; i++)
+			AddToParty(available[i]);
+
+		GD.Print($"Debug: Auto-formed party with {Party.Count} members");
+	}
 }

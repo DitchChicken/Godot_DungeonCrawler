@@ -13,7 +13,10 @@
 	"intelligence": 11,
 	"wisdom": 17,
 	"charisma": 10,
-	"startingEquipment": ["Club"],
+	"startingEquipment": [
+		{ "id": "Club", "count": 1 },
+		{ "id": "Arrows", "count": 25 }
+	],
 	"portrait": "res://Data/Characters/Yara_Portrait.png",
 	"battleSprite": "res://Data/Characters/Yara_BattleSprite.png"
 }

@@ -11,10 +11,12 @@ public partial class Town : Control
 		if (gameState.Stable.Count > 0)
 		{
 			var c = gameState.Stable[0];
+			/*
 			GD.Print($"--- {c.Name} Equipment ---");
 			foreach (var kvp in c.EquippedItems)
 				GD.Print($"  {kvp.Key}: {kvp.Value.Name} (AC:{kvp.Value.ArmorClass} DMG:{kvp.Value.BaseDamageMin}-{kvp.Value.BaseDamageMax})");
 			GD.Print($"  Total AC: {c.TotalArmorClass()}");
+			*/
 		}
 	}
 	
@@ -28,4 +30,10 @@ public partial class Town : Control
 	{
 		GetNode<Main>("/root/Main").CallDeferred(nameof(Main.SwitchScene), "res://Dungeons/Dungeon.tscn");
 	}
+	
+	private void _on_vault_button_pressed()
+	{
+		GetNode<Main>("/root/Main")
+			.CallDeferred(nameof(Main.SwitchScene), "res://Town/Vault/Vault.tscn");
+	}	
 }

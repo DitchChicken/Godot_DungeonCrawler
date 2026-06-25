@@ -13,7 +13,12 @@
 	"intelligence": 9,
 	"wisdom": 10,
 	"charisma": 11,
-	"startingEquipment": ["ShortSword", "Buckler", "LeatherArmor"],
+	"startingEquipment": [
+		{ "id": "ShortSword", "count": 1 },
+		{ "id": "Buckler", "count": 1 },
+		{ "id": "LeatherArmor", "count": 1 },		
+		{ "id": "Arrows", "count": 25 }
+	],
 	"portrait": "res://Data/Characters/Aldric_Portrait.png",
 	"battleSprite": "res://Data/Characters/Aldric_BattleSprite.png"
 }
