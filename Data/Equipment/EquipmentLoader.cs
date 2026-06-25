@@ -88,7 +88,8 @@ public static class EquipmentLoader
 			Range               = Enum.Parse<WeaponRange>(def.Range ?? "Melee"),
 			Element             = Enum.Parse<DamageElement>(def.Element ?? "None"),
 			Abilities           = def.Abilities ?? new System.Collections.Generic.List<string>(),
-			UnknownName         = def.UnknownName ?? "Unknown Item"
+			UnknownName         = def.UnknownName ?? "Unknown Item",
+			Icon                = def.Icon ?? ""
 		};
 
 		_cache[equipmentId] = equipment;

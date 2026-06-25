@@ -13,7 +13,10 @@ public class Equipment
 	public string Description { get; set; }
 	public EquipmentSlot Slot { get; set; }
 	public Rarity Rarity { get; set; } = Rarity.Common;
-
+	
+	//Graphics
+	public string Icon { get; set; }
+	
 	// Economy
 	public int GoldCost { get; set; }
 	public float Weight { get; set; }
@@ -22,7 +25,6 @@ public class Equipment
 	public bool IsCursed { get; set; }      = false;
 	public bool IsIdentified { get; set; }  = true;  // false for mystery loot
 	public bool IsStackable { get; set; }   = false;
-	public int StackCount { get; set; }     = 1;
 	public int Durability { get; set; }     = 100;
 	public int MaxDurability { get; set; }  = 100;
 	public int Charges { get; set; }        = 0;     // 0 = not a charged item
@@ -55,6 +57,10 @@ public class Equipment
 	public WeaponRange Range { get; set; }     = WeaponRange.Melee;
 	public DamageElement Element { get; set; } = DamageElement.None;
 
+	//Stacking
+	public int MaxStack { get; set; } = 1;      // 1 = not stackable
+	public int StackCount { get; set; } = 1;    // current stack size
+	
 	// Special abilities
 	public List<string> Abilities { get; set; } = new List<string>();
 	// e.g. "Cleave", "Parry", "Backstab" - resolved by combat system

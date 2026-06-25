@@ -58,6 +58,7 @@ public partial class Character : GodotObject
 	// Equipment slots
 	public Dictionary<EquipmentSlot, Equipment> EquippedItems { get; set; } 
 		= new Dictionary<EquipmentSlot, Equipment>();
+	public Inventory PersonalInventory { get; set; }
 	
 	// --- Derived Stat Methods ---
 
@@ -128,10 +129,11 @@ public partial class Character : GodotObject
 		GD.Print($"{Name} reached level {Level}!");
 	}
 
-	public void InitializeHP()
+	public void Initialize()
 	{
 		CurrentHP = MaxHP;
 		CurrentMana = MaxMana;
+		PersonalInventory = new Inventory(12, MaxEncumbrance, 50);
 	}
 	
 	// Equip an item — returns false if requirements not met or slot conflict

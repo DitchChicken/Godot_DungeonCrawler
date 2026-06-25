@@ -34,6 +34,8 @@ public partial class CharacterSheet : CanvasLayer
 		string stats = left + "StatsPanel/";
 		string right = "Panel/MainContainer/RightPanel/EquipmentPanel/";
 
+		right = right; //silence warning
+		
 		_portrait          = GetNode<TextureRect>(left + "Portrait");
 		_nameLabel         = GetNode<Label>(stats + "NameLabel");
 		_raceClassLabel    = GetNode<Label>(stats + "RaceClassLabel");

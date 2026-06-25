@@ -1,0 +1,13 @@
+{
+	"id": "Arrows",
+	"name": "Arrows",
+	"description": "Standard fletched arrows for a short bow.",
+	"slot": "Ammo",
+	"rarity": "Common",
+	"goldCost": 1,
+	"weight": 0.1,
+	"isIdentified": true,
+	"isStackable": true,
+	"maxStack": 50,
+	"icon": "res://Data/Equipment/Weapons/Arrows.png"
+}

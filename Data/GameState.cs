@@ -21,6 +21,9 @@ public partial class GameState : Node
 	// Current combat encounter
 	public List<List<string>> CurrentEncounter = new List<List<string>>();
 
+	// Party vault — 1024 slots, unlimited weight, unlimited stack size
+	public Inventory Vault = new Inventory(1024, 0, 0);
+	
 	public void SetEncounter(List<List<string>> formation)
 	{
 		CurrentEncounter = formation;

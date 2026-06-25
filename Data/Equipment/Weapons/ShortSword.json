@@ -2,6 +2,7 @@
 	"id": "short_sword",
 	"name": "Short Sword",
 	"description": "A reliable blade, short enough to use in tight corridors.",
+	"icon": "res://Data/Equipment/Weapons/ShortSword.png",
 	"slot": "WeaponMain",
 	"rarity": "Common",
 	"goldCost": 10,

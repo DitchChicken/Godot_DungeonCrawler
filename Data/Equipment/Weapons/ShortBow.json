@@ -2,6 +2,7 @@
 	"id": "short_bow",
 	"name": "Short Bow",
 	"description": "A simple hunting bow adapted for dungeon use.",
+	"icon": "res://Data/Equipment/Weapons/Dagger.png",
 	"slot": "WeaponMain",
 	"rarity": "Common",
 	"goldCost": 15,

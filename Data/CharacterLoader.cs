@@ -74,7 +74,7 @@ public static class CharacterLoader
 			BattleSprite = def.BattleSprite,
 		};
 		
-		c.InitializeHP();
+		c.Initialize();
 		
 		// Load and equip starting equipment
 		if (def.StartingEquipment != null)

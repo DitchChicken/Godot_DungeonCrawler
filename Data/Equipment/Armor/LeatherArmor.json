@@ -2,6 +2,7 @@
 	"id": "leather_armor",
 	"name": "Leather Armor",
 	"description": "Cured hide stitched into serviceable protection.",
+	"icon": "res://Data/Equipment/Armor/LeatherArmor.png",
 	"slot": "Chest",
 	"rarity": "Common",
 	"goldCost": 20,

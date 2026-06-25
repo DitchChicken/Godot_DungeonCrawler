@@ -2,6 +2,7 @@
 	"id": "dagger",
 	"name": "Dagger",
 	"description": "Small and easily concealed. Favored by thieves.",
+	"icon": "res://Data/Equipment/Weapons/Dagger.png",
 	"slot": "WeaponMain",
 	"rarity": "Common",
 	"goldCost": 5,

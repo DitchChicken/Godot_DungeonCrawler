@@ -2,6 +2,7 @@
 	"id": "club",
 	"name": "Club",
 	"description": "A heavy wooden club. Simple but effective.",
+	"icon": "res://Data/Equipment/Weapons/Club.png",
 	"slot": "WeaponMain",
 	"rarity": "Common",
 	"goldCost": 3,

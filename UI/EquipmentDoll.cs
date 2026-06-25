@@ -84,25 +84,39 @@ public partial class EquipmentDoll : Control
 	{
 		var item = _character?.GetEquipped(slot);
 
-		// Gray out OffHand if two-handed weapon equipped
 		bool greyedOut = slot == EquipmentSlot.OffHand
 			&& _character?.GetEquipped(EquipmentSlot.WeaponMain)?.IsTwoHanded == true;
 
 		if (greyedOut)
 		{
-			btn.Text      = "—";
-			btn.Modulate  = new Color(0.4f, 0.4f, 0.4f, 0.8f);
-			btn.Disabled  = true;
+			btn.Text          = "—";
+			btn.Icon          = null;
+			btn.Modulate      = new Color(0.4f, 0.4f, 0.4f, 0.8f);
+			btn.Disabled      = true;
 		}
 		else if (item != null)
 		{
-			btn.Text     = item.DisplayName;
+			btn.Text     = "";
 			btn.Modulate = new Color(1.0f, 1.0f, 1.0f, 0.9f);
 			btn.Disabled = false;
+
+			// Load icon if available
+			if (!string.IsNullOrEmpty(item.Icon) && ResourceLoader.Exists(item.Icon))
+			{
+				btn.Icon              = GD.Load<Texture2D>(item.Icon);
+				btn.ExpandIcon        = true;
+				btn.IconAlignment     = HorizontalAlignment.Center;
+			}
+			else
+			{
+				btn.Icon = null;
+				btn.Text = item.DisplayName; // fallback to text if no icon
+			}
 		}
 		else
 		{
 			btn.Text     = "";
+			btn.Icon     = null;
 			btn.Modulate = new Color(1.0f, 1.0f, 1.0f, 0.3f);
 			btn.Disabled = false;
 		}

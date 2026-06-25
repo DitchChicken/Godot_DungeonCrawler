@@ -2,6 +2,7 @@
 	"id": "buckler",
 	"name": "Buckler",
 	"description": "A small round shield, light enough for quick parries.",
+	"icon": "res://Data/Equipment/Armor/Buckler.png",
 	"slot": "OffHand",
 	"rarity": "Common",
 	"goldCost": 8,
