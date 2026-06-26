@@ -45,6 +45,7 @@ public partial class Combat : Control
 	private const float ShadeMax           = 1.00f;
 
 	private Dictionary<Character, TextureRect> _partySpritemap = new Dictionary<Character, TextureRect>();
+	private Dictionary<TextureRect, Image> _spriteImages = new Dictionary<TextureRect, Image>();
 
 	public override void _Ready()
 	{
@@ -433,6 +434,9 @@ public partial class Combat : Control
 				&& ResourceLoader.Exists(monster.Sprite))
 				sprite.Texture = GD.Load<Texture2D>(monster.Sprite);
 
+			if (sprite.Texture != null)
+				_spriteImages[sprite] = sprite.Texture.GetImage();
+	
 			float shade     = CalculateShade(pos.Y, minY, maxY);
 			sprite.Modulate = new Color(shade, shade, shade, 1.0f);
 			sprite.Position = pos;
@@ -635,5 +639,22 @@ public partial class Combat : Control
 			partyHud.HighlightSlot(current.Character);
 		else
 			partyHud.ClearHighlights();
+	}
+	
+	private bool IsClickOnVisiblePixel(TextureRect sprite, Vector2 localClickPos)
+	{
+		if (!_spriteImages.TryGetValue(sprite, out var image)) return true;
+
+		var textureSize = new Vector2(image.GetWidth(), image.GetHeight());
+		var spriteSize  = sprite.Size;
+
+		float scaleX = textureSize.X / spriteSize.X;
+		float scaleY = textureSize.Y / spriteSize.Y;
+		float scale  = Mathf.Max(scaleX, scaleY);
+
+		int tx = Mathf.Clamp((int)(localClickPos.X * scale), 0, image.GetWidth() - 1);
+		int ty = Mathf.Clamp((int)(localClickPos.Y * scale), 0, image.GetHeight() - 1);
+
+		return image.GetPixel(tx, ty).A > 0.1f;
 	}
 }
