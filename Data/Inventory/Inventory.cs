@@ -50,7 +50,7 @@ public class Inventory
 			if (MaxWeight > 0 && CurrentWeight + item.Weight > MaxWeight)
 				break;
 
-			var newStack        = CloneItem(item);
+			var newStack        = item.CloneEquipment();
 			int stackSize       = System.Math.Min(remaining, EffectiveMaxStack(item));
 			newStack.StackCount = stackSize;
 			remaining          -= stackSize;
@@ -95,51 +95,20 @@ public class Inventory
 		if (MaxStackSize == 0) return int.MaxValue; // unlimited
 		if (item.MaxStack == 0) return int.MaxValue; // item has no limit
 		return System.Math.Min(item.MaxStack, MaxStackSize);
-	}
-	
-	private Equipment CloneItem(Equipment item)
+	}	
+
+	// Add item without merging into existing partial stacks — places in a new slot
+	public int AddItemNoMerge(Equipment item, int count)
 	{
-		// Shallow clone for stacking
-		return new Equipment
-		{
-			Id                   = item.Id,
-			Name                 = item.Name,
-			Description          = item.Description,
-			Slot                 = item.Slot,
-			Rarity               = item.Rarity,
-			GoldCost             = item.GoldCost,
-			Weight               = item.Weight,
-			IsCursed             = item.IsCursed,
-			IsIdentified         = item.IsIdentified,
-			IsStackable          = item.IsStackable,
-			MaxStack             = item.MaxStack,
-			StackCount           = 1,
-			Durability           = item.Durability,
-			MaxDurability        = item.MaxDurability,
-			Charges              = item.Charges,
-			RequiredStrength     = item.RequiredStrength,
-			RequiredDexterity    = item.RequiredDexterity,
-			RequiredIntelligence = item.RequiredIntelligence,
-			RequiredLevel        = item.RequiredLevel,
-			BonusStrength        = item.BonusStrength,
-			BonusConstitution    = item.BonusConstitution,
-			BonusDexterity       = item.BonusDexterity,
-			BonusIntelligence    = item.BonusIntelligence,
-			BonusWisdom          = item.BonusWisdom,
-			BonusCharisma        = item.BonusCharisma,
-			BonusHP              = item.BonusHP,
-			BonusMana            = item.BonusMana,
-			ArmorClass           = item.ArmorClass,
-			IsLargeShield        = item.IsLargeShield,
-			BaseDamageMin        = item.BaseDamageMin,
-			BaseDamageMax        = item.BaseDamageMax,
-			MagicBonus           = item.MagicBonus,
-			IsTwoHanded          = item.IsTwoHanded,
-			Range                = item.Range,
-			Element              = item.Element,
-			Abilities            = item.Abilities,
-			Icon                 = item.Icon,
-			UnknownName          = item.UnknownName
-		};
+		if (IsFull) return count;
+		if (MaxWeight > 0 && CurrentWeight + item.Weight * count > MaxWeight)
+			return count;
+
+		int stackSize = System.Math.Min(count, EffectiveMaxStack(item));
+		var newStack  = item.CloneEquipment();
+		newStack.StackCount = stackSize;
+		Items.Add(newStack);
+
+		return count - stackSize;
 	}
 }

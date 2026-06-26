@@ -68,53 +68,42 @@ public partial class InventorySlotButton : Button
 		var dragData = data.As<InventoryDragData>();
 		if (dragData == null) return;
 
-		//GD.Print($"_DropData on slot {SlotIndex} IsEquipSlot:{IsEquipmentSlot}");
-		//GD.Print($"_DropData: SourceType:{dragData.Source} SlotIndex:{dragData.SlotIndex}");
-		
+		var gameState = GetNode<GameState>("/root/GameState");
+
+		TransferTarget target;
 		if (IsEquipmentSlot)
 		{
 			var equipSlot = (EquipmentSlot)SlotIndex;
+			// Validate fit before building target
 			if (dragData.Item.Slot != equipSlot)
 			{
-				GD.Print($"Item {dragData.Item.Name} doesn't fit slot {equipSlot} — snapping back");
+				GD.Print($"{dragData.Item.Name} doesn't fit {equipSlot} — snapping back");
 				return;
 			}
-
-			var gameState = GetNode<GameState>("/root/GameState");
-
-			// Determine how many to equip — cap stackable items at one max stack
-			int equipCount = dragData.Count;
-			if (dragData.Item.MaxStack > 1)
-				equipCount = System.Math.Min(dragData.Count, dragData.Item.MaxStack);
-
-			// Unequip existing item in this slot
-			var existing = Character?.GetEquipped(equipSlot);
-			if (existing != null)
-			{
-				Character.Unequip(equipSlot);
-				ReturnToSource(dragData, existing);
-			}
-
-			// Remove only the capped amount from source
-			RemoveCountFromSource(dragData, equipCount);
-
-			// Create an independent copy to equip (don't mutate the source stack)
-			var itemToEquip = CloneForEquip(dragData.Item);
-			itemToEquip.StackCount = equipCount;
-			Character?.Equip(itemToEquip);
-
-			var sheet = GetTree().Root.GetNodeOrNull<CharacterSheet>("/root/CharacterSheet");
-			sheet?.RefreshDoll();
-			var vault = GetTree().Root.GetNodeOrNull<Vault>("Vault");
-			vault?.RefreshAll();
+			target = TransferTarget.ToEquipment(Character, equipSlot);
+		}
+		else if (SourceType == InventoryDragData.SourceType.Vault)
+		{
+			target = TransferTarget.ToVault();
 		}
 		else
 		{
-			// Inventory slot — no equipment validation needed
-			var vault = GetTree().Root.GetNodeOrNull<Vault>("Vault");
-			GD.Print("Dropping from inventory to Vault src:{dragData.Source}");
-			vault?.HandleDrop(dragData, SourceType, SlotIndex, Character);
+			// Personal inventory — pass the specific slot for merge detection
+			target = TransferTarget.ToInventorySlot(Character, SlotIndex);
 		}
+
+		InventoryTransfer.Transfer(dragData, target, gameState);
+		RefreshAllUI();
+	}
+
+	private void RefreshAllUI()
+	{
+		var sheet = GetTree().Root.GetNodeOrNull<CharacterSheet>("/root/CharacterSheet");
+		sheet?.RefreshDoll();
+		sheet?.RefreshInventory();
+
+		var vault = GetTree().Root.GetNodeOrNull<Vault>("Vault");
+		vault?.RefreshAll();
 	}
 
 	private void RemoveFromSource(InventoryDragData dragData)
@@ -166,50 +155,5 @@ public partial class InventorySlotButton : Button
 		{
 			dragData.Character?.PersonalInventory.RemoveItem(dragData.Item, count);
 		}
-	}	
-	
-	private Equipment CloneForEquip(Equipment source)
-	{
-		return new Equipment
-		{
-			Id                   = source.Id,
-			Name                 = source.Name,
-			Description          = source.Description,
-			Slot                 = source.Slot,
-			Rarity               = source.Rarity,
-			GoldCost             = source.GoldCost,
-			Weight               = source.Weight,
-			IsCursed             = source.IsCursed,
-			IsIdentified         = source.IsIdentified,
-			IsStackable          = source.IsStackable,
-			MaxStack             = source.MaxStack,
-			StackCount           = source.StackCount,
-			Durability           = source.Durability,
-			MaxDurability        = source.MaxDurability,
-			Charges              = source.Charges,
-			RequiredStrength     = source.RequiredStrength,
-			RequiredDexterity    = source.RequiredDexterity,
-			RequiredIntelligence = source.RequiredIntelligence,
-			RequiredLevel        = source.RequiredLevel,
-			BonusStrength        = source.BonusStrength,
-			BonusConstitution    = source.BonusConstitution,
-			BonusDexterity       = source.BonusDexterity,
-			BonusIntelligence    = source.BonusIntelligence,
-			BonusWisdom          = source.BonusWisdom,
-			BonusCharisma        = source.BonusCharisma,
-			BonusHP              = source.BonusHP,
-			BonusMana            = source.BonusMana,
-			ArmorClass           = source.ArmorClass,
-			IsLargeShield        = source.IsLargeShield,
-			BaseDamageMin        = source.BaseDamageMin,
-			BaseDamageMax        = source.BaseDamageMax,
-			MagicBonus           = source.MagicBonus,
-			IsTwoHanded          = source.IsTwoHanded,
-			Range                = source.Range,
-			Element              = source.Element,
-			Abilities            = source.Abilities,
-			Icon                 = source.Icon,
-			UnknownName          = source.UnknownName
-		};
-	}	
+	}
 }

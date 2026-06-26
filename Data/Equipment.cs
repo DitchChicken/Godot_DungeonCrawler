@@ -4,7 +4,6 @@ public enum WeaponRange  { Melee, Short, Medium, Long }
 public enum Rarity       { Common, Uncommon, Rare, Legendary }
 public enum DamageElement { None, Fire, Ice, Lightning, Holy, Shadow }
 
-
 public class Equipment
 {
 	// Identity
@@ -79,5 +78,28 @@ public class Equipment
 		if (character.Intelligence < RequiredIntelligence) return false;
 		if (character.Level        < RequiredLevel)        return false;
 		return true;
+	}
+	
+	public Equipment CloneEquipment()
+	{
+		return new Equipment
+		{
+			Id = Id, Name = Name, Description = Description, Slot = Slot,
+			Rarity = Rarity, GoldCost = GoldCost, Weight = Weight,
+			IsCursed = IsCursed, IsIdentified = IsIdentified, IsStackable = IsStackable,
+			MaxStack = MaxStack, StackCount = StackCount,
+			Durability = Durability, MaxDurability = MaxDurability, Charges = Charges,
+			RequiredStrength = RequiredStrength, RequiredDexterity = RequiredDexterity,
+			RequiredIntelligence = RequiredIntelligence, RequiredLevel = RequiredLevel,
+			BonusStrength = BonusStrength, BonusConstitution = BonusConstitution,
+			BonusDexterity = BonusDexterity, BonusIntelligence = BonusIntelligence,
+			BonusWisdom = BonusWisdom, BonusCharisma = BonusCharisma,
+			BonusHP = BonusHP, BonusMana = BonusMana,
+			ArmorClass = ArmorClass, IsLargeShield = IsLargeShield,
+			BaseDamageMin = BaseDamageMin, BaseDamageMax = BaseDamageMax,
+			MagicBonus = MagicBonus, IsTwoHanded = IsTwoHanded,
+			Range = Range, Element = Element, Abilities = Abilities,
+			Icon = Icon, UnknownName = UnknownName
+		};
 	}
 }
