@@ -171,108 +171,95 @@ public partial class Vault : Control
 	}
 	
 	public void HandleDrop(
-		InventoryDragData dragData,
-		InventoryDragData.SourceType targetSource,
-		int targetSlot,
-		Character targetCharacter)
+	InventoryDragData dragData,
+	InventoryDragData.SourceType targetSource,
+	int targetSlot,
+	Character targetCharacter)
 	{
 		var item  = dragData.Item;
 		int count = dragData.Count;
 
-		GD.Print($"HandleDrop: {item.Name} x{count}");
+		GD.Print($"HandleDrop: {item.Name} x{count} " +
+				 $"from:{dragData.Source}(equip:{dragData.IsEquipmentSlot}) " +
+				 $"to:{targetSource} slot:{targetSlot}");
 
-		// Remove from source
-		if (dragData.Source == InventoryDragData.SourceType.Vault)
-		{
-			_gameState.PartyVault.RemoveItem(item, count);
-		}
-		else if (dragData.IsEquipmentSlot && dragData.Character != null)
-		{
-			var equipSlot = (EquipmentSlot)dragData.SlotIndex;
-			dragData.Character.Unequip(equipSlot);
-		}
-		else
-		{
-			dragData.Character?.PersonalInventory.RemoveItem(item, count);
-		}
+		// ---- STEP 1: Remove item from its source ----
+		RemoveItemFromSource(dragData, item, count);
 
-		// Use captured count everywhere below instead of item.StackCount
+		// ---- STEP 2: Add item to its target ----
 		if (targetSource == InventoryDragData.SourceType.Vault)
 		{
-			var vaultItems = _gameState.PartyVault.Items;
-			Equipment swappedItem = null;
-			if (targetSlot < vaultItems.Count)
-			{
-				swappedItem = vaultItems[targetSlot];
-				_gameState.PartyVault.RemoveItem(swappedItem, swappedItem.StackCount);
-			}
-			_gameState.PartyVault.AddItem(item, count);  // use count not item.StackCount
-
-			if (swappedItem != null)
-			{
-				if (dragData.IsEquipmentSlot && dragData.Character != null)
-				{
-					if (!dragData.Character.Equip(swappedItem))
-						dragData.Character.PersonalInventory.AddItem(swappedItem, swappedItem.StackCount);
-				}
-				else if (dragData.Source == InventoryDragData.SourceType.Vault)
-					_gameState.PartyVault.AddItem(swappedItem, swappedItem.StackCount);
-				else
-					dragData.Character?.PersonalInventory.AddItem(swappedItem, swappedItem.StackCount);
-			}
+			// Any source → Vault: just add, stacking handles merge
+			_gameState.PartyVault.AddItem(item, count);
 		}
 		else
 		{
+			// Any source → Personal Inventory
 			var inv = targetCharacter?.PersonalInventory;
-			if (inv != null)
+			if (inv == null)
 			{
-				Equipment swappedItem = null;
-				var invItems = inv.Items;
-				if (targetSlot < invItems.Count)
-				{
-					swappedItem = invItems[targetSlot];
-					inv.RemoveItem(swappedItem, swappedItem.StackCount);
-				}
+				GD.PrintErr("Target character has no inventory — returning item to source");
+				ReturnItemToSource(dragData, item, count);
+				RefreshAll();
+				return;
+			}
 
-				int remainder = inv.AddItem(item, count);  // use count not item.StackCount
-				if (remainder > 0)
-				{
-					GD.Print($"Could not fit {item.Name} — snapping back");
-					if (dragData.IsEquipmentSlot && dragData.Character != null)
-						dragData.Character.Equip(item);
-					else if (dragData.Source == InventoryDragData.SourceType.Vault)
-						_gameState.PartyVault.AddItem(item, count);
-					else
-						dragData.Character?.PersonalInventory.AddItem(item, count);
-
-					if (swappedItem != null)
-						inv.AddItem(swappedItem, swappedItem.StackCount);
-
-					RefreshAll();
-					return;
-				}
-
-				if (swappedItem != null)
-				{
-					if (dragData.IsEquipmentSlot && dragData.Character != null)
-					{
-						if (!dragData.Character.Equip(swappedItem))
-							dragData.Character.PersonalInventory.AddItem(swappedItem, swappedItem.StackCount);
-					}
-					else if (dragData.Source == InventoryDragData.SourceType.Vault)
-						_gameState.PartyVault.AddItem(swappedItem, swappedItem.StackCount);
-					else
-						dragData.Character?.PersonalInventory.AddItem(swappedItem, swappedItem.StackCount);
-				}
+			int remainder = inv.AddItem(item, count);
+			if (remainder > 0)
+			{
+				// Couldn't fit everything — return the unfit portion to source
+				GD.Print($"Could not fit {remainder} of {item.Name} — returning to source");
+				ReturnItemToSource(dragData, item, remainder);
 			}
 		}
 
 		RefreshAll();
 	}
 
+	// Removes the dragged item from wherever it came from
+	private void RemoveItemFromSource(InventoryDragData dragData, Equipment item, int count)
+	{
+		if (dragData.IsEquipmentSlot && dragData.Character != null)
+		{
+			var equipSlot = (EquipmentSlot)dragData.SlotIndex;
+			dragData.Character.Unequip(equipSlot);
+			GD.Print($"  Removed from equipment slot {equipSlot}");
+		}
+		else if (dragData.Source == InventoryDragData.SourceType.Vault)
+		{
+			_gameState.PartyVault.RemoveItem(item, count);
+			GD.Print($"  Removed {count} from vault");
+		}
+		else
+		{
+			dragData.Character?.PersonalInventory.RemoveItem(item, count);
+			GD.Print($"  Removed {count} from {dragData.Character?.Name} inventory");
+		}
+	}
+
+	// Returns an item to its source (for failed/partial drops)
+	private void ReturnItemToSource(InventoryDragData dragData, Equipment item, int count)
+	{
+		if (dragData.IsEquipmentSlot && dragData.Character != null)
+		{
+			// Re-equip the item
+			if (!dragData.Character.Equip(item))
+				dragData.Character.PersonalInventory.AddItem(item, count);
+		}
+		else if (dragData.Source == InventoryDragData.SourceType.Vault)
+		{
+			_gameState.PartyVault.AddItem(item, count);
+		}
+		else
+		{
+			dragData.Character?.PersonalInventory.AddItem(item, count);
+		}
+	}
+
 	public void RefreshAll()
 	{
 		GD.Print($"RefreshAll - vault items: {_gameState.PartyVault.Items.Count}");
+		GD.Print($"Reading from vault instance: {_gameState.PartyVault.GetHashCode()}");
 		foreach (var i in _gameState.PartyVault.Items)
 			GD.Print($"  {i.Name} x{i.StackCount}");
 		RefreshVault();

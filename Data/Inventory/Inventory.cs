@@ -30,9 +30,9 @@ public class Inventory
 			var existing = Items.FirstOrDefault(i =>
 				i.Id == item.Id && i.StackCount < EffectiveMaxStack(item));
 
-			GD.Print($"  Items in inventory:");
+			GD.Print($"  Items in inventory BEFORE:");
 			foreach (var i in Items)
-				GD.Print($"    Id:'{i.Id}' Name:'{i.Name}' Count:{i.StackCount}");
+				GD.Print($"    Id:'{i.Id}' x{i.StackCount}");
 			GD.Print($"  Looking for Id:'{item.Id}'");
 			GD.Print($"  Existing stack: {existing?.StackCount.ToString() ?? "none"}");
 
@@ -40,25 +40,26 @@ public class Inventory
 			{
 				int canAdd  = EffectiveMaxStack(item) - existing.StackCount;
 				int adding  = System.Math.Min(canAdd, remaining);
-				GD.Print($"  canAdd:{canAdd} adding:{adding}");
 				existing.StackCount += adding;
 				remaining           -= adding;
-				GD.Print($"  Stack now:{existing.StackCount} remaining:{remaining}");
 			}
 		}
 
-		// Add as new stack(s) only if needed
 		while (remaining > 0 && !IsFull)
 		{
 			if (MaxWeight > 0 && CurrentWeight + item.Weight > MaxWeight)
 				break;
 
-			var newStack       = CloneItem(item);
-			int stackSize      = System.Math.Min(remaining, EffectiveMaxStack(item));
+			var newStack        = CloneItem(item);
+			int stackSize       = System.Math.Min(remaining, EffectiveMaxStack(item));
 			newStack.StackCount = stackSize;
 			remaining          -= stackSize;
 			Items.Add(newStack);
 		}
+
+		GD.Print($"  Items in inventory AFTER:");
+		foreach (var i in Items)
+			GD.Print($"    Id:'{i.Id}' x{i.StackCount}");
 
 		return remaining;
 	}

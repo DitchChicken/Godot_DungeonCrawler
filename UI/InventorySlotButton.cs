@@ -10,6 +10,9 @@ public partial class InventorySlotButton : Button
 	
 	public override Variant _GetDragData(Vector2 atPosition)
 	{
+		
+		//GD.Print($"_GetDragData: {Item?.Name} SourceType:{SourceType} SlotIndex:{SlotIndex}");
+		
 		// For equipment doll slots, get item from character's equipped items
 		if (Item == null && Character != null)
 		{
@@ -21,7 +24,7 @@ public partial class InventorySlotButton : Button
 
 		// Capture count NOW before any operations can zero it out
 		int capturedCount = Item.StackCount;
-		GD.Print($"_GetDragData: {Item.Name} x{capturedCount}");
+		//GD.Print($"_GetDragData: {Item.Name} x{capturedCount}");
 
 		var preview = new TextureRect();
 		preview.CustomMinimumSize = new Vector2(64, 64);
@@ -65,8 +68,9 @@ public partial class InventorySlotButton : Button
 		var dragData = data.As<InventoryDragData>();
 		if (dragData == null) return;
 
-		GD.Print($"_DropData on slot {SlotIndex} IsEquipSlot:{IsEquipmentSlot}");
-
+		//GD.Print($"_DropData on slot {SlotIndex} IsEquipSlot:{IsEquipmentSlot}");
+		//GD.Print($"_DropData: SourceType:{dragData.Source} SlotIndex:{dragData.SlotIndex}");
+		
 		if (IsEquipmentSlot)
 		{
 			// Equipment doll slot — validate item fits
@@ -101,6 +105,7 @@ public partial class InventorySlotButton : Button
 		{
 			// Inventory slot — no equipment validation needed
 			var vault = GetTree().Root.GetNodeOrNull<Vault>("Vault");
+			GD.Print("Dropping from inventory to Vault src:{dragData.Source}");
 			vault?.HandleDrop(dragData, SourceType, SlotIndex, Character);
 		}
 	}
