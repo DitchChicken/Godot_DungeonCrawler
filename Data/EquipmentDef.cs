@@ -38,4 +38,5 @@ public class EquipmentDef
 	public string UnknownName { get; set; }
 	public string Icon { get; set; }
 	public int MaxStack { get; set; } = 1;
+	public int InitiativeModifier { get; set; } = 0;
 }

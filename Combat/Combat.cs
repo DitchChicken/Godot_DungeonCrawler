@@ -1,37 +1,72 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public partial class Combat : Control
 {
 	private Control _partyContainer;
 	private Control _enemyContainer;
 	private GameState _gameState;
+	private CombatState _combatState;
 
-	// Party formation constants (as fraction of container)
-	private const float PartyStartXFrac   = 0.1f;   // 10% from left
-	private const float PartyStartYFrac   = -0.10f;   // 10% from top
-	private const float PartyStaggerXFrac = 0.080f;  // 8% per slot
-	private const float PartyStaggerYFrac  = 0.272f;  // 15% per slot
-	private const float PartyRowOffsetFrac = 0.35f; // 25% between rows
-	private const float PartySpriteSize   = 0.495f;  // 35% of container width
+	// UI nodes
+	private Label _combatantLabel;
+	private Label _logLabel;
+	private ScrollContainer _scrollContainer;
+	private Button _attackButton;
+	private Button _spellSkillButton;
+	private Button _itemButton;
+	private Button _rowSwitchButton;
+	private Button _fleeButton;
+	private HBoxContainer _turnStrip;
 
-	private const float EnemyStartXFrac    = 0.15f;  // start near right edge
-	private const float EnemyStartYFrac    = -0.10f; // match party top
-	private const float EnemyStaggerXFrac  = 0.04f;  // match party
-	private const float EnemyStaggerYFrac  = 0.275f; // match party
-	private const float EnemyRowOffsetFrac = 0.15f;  // match party
-	private const float EnemySpriteSize    = 0.495f;  // slightly smaller than party
+	// Combat state
+	private bool _selectingTarget = false;
+	private List<TextureRect> _enemySprites = new List<TextureRect>();
+	private List<TextureRect> _partySprites = new List<TextureRect>();
+	private List<Monster> _enemyOrder = new List<Monster>(); // matches _enemySprites
 
-	// Shading
-	private const float ShadeMin = 0.725f;  // darkest (back)
-	private const float ShadeMax = 1.00f;  // brightest (front)
+	// Formation constants
+	private const float PartyStartXFrac    = 0.1f;
+	private const float PartyStartYFrac    = -0.20f;
+	private const float PartyStaggerXFrac  = 0.080f;
+	private const float PartyStaggerYFrac  = 0.275f;
+	private const float PartyRowOffsetFrac = 0.35f;
+	private const float PartySpriteSize    = 0.495f;
+	
+	private const float EnemyStartXFrac    =  0.750f;
+	private const float EnemyStartYFrac    = -0.20f;
+	private const float EnemyStaggerXFrac  = 0.08f;
+	private const float EnemyStaggerYFrac  = 0.25f;
+	private const float EnemyRowOffsetFrac = 0.25f;
+	private const float EnemySpriteSize    = 0.35f;
+	private const float ShadeMin           = 0.67f;
+	private const float ShadeMax           = 1.00f;
+
+	private Dictionary<Character, TextureRect> _partySpritemap = new Dictionary<Character, TextureRect>();
 
 	public override void _Ready()
 	{
-		_partyContainer = GetNode<Control>("PartyContainer");
-		_enemyContainer = GetNode<Control>("EnemyContainer");
-		_gameState      = GetNode<GameState>("/root/GameState");
+		_partyContainer  = GetNode<Control>("PartyContainer");
+		_enemyContainer  = GetNode<Control>("EnemyContainer");
+		_gameState       = GetNode<GameState>("/root/GameState");
+		_combatantLabel  = GetNode<Label>("ActionPanel/VBoxContainer/CombatantLabel");
+		_logLabel        = GetNode<Label>("CombatLog/MarginContainer/ScrollContainer/LogLabel");
+		_scrollContainer = GetNode<ScrollContainer>("CombatLog/MarginContainer/ScrollContainer");
+		_attackButton    = GetNode<Button>("ActionPanel/VBoxContainer/AttackButton");
+		_spellSkillButton = GetNode<Button>("ActionPanel/VBoxContainer/SpellSkillButton");
+		_itemButton      = GetNode<Button>("ActionPanel/VBoxContainer/ItemButton");
+		_rowSwitchButton = GetNode<Button>("ActionPanel/VBoxContainer/RowSwitchButton");
+		_fleeButton      = GetNode<Button>("ActionPanel/VBoxContainer/FleeButton");
+		_turnStrip       = GetNode<HBoxContainer>("TurnTracker/TurnStrip");
+
+		// Connect buttons
+		_attackButton.Pressed    += OnAttackPressed;
+		_spellSkillButton.Pressed += OnSpellSkillPressed;
+		_itemButton.Pressed      += OnItemPressed;
+		_rowSwitchButton.Pressed += OnRowSwitchPressed;
+		_fleeButton.Pressed      += OnFleePressed;
 
 		if (DebugFlags.AutoFormPartyOnEmbark && _gameState.Party.Count == 0)
 			AutoFormParty();
@@ -41,49 +76,262 @@ public partial class Combat : Control
 
 	private void LoadCombatants()
 	{
-		LoadParty();
+		LoadParty();		
+		InitializeCombat();
 		LoadEnemies();
+		UpdateUI();
 	}
 
-	private float CalculateShade(float y, float minY, float maxY)
+	private void InitializeCombat()
 	{
-		if (maxY <= minY) return ShadeMax;
-		// Higher Y = closer to front = brighter
-		float t = (y - minY) / (maxY - minY);
-		return ShadeMin + t * (ShadeMax - ShadeMin);
+		var formation = new List<List<Monster>>();
+		foreach (var row in _gameState.CurrentEncounter)
+		{
+			var monsterRow = new List<Monster>();
+			foreach (var id in row)
+			{
+				var monster = MonsterLoader.LoadMonster(id);
+				if (monster != null)
+					monsterRow.Add(monster);
+			}
+			formation.Add(monsterRow);
+		}
+
+		_combatState = new CombatState(_gameState.Party, formation);
+		_combatState.RollInitiative();
+		RefreshCombatLog();
+		RefreshPartySprites();
 	}
+
+	private void UpdateUI()
+	{
+		if (_combatState == null) return;
+
+		var current = _combatState.CurrentCombatant;
+		if (current == null) return;
+
+		_combatantLabel.Text = $"{current.Name}'s Turn";
+
+		bool isPlayerTurn = _combatState.CurrentPhase == CombatState.Phase.PlayerTurn;
+		SetActionButtonsEnabled(isPlayerTurn);
+
+		HighlightActiveCombatant();
+		HighlightActiveHudSlot();
+
+		if (!isPlayerTurn)
+			ProcessEnemyTurn();
+	}
+
+	private void SetActionButtonsEnabled(bool enabled)
+	{
+		_attackButton.Disabled    = !enabled;
+		_spellSkillButton.Disabled = !enabled;
+		_itemButton.Disabled      = !enabled;
+		_rowSwitchButton.Disabled = !enabled;
+		_fleeButton.Disabled      = !enabled;
+	}
+
+	// Refresh combat log display
+	private void RefreshCombatLog()
+	{
+		_logLabel.Text = string.Join("\n", _combatState.Log);
+		// Scroll to bottom
+		CallDeferred(nameof(ScrollLogToBottom));
+	}
+
+	private void ScrollLogToBottom()
+	{
+		_scrollContainer.ScrollVertical = (int)_scrollContainer.GetVScrollBar().MaxValue;
+	}
+
+	private void AddLog(string message)
+	{
+		_combatState.AddLog(message);
+		RefreshCombatLog();
+	}
+
+	// --- Button Handlers ---
+
+	private void OnAttackPressed()
+	{
+		if (_combatState.CurrentPhase != CombatState.Phase.PlayerTurn) return;
+		EnterTargetSelectMode();
+	}
+
+	private void OnSpellSkillPressed()
+	{
+		GD.Print("Spell/Skill menu TODO");
+	}
+
+	private void OnItemPressed()
+	{
+		GD.Print("Item menu TODO");
+	}
+
+	private void OnRowSwitchPressed()
+	{
+		GD.Print("Row switch TODO");
+	}
+
+	private void OnFleePressed()
+	{
+		GD.Print("Flee TODO");
+	}
+
+	// --- Target Selection ---
+
+	private void EnterTargetSelectMode()
+	{
+		_selectingTarget = true;
+		HighlightValidTargets();
+	}
+
+	private void ExitTargetSelectMode()
+	{
+		_selectingTarget = false;
+		ClearTargetHighlights();
+	}
+
+	private void HighlightValidTargets()
+	{
+		for (int i = 0; i < _enemySprites.Count; i++)
+		{
+			if (i >= _enemyOrder.Count || !_enemyOrder[i].IsAlive) continue;
+
+			float baseShade = (float)_enemySprites[i].GetMeta("baseShade");
+			// Blend red tint with depth shade
+			_enemySprites[i].Modulate = new Color(
+				baseShade,           // R stays at shade
+				baseShade * 0.4f,    // G reduced → makes it redder
+				baseShade * 0.4f,    // B reduced → makes it redder
+				1.0f);
+		}
+	}
+
+	private void ClearTargetHighlights()
+	{
+		for (int i = 0; i < _enemySprites.Count; i++)
+		{
+			if (i >= _enemyOrder.Count) continue;
+			if (!_enemyOrder[i].IsAlive) continue;
+
+			float baseShade = (float)_enemySprites[i].GetMeta("baseShade");
+			_enemySprites[i].Modulate = new Color(baseShade, baseShade, baseShade, 1.0f);
+		}
+	}
+
+	// --- Enemy Turn ---
+
+	private async void ProcessEnemyTurn()
+	{		
+		await ToSignal(GetTree().CreateTimer(1.0f), "timeout");
+
+		var current = _combatState.CurrentCombatant;
+		if (current == null || current.IsParty) return;
+
+		// Pick random living party member
+		var targets = new List<Character>();
+		foreach (var c in _gameState.Party)
+			if (c.IsAlive) targets.Add(c);
+
+		if (targets.Count == 0)
+		{
+			_combatState.CheckVictoryDefeat();
+			UpdateUI();
+			return;
+		}
+
+		var rng    = new Random();
+		var target = targets[rng.Next(targets.Count)];
+		var defender = new Combatant
+		{
+			Character = target,
+			IsParty   = true
+		};
+
+		int damage = _combatState.ResolveAttack(current, defender);
+		// Spawn damage number on the hit party member
+		if (_partySpritemap.TryGetValue(target, out var hitSprite))
+		{
+			SpawnDamageNumber(
+				hitSprite.GlobalPosition + hitSprite.Size / 2,
+				damage, false);
+		}
+
+		RefreshCombatLog();
+		RefreshPartySprites();
+		GetNode<PartyHUD>("/root/PartyHud").Refresh();
+		
+		_combatState.CheckVictoryDefeat();
+		if (_combatState.CurrentPhase == CombatState.Phase.Victory ||
+			_combatState.CurrentPhase == CombatState.Phase.Defeat)
+		{
+			HandleCombatEnd();
+			return;
+		}
+
+		_combatState.NextTurn();
+		UpdateUI();
+	}
+
+	private void RefreshPartySprites()
+	{
+		var party = _gameState.Party;
+		for (int i = 0; i < party.Count; i++)
+		{
+			if (i >= _partySprites.Count) break;
+			var character = party[i];
+			var sprite    = _partySprites[i];
+
+			if (!character.IsAlive)
+				sprite.Modulate = new Color(0.3f, 0.3f, 0.3f, 0.4f);
+			else
+			{
+				float baseShade = (float)sprite.GetMeta("baseShade", ShadeMax);
+				sprite.Modulate = new Color(baseShade, baseShade, baseShade, 1.0f);
+			}
+		}
+	}
+	private void HandleCombatEnd()
+	{
+		if (_combatState.CurrentPhase == CombatState.Phase.Victory)
+			AddLog("Victory! The party triumphs!");
+		else
+			AddLog("Defeat... the party falls.");
+
+		SetActionButtonsEnabled(false);
+		GetNode<PartyHUD>("/root/PartyHud").ClearHighlights();
+		
+		//Show rewards, return to teh dungeon
+	}
+
+	// --- Load Party/Enemies (existing code) ---
 
 	private void LoadParty()
 	{
 		foreach (Node child in _partyContainer.GetChildren())
 			child.QueueFree();
+		_partySprites.Clear();
 
 		var party        = _gameState.Party;
 		var containerSize = _partyContainer.Size;
-		float spriteSize  = containerSize.X * PartySpriteSize;
-
-		// Calculate all positions first so we can derive min/max Y for shading
+		float spriteSize  = containerSize.X * PartySpriteSize;		
+		
 		var positions = new List<Vector2>();
-
 		for (int i = 0; i < party.Count; i++)
 		{
-			bool isFrontRow = i < 3;
-			int rowIndex    = isFrontRow ? i : i - 3;
-
-			float rowX = isFrontRow
+			bool isFrontRow  = i < 3;
+			int rowIndex     = isFrontRow ? i : i - 3;
+			float rowX       = isFrontRow
 				? containerSize.X * (PartyStartXFrac + PartyRowOffsetFrac)
 				: containerSize.X * PartyStartXFrac;
-
 			float x = rowX + rowIndex * containerSize.X * PartyStaggerXFrac;
 			float y = containerSize.Y * PartyStartYFrac
 					+ rowIndex * containerSize.Y * PartyStaggerYFrac;
-
 			positions.Add(new Vector2(x, y));
 		}
 
-		// Get Y range for shading
-		float minY = float.MaxValue;
-		float maxY = float.MinValue;
+		float minY = float.MaxValue, maxY = float.MinValue;
 		foreach (var pos in positions)
 		{
 			if (pos.Y < minY) minY = pos.Y;
@@ -99,11 +347,15 @@ public partial class Combat : Control
 				&& ResourceLoader.Exists(character.BattleSprite))
 				sprite.Texture = GD.Load<Texture2D>(character.BattleSprite);
 
-			float shade    = CalculateShade(positions[i].Y, minY, maxY);
+			float shade     = CalculateShade(positions[i].Y, minY, maxY);
 			sprite.Modulate = new Color(shade, shade, shade, 1.0f);
 			sprite.Position = positions[i];
+			sprite.SetMeta("baseShade", shade);
+			sprite.Modulate = new Color(shade, shade, shade, 1.0f);
 
 			_partyContainer.AddChild(sprite);
+			_partySprites.Add(sprite);
+			_partySpritemap[character] = sprite;
 		}
 	}
 
@@ -111,18 +363,20 @@ public partial class Combat : Control
 	{
 		foreach (Node child in _enemyContainer.GetChildren())
 			child.QueueFree();
+		_enemySprites.Clear();
+		_enemyOrder.Clear();
 
 		var formation = _gameState.CurrentEncounter;
-		if (formation == null || formation.Count == 0)
-		{
-			GD.PrintErr("No encounter data");
-			return;
-		}
+		if (formation == null || formation.Count == 0) return;
 
 		var containerSize = _enemyContainer.Size;
 		float spriteSize  = containerSize.X * EnemySpriteSize;
 
-		// Calculate all positions first
+		// Calculate the vertical range from the party constants
+		// so enemy spacing matches party spacing for a row of 3
+		float topY    = containerSize.Y * EnemyStartYFrac;
+		float bottomY = topY + 2 * containerSize.Y * EnemyStaggerYFrac; // 3 monsters = 2 gaps
+
 		var allPositions = new List<(Vector2 pos, string monsterId)>();
 
 		for (int row = 0; row < formation.Count; row++)
@@ -130,41 +384,51 @@ public partial class Combat : Control
 			var rowMonsters = formation[row];
 			int count       = rowMonsters.Count;
 
-			// Mirror party logic — back row starts further right, front row to the left
-			// Party goes left=back, right=front
-			// Enemies go right=back, left=front (mirrored)
+			// Front row (last in formation) should be leftmost in enemy container
+			// Back row (first in formation) should be rightmost
 			int reversedRow = formation.Count - 1 - row;
+			
+			// Keep all rows within container — max offset should not exceed ~0.6
+			// With 3 rows at 0.2 spacing: 0.0, 0.2, 0.4 from right edge
+			float rowX = containerSize.X * (EnemyStartXFrac - reversedRow * EnemyRowOffsetFrac);
 
-			float rowX = containerSize.X * (EnemyStartXFrac + reversedRow * EnemyRowOffsetFrac);
-			float rowStartY = containerSize.Y * EnemyStartYFrac;
+			GD.Print($"Row {row} (reversed:{reversedRow}): {count} monsters, rowX:{rowX:F1}");
+
+			float rowTopY    = containerSize.Y * EnemyStartYFrac;
+			float rowBottomY = topY + 2 * containerSize.Y * EnemyStaggerYFrac;
 
 			for (int i = 0; i < count; i++)
 			{
-				float x = rowX - i * containerSize.X * EnemyStaggerXFrac;
-				float y = rowStartY + i * containerSize.Y * EnemyStaggerYFrac;
+				float t = count == 1 ? 0.5f : (float)i / (count - 1);
+				float y = rowTopY + t * (rowBottomY - rowTopY);
+				float x = rowX; // all monsters in row share same X (no stagger for now)
 
 				allPositions.Add((new Vector2(x, y), rowMonsters[i]));
 			}
 		}
 
-		// Get Y range for shading
-		float minY = float.MaxValue;
-		float maxY = float.MinValue;
+		// Sort by Y so front sprites draw on top
+		allPositions.Sort((a, b) => a.pos.Y.CompareTo(b.pos.Y));
+
+		float minY = float.MaxValue, maxY = float.MinValue;
 		foreach (var (pos, _) in allPositions)
 		{
 			if (pos.Y < minY) minY = pos.Y;
 			if (pos.Y > maxY) maxY = pos.Y;
 		}
 
-		allPositions.Sort((a, b) => a.pos.Y.CompareTo(b.pos.Y));
-
 		foreach (var (pos, monsterId) in allPositions)
 		{
-			var monster = MonsterLoader.LoadMonster(monsterId);
+			var monster = _combatState.AllMonsters
+				.FirstOrDefault(m =>
+					string.Equals(m.Id, monsterId, StringComparison.OrdinalIgnoreCase)
+					&& !_enemyOrder.Contains(m));
 			if (monster == null) continue;
 
-			var sprite = CreateSprite(spriteSize);
-
+			GD.Print($"Placing {monster.CombatLabel} at ({pos.X:F1}, {pos.Y:F1}) " +
+					 $"container size: ({containerSize.X:F1}, {containerSize.Y:F1})");
+			
+			var sprite  = CreateSprite(spriteSize);
 			if (!string.IsNullOrEmpty(monster.Sprite)
 				&& ResourceLoader.Exists(monster.Sprite))
 				sprite.Texture = GD.Load<Texture2D>(monster.Sprite);
@@ -172,10 +436,107 @@ public partial class Combat : Control
 			float shade     = CalculateShade(pos.Y, minY, maxY);
 			sprite.Modulate = new Color(shade, shade, shade, 1.0f);
 			sprite.Position = pos;
+			sprite.Size     = new Vector2(spriteSize, spriteSize);			
+			sprite.SetMeta("baseShade", shade);
 
+			var capturedMonster = monster;
+			var capturedSprite  = sprite;
+			sprite.GuiInput += (inputEvent) =>
+			{
+				if (inputEvent is InputEventMouseButton mouse
+					&& mouse.ButtonIndex == MouseButton.Left
+					&& mouse.Pressed
+					&& _selectingTarget
+					&& capturedMonster.IsAlive)
+				{
+					OnEnemyClicked(capturedMonster, capturedSprite);
+				}
+				if (inputEvent is InputEventMouseButton rightMouse
+					&& rightMouse.ButtonIndex == MouseButton.Right
+					&& rightMouse.Pressed)
+				{
+					if (_selectingTarget)
+						ExitTargetSelectMode();
+					else if (_combatState.CurrentPhase == CombatState.Phase.PlayerTurn
+							 && capturedMonster.IsAlive)
+					{
+						EnterTargetSelectMode();
+						OnEnemyClicked(capturedMonster, capturedSprite);
+					}
+				}
+			};
+
+			sprite.MouseFilter = Control.MouseFilterEnum.Stop;
 			_enemyContainer.AddChild(sprite);
+			_enemySprites.Add(sprite);
+			_enemyOrder.Add(monster);
 		}
 	}
+
+	private void OnEnemyClicked(Monster monster, TextureRect sprite)
+	{	
+		if (!_selectingTarget) return;
+
+		ExitTargetSelectMode();
+
+		var current = _combatState.CurrentCombatant;
+		if (current == null || !current.IsParty) return;
+
+		var defender = new Combatant { Monster = monster, IsParty = false };
+		int damage   = _combatState.ResolveAttack(current, defender);
+
+		SpawnDamageNumber(sprite.GlobalPosition + sprite.Size / 2, damage, false);
+		RefreshCombatLog();
+		RefreshPartySprites();
+		GetNode<PartyHUD>("/root/PartyHud").Refresh();
+		
+		if (!monster.IsAlive)
+		{
+			sprite.Modulate     = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+			sprite.MouseFilter  = Control.MouseFilterEnum.Ignore;
+		}
+
+		_combatState.CheckVictoryDefeat();
+		if (_combatState.CurrentPhase == CombatState.Phase.Victory ||
+			_combatState.CurrentPhase == CombatState.Phase.Defeat)
+		{
+			HandleCombatEnd();
+			return;
+		}
+
+		_combatState.NextTurn();
+		UpdateUI();
+	}
+
+	// --- Floating Damage Numbers ---
+
+	private void SpawnDamageNumber(Vector2 position, int amount, bool isHealing)
+	{
+		var label = new Label();
+		label.Text = isHealing ? $"+{amount}" : $"{amount}";  // no minus sign
+
+		// Double the font size
+		label.AddThemeFontSizeOverride("font_size", 32);
+
+		label.AddThemeColorOverride("font_color",
+			isHealing ? new Color(0, 1, 0) : new Color(1, 0, 0));
+		label.Position = position;
+		label.ZIndex   = 10;
+		AddChild(label);
+
+		Vector2 drift = isHealing
+			? new Vector2(-15, -30)   // half speed, floats left
+			: new Vector2(15, -30);   // half speed, floats right
+
+		var tween = CreateTween();
+		tween.TweenProperty(label, "position",
+			position + drift, 3.0f);  // 4x duration
+		tween.Parallel().TweenProperty(label, "modulate:a",
+			0.0f, 4.0f);              // fade over same 4x duration
+		tween.TweenCallback(Callable.From(() => label.QueueFree()));
+	}
+
+	// --- Helpers ---
 
 	private TextureRect CreateSprite(float size)
 	{
@@ -186,23 +547,15 @@ public partial class Combat : Control
 		sprite.ExpandMode          = TextureRect.ExpandModeEnum.IgnoreSize;
 		sprite.SizeFlagsVertical   = Control.SizeFlags.ShrinkBegin;
 		sprite.SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin;
+		sprite.MouseFilter         = Control.MouseFilterEnum.Stop;
 		return sprite;
 	}
-
-	public override void _Input(InputEvent @event)
+	
+	private float CalculateShade(float y, float minY, float maxY)
 	{
-		if (@event is InputEventKey key
-			&& key.Pressed
-			&& key.Keycode == Key.F1
-			&& DebugFlags.AutoFormPartyOnEmbark)
-		{
-			foreach (Node child in _partyContainer.GetChildren())
-				child.QueueFree();
-			foreach (Node child in _enemyContainer.GetChildren())
-				child.QueueFree();
-			LoadParty();
-			LoadEnemies();
-		}
+		if (maxY <= minY) return ShadeMax;
+		float t = (y - minY) / (maxY - minY);
+		return ShadeMin + t * (ShadeMax - ShadeMin);
 	}
 
 	private void AutoFormParty()
@@ -219,7 +572,68 @@ public partial class Combat : Control
 		int count = Math.Min(6, available.Count);
 		for (int i = 0; i < count; i++)
 			_gameState.AddToParty(available[i]);
-
 		GetNode<PartyHUD>("/root/PartyHud").Refresh();
+	}
+
+	public override void _Input(InputEvent @event)
+	{
+		if (@event is InputEventMouseButton mouse && mouse.Pressed)
+		{
+			if (mouse.ButtonIndex == MouseButton.Right && _selectingTarget)
+			{
+				ExitTargetSelectMode();
+				GetViewport().SetInputAsHandled();
+			}
+		}
+
+		if (@event is InputEventKey key && key.Pressed && key.Keycode == Key.Escape)
+		{
+			if (_selectingTarget)
+			{
+				ExitTargetSelectMode();
+				GetViewport().SetInputAsHandled();
+			}
+		}
+	}
+	
+	private void HighlightActiveCombatant()
+	{
+		// Clear all party sprite highlights first
+		var party = _gameState.Party;
+		for (int i = 0; i < party.Count; i++)
+		{
+			if (i >= _partySprites.Count) break;
+			if (!party[i].IsAlive) continue;
+
+			float baseShade = (float)_partySprites[i].GetMeta("baseShade", ShadeMax);
+			_partySprites[i].Modulate = new Color(baseShade, baseShade, baseShade, 1.0f);
+		}
+
+		// Highlight current combatant if party member
+		var current = _combatState?.CurrentCombatant;
+		if (current == null || !current.IsParty) return;
+
+		int index = _gameState.Party.IndexOf(current.Character);
+		if (index >= 0 && index < _partySprites.Count)
+		{
+			float baseShade = (float)_partySprites[index].GetMeta("baseShade", ShadeMax);
+			// Green tint — boost G channel, reduce R and B slightly
+			_partySprites[index].Modulate = new Color(
+				baseShade * 0.6f,
+				baseShade * 1.0f,
+				baseShade * 0.6f,
+				1.0f);
+		}
+	}
+	
+	private void HighlightActiveHudSlot()
+	{
+		var partyHud = GetNode<PartyHUD>("/root/PartyHud");
+		var current  = _combatState?.CurrentCombatant;
+
+		if (current != null && current.IsParty)
+			partyHud.HighlightSlot(current.Character);
+		else
+			partyHud.ClearHighlights();
 	}
 }

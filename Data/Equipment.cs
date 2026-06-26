@@ -70,6 +70,8 @@ public class Equipment
 	// Display name respects identification state
 	public string DisplayName => IsIdentified ? Name : UnknownName;
 
+	public int InitiativeModifier { get; set; } = 0;
+	
 	// Can this character equip this item?
 	public bool CanEquip(Character character)
 	{
@@ -99,7 +101,7 @@ public class Equipment
 			BaseDamageMin = BaseDamageMin, BaseDamageMax = BaseDamageMax,
 			MagicBonus = MagicBonus, IsTwoHanded = IsTwoHanded,
 			Range = Range, Element = Element, Abilities = Abilities,
-			Icon = Icon, UnknownName = UnknownName
+			Icon = Icon, UnknownName = UnknownName, InitiativeModifier = InitiativeModifier
 		};
 	}
 }

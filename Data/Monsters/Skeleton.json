@@ -1,4 +1,5 @@
 {
+	"id": "Skeleton",
 	"name": "Skeleton",
 	"level": 1,
 	"maxHP": 12,
@@ -13,6 +14,7 @@
 		"Fire": 1.0,
 		"Holy": 1.5
 	},
-	"attacks": ["bone_strike"],
+	"attacks": ["BoneStrike"],
+	"armorClass": 2,
 	"sprite": "res://Data/Monsters/Skeleton.png"
 }

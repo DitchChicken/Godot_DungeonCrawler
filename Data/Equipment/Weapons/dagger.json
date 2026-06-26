@@ -15,5 +15,6 @@
 	"magicBonus": 0,
 	"range": "Melee",
 	"element": "None",
+	"initiativeModifier": 2,
 	"abilities": []
 }

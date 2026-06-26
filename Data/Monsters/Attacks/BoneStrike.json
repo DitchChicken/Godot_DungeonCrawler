@@ -1,0 +1,15 @@
+{
+	"id": "BoneStrike",
+	"name": "Bone Strike",
+	"description": "A rattling blow from skeletal fists.",
+	"attackType": "Physical",
+	"damageType": "Bludgeoning",
+	"targetType": "SingleEnemy",
+	"baseDamageMin": 2,
+	"baseDamageMax": 6,
+	"statusEffect": "",
+	"statusChance": 0.0,
+	"accuracy": 0.85,
+	"weight": 1,
+	"range": "Melee"
+}

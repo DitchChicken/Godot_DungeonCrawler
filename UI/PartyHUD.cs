@@ -71,4 +71,21 @@ public partial class PartyHUD : CanvasLayer
 				_slots[i].Clear();
 		}
 	}
+	
+	public void HighlightSlot(Character character)
+	{
+		foreach (var slot in _slots)
+		{
+			if (slot.Character == character)
+				slot.Modulate = new Color(0.6f, 1.0f, 0.6f, 1.0f); // green
+			else
+				slot.Modulate = new Color(1.0f, 1.0f, 1.0f, 1.0f); // normal
+		}
+	}
+
+	public void ClearHighlights()
+	{
+		foreach (var slot in _slots)
+			slot.Modulate = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+	}	
 }

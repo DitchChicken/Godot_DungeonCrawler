@@ -32,6 +32,7 @@ public static class MonsterLoader
 
 		var monster = new Monster
 		{
+			Id                = def.Id ?? def.Name.ToLower(),
 			Name              = def.Name,
 			Level             = def.Level,
 			MaxHP             = def.MaxHP,
@@ -44,6 +45,8 @@ public static class MonsterLoader
 			AttackIds         = def.Attacks ?? new List<string>()
 		};
 
+		// Load attacks
+		monster.Attacks = AttackLoader.LoadAttacks(monster.AttackIds);
 		monster.Initialize();
 
 		GD.Print($"Loaded monster: {monster.Name} HP:{monster.MaxHP} Level:{monster.Level}");

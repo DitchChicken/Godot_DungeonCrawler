@@ -23,8 +23,24 @@ texture = ExtResource("2_4r2th")
 expand_mode = 1
 stretch_mode = 6
 
+[node name="TurnTracker" type="PanelContainer" parent="." unique_id=100000001]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.25
+anchor_right = 0.75
+anchor_bottom = 0.1
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TurnStrip" type="HBoxContainer" parent="TurnTracker" unique_id=100000002]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
 [node name="PartyContainer" type="Control" parent="." unique_id=329633175]
 layout_mode = 1
+anchor_top = 0.1
 anchor_right = 0.4
 anchor_bottom = 0.65
 grow_horizontal = 2
@@ -32,8 +48,91 @@ grow_vertical = 2
 
 [node name="EnemyContainer" type="Control" parent="." unique_id=87575732]
 layout_mode = 1
-anchor_left = 0.5
+anchor_left = 0.4
+anchor_top = 0.1
 anchor_right = 1.0
 anchor_bottom = 0.65
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="CombatLog" type="PanelContainer" parent="." unique_id=100000003]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.65
+anchor_right = 0.19
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CombatLog" unique_id=100000020]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 12
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CombatLog/MarginContainer" unique_id=100000004]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LogLabel" type="Label" parent="CombatLog/MarginContainer/ScrollContainer" unique_id=100000005]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CombatLog" unique_id=2075236129]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LogLabel" type="Label" parent="CombatLog/ScrollContainer" unique_id=1983207177]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
+
+[node name="ActionPanel" type="PanelContainer" parent="." unique_id=100000006]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.81
+anchor_top = 0.65
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ActionPanel" unique_id=100000007]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="CombatantLabel" type="Label" parent="ActionPanel/VBoxContainer" unique_id=100000008]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Waiting..."
+horizontal_alignment = 1
+
+[node name="AttackButton" type="Button" parent="ActionPanel/VBoxContainer" unique_id=100000009]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Attack"
+
+[node name="SpellSkillButton" type="Button" parent="ActionPanel/VBoxContainer" unique_id=100000010]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Spell / Skill"
+
+[node name="ItemButton" type="Button" parent="ActionPanel/VBoxContainer" unique_id=100000011]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Item"
+
+[node name="RowSwitchButton" type="Button" parent="ActionPanel/VBoxContainer" unique_id=100000012]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Switch Row"
+
+[node name="FleeButton" type="Button" parent="ActionPanel/VBoxContainer" unique_id=100000013]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Flee"

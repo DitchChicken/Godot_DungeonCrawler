@@ -94,7 +94,8 @@ public static class EquipmentLoader
 			Abilities           = def.Abilities ?? new System.Collections.Generic.List<string>(),
 			UnknownName         = def.UnknownName ?? "Unknown Item",
 			MaxStack            = def.MaxStack,
-			Icon                = def.Icon ?? ""
+			InitiativeModifier = def.InitiativeModifier,
+			Icon                = def.Icon ?? ""			
 		};
 
 		_cache[equipmentId] = equipment; // cache template

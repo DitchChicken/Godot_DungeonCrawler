@@ -93,9 +93,9 @@ public partial class Dungeon : Control
 		// Hardcoded test encounter for now
 		var encounter = new List<List<string>>
 		{
-			new List<string> { "skeleton", "skeleton", "skeleton" }, // back row
-			new List<string> { "skeleton", "skeleton" },             // middle row
-			new List<string> { "skeleton" }                          // front row
+			new List<string> { "Skeleton", "Skeleton", "Skeleton" }, // back row
+			new List<string> { "Skeleton", "Skeleton" },             // middle row
+			new List<string> { "Skeleton" }                          // front row
 		};
 
 		_gameState.SetEncounter(encounter);
