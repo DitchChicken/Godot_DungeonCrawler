@@ -183,18 +183,32 @@ public partial class Vault : Control
 				 $"from:{dragData.Source}(equip:{dragData.IsEquipmentSlot}) " +
 				 $"to:{targetSource} slot:{targetSlot}");
 
+		// Cap vault → personal inventory transfers to one max stack
+		if (dragData.Source == InventoryDragData.SourceType.Vault
+			&& targetSource == InventoryDragData.SourceType.PersonalInventory
+			&& targetCharacter != null
+			&& item.MaxStack > 1)
+		{
+			count = CalculateInventoryTransferCount(item, count, targetCharacter.PersonalInventory);
+			GD.Print($"  Capped transfer to {count}");
+
+			if (count <= 0)
+			{
+				GD.Print("  Character already has a full stack");
+				return;
+			}
+		}
+
 		// ---- STEP 1: Remove item from its source ----
 		RemoveItemFromSource(dragData, item, count);
 
 		// ---- STEP 2: Add item to its target ----
 		if (targetSource == InventoryDragData.SourceType.Vault)
 		{
-			// Any source → Vault: just add, stacking handles merge
 			_gameState.PartyVault.AddItem(item, count);
 		}
 		else
 		{
-			// Any source → Personal Inventory
 			var inv = targetCharacter?.PersonalInventory;
 			if (inv == null)
 			{
@@ -207,13 +221,36 @@ public partial class Vault : Control
 			int remainder = inv.AddItem(item, count);
 			if (remainder > 0)
 			{
-				// Couldn't fit everything — return the unfit portion to source
 				GD.Print($"Could not fit {remainder} of {item.Name} — returning to source");
 				ReturnItemToSource(dragData, item, remainder);
 			}
 		}
 
 		RefreshAll();
+	}
+
+	// Calculate how many items to transfer — at most one max stack worth,
+	// accounting for existing partial stacks in the target inventory
+	private int CalculateInventoryTransferCount(Equipment item, int available, Inventory targetInv)
+	{
+		int maxStack = item.MaxStack;
+
+		// Find existing partial stack of this item in the target
+		int existingPartial = 0;
+		foreach (var existing in targetInv.Items)
+		{
+			if (existing.Id == item.Id && existing.StackCount < maxStack)
+			{
+				existingPartial = existing.StackCount;
+				break;
+			}
+		}
+
+		// We want to bring the character's stack up to one full max stack
+		int roomInStack = maxStack - existingPartial;
+
+		// Transfer the smaller of: what's available, or what fits in one stack
+		return System.Math.Min(available, roomInStack);
 	}
 
 	// Removes the dragged item from wherever it came from
