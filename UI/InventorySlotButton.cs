@@ -24,7 +24,7 @@ public partial class InventorySlotButton : Button
 
 		// Capture count NOW before any operations can zero it out
 		int capturedCount = Item.StackCount;
-		//GD.Print($"_GetDragData: {Item.Name} x{capturedCount}");
+		GD.Print($"_GetDragData: {Item.Name} x{capturedCount} fromEquip:{IsEquipmentSlot}");
 
 		var preview = new TextureRect();
 		preview.CustomMinimumSize = new Vector2(64, 64);
@@ -73,7 +73,6 @@ public partial class InventorySlotButton : Button
 		
 		if (IsEquipmentSlot)
 		{
-			// Equipment doll slot — validate item fits
 			var equipSlot = (EquipmentSlot)SlotIndex;
 			if (dragData.Item.Slot != equipSlot)
 			{
@@ -81,7 +80,14 @@ public partial class InventorySlotButton : Button
 				return;
 			}
 
-			// Unequip existing
+			var gameState = GetNode<GameState>("/root/GameState");
+
+			// Determine how many to equip — cap stackable items at one max stack
+			int equipCount = dragData.Count;
+			if (dragData.Item.MaxStack > 1)
+				equipCount = System.Math.Min(dragData.Count, dragData.Item.MaxStack);
+
+			// Unequip existing item in this slot
 			var existing = Character?.GetEquipped(equipSlot);
 			if (existing != null)
 			{
@@ -89,15 +95,16 @@ public partial class InventorySlotButton : Button
 				ReturnToSource(dragData, existing);
 			}
 
-			// Remove from source
-			RemoveFromSource(dragData);
+			// Remove only the capped amount from source
+			RemoveCountFromSource(dragData, equipCount);
 
-			// Equip
-			Character?.Equip(dragData.Item);
+			// Create an independent copy to equip (don't mutate the source stack)
+			var itemToEquip = CloneForEquip(dragData.Item);
+			itemToEquip.StackCount = equipCount;
+			Character?.Equip(itemToEquip);
 
 			var sheet = GetTree().Root.GetNodeOrNull<CharacterSheet>("/root/CharacterSheet");
 			sheet?.RefreshDoll();
-
 			var vault = GetTree().Root.GetNodeOrNull<Vault>("Vault");
 			vault?.RefreshAll();
 		}
@@ -114,29 +121,24 @@ public partial class InventorySlotButton : Button
 	{
 		var gameState = GetNode<GameState>("/root/GameState");
 
-		if (dragData.Source == InventoryDragData.SourceType.Vault)
+		if (dragData.IsEquipmentSlot && dragData.Character != null)
 		{
-			gameState.PartyVault.RemoveItem(dragData.Item, dragData.Item.StackCount);
-		}
-		else if (IsEquipmentSlot && dragData.Character != null)
-		{
-			// Unequip from equipment slot
+			// Source was an equipment slot — unequip
 			var equipSlot = (EquipmentSlot)dragData.SlotIndex;
 			dragData.Character.Unequip(equipSlot);
 			GD.Print($"Unequipped {dragData.Item.Name} from {equipSlot}");
 		}
-		else if (dragData.IsEquipmentSlot && dragData.Character != null)
+		else if (dragData.Source == InventoryDragData.SourceType.Vault)
 		{
-			var equipSlot = (EquipmentSlot)dragData.SlotIndex;
-			dragData.Character.Unequip(equipSlot);
-			GD.Print($"Unequipped {dragData.Item.Name} from {equipSlot}");
+			gameState.PartyVault.RemoveItem(dragData.Item, dragData.Count);
 		}
 		else
 		{
-			dragData.Character?.PersonalInventory.RemoveItem(dragData.Item, dragData.Item.StackCount);
+			// Source was personal inventory
+			dragData.Character?.PersonalInventory.RemoveItem(dragData.Item, dragData.Count);
 		}
 	}
-
+	
 	private void ReturnToSource(InventoryDragData dragData, Equipment item)
 	{
 		var gameState = GetNode<GameState>("/root/GameState");
@@ -145,4 +147,69 @@ public partial class InventorySlotButton : Button
 		else
 			dragData.Character?.PersonalInventory.AddItem(item, item.StackCount);
 	}
+	
+	private void RemoveCountFromSource(InventoryDragData dragData, int count)
+	{
+		var gameState = GetNode<GameState>("/root/GameState");
+
+		if (dragData.IsEquipmentSlot && dragData.Character != null)
+		{
+			// Source was an equipment slot — unequip whole thing
+			var equipSlot = (EquipmentSlot)dragData.SlotIndex;
+			dragData.Character.Unequip(equipSlot);
+		}
+		else if (dragData.Source == InventoryDragData.SourceType.Vault)
+		{
+			gameState.PartyVault.RemoveItem(dragData.Item, count);
+		}
+		else
+		{
+			dragData.Character?.PersonalInventory.RemoveItem(dragData.Item, count);
+		}
+	}	
+	
+	private Equipment CloneForEquip(Equipment source)
+	{
+		return new Equipment
+		{
+			Id                   = source.Id,
+			Name                 = source.Name,
+			Description          = source.Description,
+			Slot                 = source.Slot,
+			Rarity               = source.Rarity,
+			GoldCost             = source.GoldCost,
+			Weight               = source.Weight,
+			IsCursed             = source.IsCursed,
+			IsIdentified         = source.IsIdentified,
+			IsStackable          = source.IsStackable,
+			MaxStack             = source.MaxStack,
+			StackCount           = source.StackCount,
+			Durability           = source.Durability,
+			MaxDurability        = source.MaxDurability,
+			Charges              = source.Charges,
+			RequiredStrength     = source.RequiredStrength,
+			RequiredDexterity    = source.RequiredDexterity,
+			RequiredIntelligence = source.RequiredIntelligence,
+			RequiredLevel        = source.RequiredLevel,
+			BonusStrength        = source.BonusStrength,
+			BonusConstitution    = source.BonusConstitution,
+			BonusDexterity       = source.BonusDexterity,
+			BonusIntelligence    = source.BonusIntelligence,
+			BonusWisdom          = source.BonusWisdom,
+			BonusCharisma        = source.BonusCharisma,
+			BonusHP              = source.BonusHP,
+			BonusMana            = source.BonusMana,
+			ArmorClass           = source.ArmorClass,
+			IsLargeShield        = source.IsLargeShield,
+			BaseDamageMin        = source.BaseDamageMin,
+			BaseDamageMax        = source.BaseDamageMax,
+			MagicBonus           = source.MagicBonus,
+			IsTwoHanded          = source.IsTwoHanded,
+			Range                = source.Range,
+			Element              = source.Element,
+			Abilities            = source.Abilities,
+			Icon                 = source.Icon,
+			UnknownName          = source.UnknownName
+		};
+	}	
 }
