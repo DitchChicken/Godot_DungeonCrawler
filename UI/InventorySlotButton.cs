@@ -2,11 +2,60 @@ using Godot;
 
 public partial class InventorySlotButton : Button
 {
-	public Equipment Item { get; set; }
 	public int SlotIndex { get; set; }
 	public InventoryDragData.SourceType SourceType { get; set; }
 	public Character Character { get; set; }
 	public bool IsEquipmentSlot { get; set; } = false;
+	
+	private Label _stackLabel;
+	
+	public Equipment Item
+	{
+		get => _item;
+		set
+		{
+			_item = value;
+			RefreshStackLabel();
+		}
+	}
+	private Equipment _item;
+
+	public override void _Ready()
+	{
+		// Create stack label as child
+		_stackLabel = new Label();
+		_stackLabel.AnchorLeft             = 0.0f;
+		_stackLabel.AnchorTop              = 0.0f;
+		_stackLabel.AnchorRight            = 1.0f;
+		_stackLabel.AnchorBottom           = 1.0f;
+		_stackLabel.OffsetRight            = 0f;
+		_stackLabel.OffsetBottom           = 0f;
+		_stackLabel.HorizontalAlignment    = HorizontalAlignment.Center;
+		_stackLabel.VerticalAlignment      = VerticalAlignment.Center;
+		_stackLabel.AddThemeColorOverride("font_color",
+			new Color(1.0f, 0.85f, 0.0f, 1.0f));
+		_stackLabel.AddThemeFontSizeOverride("font_size", 32);
+		_stackLabel.MouseFilter            = MouseFilterEnum.Ignore;
+		AddChild(_stackLabel);
+
+		RefreshStackLabel();
+	}
+
+	private void RefreshStackLabel()
+	{
+		if (_stackLabel == null) return;
+
+		if (_item != null && _item.IsStackable && _item.StackCount > 1)
+		{
+			_stackLabel.Text    = _item.StackCount.ToString();
+			_stackLabel.Visible = true;
+		}
+		else
+		{
+			_stackLabel.Text    = "";
+			_stackLabel.Visible = false;
+		}
+	}
 	
 	public override Variant _GetDragData(Vector2 atPosition)
 	{

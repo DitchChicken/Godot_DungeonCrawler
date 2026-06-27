@@ -17,5 +17,9 @@
 	"attacks": ["BoneStrike"],
 	"armorClass": 2,
 	"portrait": "",
-	"sprite": "res://Data/Monsters/Skeleton.png"
+	"sprite": "res://Data/Monsters/Skeleton.png",
+	"drops": [
+		{ "id": "Gold", "chance": 0.75, "countMin": 3, "countMax": 8 },
+ 	   { "id": "Club", "chance": 0.25, "countMin": 1, "countMax": 1 }
+	]
 }

@@ -73,7 +73,6 @@ public partial class Vault : Control
 				btn.Icon     = !string.IsNullOrEmpty(item.Icon)
 							   && ResourceLoader.Exists(item.Icon)
 							   ? GD.Load<Texture2D>(item.Icon) : null;
-				btn.Text     = item.StackCount > 1 ? $"x{item.StackCount}" : "";
 			}
 			else
 			{

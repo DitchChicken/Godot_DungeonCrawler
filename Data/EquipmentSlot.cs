@@ -9,5 +9,6 @@ public enum EquipmentSlot
 	Feet,
 	WeaponMain,
 	OffHand,
-	Ammo
+	Ammo,
+	Treasure
 }

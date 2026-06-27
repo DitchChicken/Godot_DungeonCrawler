@@ -17,4 +17,5 @@ public class MonsterDef
 	public int BaseDamageMax { get; set; } = 4;
 	public int ArmorClass { get; set; } = 0;
 	public string Portrait { get; set; } = "";
+	public List<EncounterItemReward> Drops { get; set; } = new List<EncounterItemReward>();
 }

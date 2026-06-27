@@ -22,6 +22,9 @@ public partial class Combat : Control
 	private Button _rowSwitchButton;
 	private Button _fleeButton;
 	private HBoxContainer _turnStrip;
+	private PanelContainer _actionPanel;
+	private Button _autoWinButton;
+	private Button _autoLoseButton;
 
 	// Combat state
 	private bool _selectingTarget = false;
@@ -69,6 +72,7 @@ public partial class Combat : Control
 		_turnTracker = GetNode<TurnTracker>("TurnTracker");
 		_turnTracker.SlotHovered   += OnTrackerSlotHovered;
 		_turnTracker.SlotUnhovered += OnTrackerSlotUnhovered;
+		_actionPanel = GetNode<PanelContainer>("ActionPanel");
 		
 		AddChild(_highlighter);
 		
@@ -82,6 +86,7 @@ public partial class Combat : Control
 		if (DebugFlags.AutoFormPartyOnEmbark && _gameState.Party.Count == 0)
 			AutoFormParty();
 
+		BuildDebugButtons();
 		CallDeferred(nameof(LoadCombatants));
 	}
 
@@ -359,22 +364,39 @@ public partial class Combat : Control
 			}
 		}
 	}
-	
+		
 	private void HandleCombatEnd()
 	{
-		if (_combatState.CurrentPhase == CombatState.Phase.Victory)
-			AddLog("Victory! The party triumphs!");
-		else
-			AddLog("Defeat... the party falls.");
-
 		SetActionButtonsEnabled(false);
 		GetNode<PartyHUD>("/root/PartyHud").ClearHighlights();
-		
-		//Show rewards, return to teh dungeon
+
+		// Hide combat UI elements
+		_turnTracker.Visible  = false;
+		_actionPanel.Visible  = false;
+
+		if (_combatState.CurrentPhase == CombatState.Phase.Victory)
+		{
+			var loot = LootCalculator.Calculate(
+				_combatState,
+				_gameState.CurrentEncounterData,
+				new Random());
+
+			// Show victory screen as overlay
+			var victoryScene = GD.Load<PackedScene>("res://Combat/VictoryScreen.tscn");
+			var victory      = victoryScene.Instantiate<VictoryScreen>();
+			AddChild(victory);
+			victory.Initialize(loot, _combatState);
+		}
+		else
+		{
+			// Show defeat screen as overlay
+			var defeatScene = GD.Load<PackedScene>("res://Combat/DefeatScreen.tscn");
+			var defeat      = defeatScene.Instantiate<DefeatScreen>();
+			AddChild(defeat);
+			defeat.Initialize();
+		}
 	}
-
-	// --- Load Party/Enemies (existing code) ---
-
+	
 	private void LoadParty()
 	{
 		foreach (Node child in _partyContainer.GetChildren())
@@ -844,5 +866,67 @@ public partial class Combat : Control
 		// Advance turn
 		_combatState.NextTurn();
 		UpdateUI();
+	}
+	
+	private void BuildDebugButtons()
+	{
+		if (!DebugFlags.ShowCombatDebugButtons) return;
+
+		var vbox = GetNode<VBoxContainer>("ActionPanel/VBoxContainer");
+
+		var separator = new HSeparator();
+		vbox.AddChild(separator);
+
+		_autoWinButton = new Button();
+		_autoWinButton.Text     = "[DEBUG] Auto Win";
+		_autoWinButton.Pressed += OnAutoWinPressed;
+		vbox.AddChild(_autoWinButton);
+
+		_autoLoseButton = new Button();
+		_autoLoseButton.Text     = "[DEBUG] Auto Lose";
+		_autoLoseButton.Pressed += OnAutoLosePressed;
+		vbox.AddChild(_autoLoseButton);
+	}
+	
+	private void OnAutoWinPressed()
+	{
+		// Kill all monsters
+		foreach (var monster in _combatState.AllMonsters)
+		{
+			monster.CurrentHP = 0;
+			int index = _enemyOrder.IndexOf(monster);
+			if (index >= 0 && index < _enemySprites.Count)
+			{
+				_highlighter.Unregister(_enemySprites[index]);
+				_enemySprites[index].Modulate    = new Color(0.3f, 0.3f, 0.3f, 0.4f);
+				_enemySprites[index].MouseFilter = Control.MouseFilterEnum.Ignore;
+			}
+		}
+
+		_combatState.AddLog("--- [DEBUG] Auto Win ---");
+		_combatState.CheckVictoryDefeat();
+		RefreshCombatLog();
+		HandleCombatEnd();
+	}
+
+	private void OnAutoLosePressed()
+	{
+		// Knock out all party members
+		foreach (var character in _gameState.Party)
+		{
+			character.CurrentHP = 0;
+			character.Status    = Status.Asleep;
+			if (_partySpritemap.TryGetValue(character, out var sprite))
+			{
+				_highlighter.Unregister(sprite);
+				sprite.Modulate = new Color(0.3f, 0.3f, 0.3f, 0.4f);
+			}
+		}
+
+		_combatState.AddLog("--- [DEBUG] Auto Lose ---");
+		_combatState.CheckVictoryDefeat();
+		RefreshCombatLog();
+		GetNode<PartyHUD>("/root/PartyHud").Refresh();
+		HandleCombatEnd();
 	}
 }

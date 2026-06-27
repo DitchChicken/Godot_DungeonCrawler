@@ -111,4 +111,9 @@ public class Inventory
 
 		return count - stackSize;
 	}
+	
+	public void RemoveAllTreasure()
+	{
+		Items.RemoveAll(i => i.Slot == EquipmentSlot.Treasure);
+	}
 }

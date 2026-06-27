@@ -1,0 +1,54 @@
+[gd_scene format=3 uid="uid://dkw0ec57o4gbr"]
+
+[ext_resource type="Script" uid="uid://bo0buxbvtxaae" path="res://Combat/DefeatScreen.cs" id="1"]
+
+[node name="DefeatScreen" type="Control" unique_id=265910980]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="DarkOverlay" type="ColorRect" parent="." unique_id=149029400]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.85)
+
+[node name="Panel" type="PanelContainer" parent="." unique_id=607080758]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.3
+anchor_top = 0.1375
+anchor_right = 0.7
+anchor_bottom = 0.5125
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=15806827]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="Panel/VBoxContainer" unique_id=252848477]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "DEFEAT"
+horizontal_alignment = 1
+
+[node name="ConsequenceLabel" type="Label" parent="Panel/VBoxContainer" unique_id=1745477169]
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ReturnButton" type="Button" parent="Panel/VBoxContainer" unique_id=1668381061]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Return to Town"

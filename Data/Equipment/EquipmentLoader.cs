@@ -23,7 +23,8 @@ public static class EquipmentLoader
 		{
 			$"res://Data/Equipment/Weapons/{equipmentId}.json",
 			$"res://Data/Equipment/Armor/{equipmentId}.json",
-			$"res://Data/Equipment/Misc/{equipmentId}.json"
+			$"res://Data/Equipment/Misc/{equipmentId}.json",
+			$"res://Data/Equipment/Treasure/{equipmentId}.json"
 		};
 
 		string json = null;

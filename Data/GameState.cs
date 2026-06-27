@@ -21,6 +21,11 @@ public partial class GameState : Node
 	public Dictionary<string, DungeonState> DungeonStates = new Dictionary<string, DungeonState>();
 	public EncounterData CurrentEncounterData { get; set; }
 	
+	//Settings
+	public enum Difficulty { Easy, Normal, Hard }
+	public Difficulty CurrentDifficulty { get; set; } = Difficulty.Normal;
+	public bool IsIronMan { get; set; } = false;
+
 	// Current combat encounter
 	public List<List<string>> CurrentEncounter = new List<List<string>>();
 

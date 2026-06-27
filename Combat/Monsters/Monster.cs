@@ -25,6 +25,7 @@ public partial class Monster : GodotObject
 	// Rewards
 	public int ExperienceReward { get; set; }
 	public int GoldReward { get; set; }
+	public List<EncounterItemReward> Drops { get; set; } = new List<EncounterItemReward>();
 
 	// Combat
 	public int Initiative { get; set; }

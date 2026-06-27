@@ -1,0 +1,12 @@
+{
+	"id": "Gold",
+	"name": "Gold Coins",
+	"description": "Glittering gold coins.",
+	"slot": "Treasure",
+	"isStackable": true,
+	"maxStack": 100,
+	"weight": 0.1,
+	"goldCost": 1,
+	"isIdentified": true,
+	"icon": "res://Data/Equipment/Treasure/Gold.png"
+}
