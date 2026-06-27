@@ -50,6 +50,9 @@ public partial class Combat : Control
 	private Dictionary<TextureRect, Image> _spriteImages = new Dictionary<TextureRect, Image>();
 	private Dictionary<Monster, TextureRect> _monsterSpritemap = new Dictionary<Monster, TextureRect>();
 	
+	private bool _selectingRowSwap = false;
+	private List<Character> _validSwapTargets = new List<Character>();
+
 	public override void _Ready()
 	{
 		_partyContainer  = GetNode<Control>("PartyContainer");
@@ -75,7 +78,7 @@ public partial class Combat : Control
 		_itemButton.Pressed      += OnItemPressed;
 		_rowSwitchButton.Pressed += OnRowSwitchPressed;
 		_fleeButton.Pressed      += OnFleePressed;
-
+		
 		if (DebugFlags.AutoFormPartyOnEmbark && _gameState.Party.Count == 0)
 			AutoFormParty();
 
@@ -115,10 +118,11 @@ public partial class Combat : Control
 		RefreshCombatLog();
 		RefreshPartySprites();
 		
+		/*
 		GD.Print("AllMonsters:");
 		foreach (var m in _combatState.AllMonsters)
 			GD.Print($"  {m.CombatLabel} hash:{m.GetHashCode()}");
-
+		
 		GD.Print("TurnOrder monsters:");
 		foreach (var c in _combatState.TurnOrder.Where(c => !c.IsParty))
 			GD.Print($"  {c.Monster.CombatLabel} hash:{c.Monster.GetHashCode()}");
@@ -127,6 +131,7 @@ public partial class Combat : Control
 		// Add this after LoadEnemies() call 
 		foreach (var m in _enemyOrder)
 			GD.Print($"  {m.CombatLabel} hash:{m.GetHashCode()}");
+		*/
 	}
 
 	private void UpdateUI()
@@ -197,7 +202,40 @@ public partial class Combat : Control
 
 	private void OnRowSwitchPressed()
 	{
-		GD.Print("Row switch TODO");
+		if (_combatState.CurrentPhase != CombatState.Phase.PlayerTurn) return;
+		var current = _combatState.CurrentCombatant;
+		if (current == null || !current.IsParty) return;
+
+		_validSwapTargets = _combatState.GetValidSwapTargets(current.Character);
+		if (_validSwapTargets.Count == 0)
+		{
+			AddLog("No valid swap targets.");
+			return;
+		}
+
+		_selectingRowSwap = true;
+		HighlightSwapTargets();
+	}
+
+	private void HighlightSwapTargets()
+	{
+		foreach (var character in _validSwapTargets)
+		{
+			if (_partySpritemap.TryGetValue(character, out var sprite))
+				_highlighter.SetHighlight(sprite, SpriteHighlighter.HighlightType.Ally);
+		}
+	}
+
+	private void ClearSwapHighlights()
+	{
+		_highlighter.ClearHighlight(SpriteHighlighter.HighlightType.Ally);
+	}
+
+	private void ExitRowSwitchMode()
+	{
+		_selectingRowSwap = false;
+		_validSwapTargets.Clear();
+		ClearSwapHighlights();
 	}
 
 	private void OnFleePressed()
@@ -265,6 +303,15 @@ public partial class Combat : Control
 
 		int damage = _combatState.ResolveAttack(current, defender);
 		
+		if (_combatState.IsFrontRowWiped())
+		{
+			_combatState.AutoPromoteBackRow();
+			_partySpritemap.Clear();
+			LoadParty();
+			HighlightActiveCombatant();
+			GetNode<PartyHUD>("/root/PartyHud").Refresh();
+		}
+
 		// Fade any unconscious party sprites
 		foreach (var c in _gameState.Party)
 		{
@@ -378,6 +425,21 @@ public partial class Combat : Control
 			_partySprites.Add(sprite);
 			_partySpritemap[character] = sprite;
 			_highlighter.Register(sprite, shade);
+			
+			var capturedCharacter = character;
+			var capturedSprite    = sprite;
+			sprite.GuiInput += (inputEvent) =>
+			{
+				if (inputEvent is InputEventMouseButton mouse
+					&& mouse.Pressed
+					&& mouse.ButtonIndex == MouseButton.Left
+					&& _selectingRowSwap
+					&& _validSwapTargets.Contains(capturedCharacter))
+				{
+					OnSwapTargetClicked(capturedCharacter);
+				}
+			};
+			sprite.MouseFilter = Control.MouseFilterEnum.Stop;
 		}
 	}
 
@@ -512,6 +574,15 @@ public partial class Combat : Control
 		var defender = new Combatant { Monster = monster, IsParty = false };
 		int damage   = _combatState.ResolveAttack(current, defender);
 
+		if (_combatState.IsFrontRowWiped())
+		{
+			_combatState.AutoPromoteBackRow();
+			_partySpritemap.Clear();
+			LoadParty();
+			HighlightActiveCombatant();
+			GetNode<PartyHUD>("/root/PartyHud").Refresh();
+		}
+
 		SpawnDamageNumber(sprite.GlobalPosition + sprite.Size / 2, damage, false);
 		RefreshCombatLog();
 		RefreshPartySprites();
@@ -607,10 +678,18 @@ public partial class Combat : Control
 	{
 		if (@event is InputEventMouseButton mouse && mouse.Pressed)
 		{
-			if (mouse.ButtonIndex == MouseButton.Right && _selectingTarget)
+			if (mouse.ButtonIndex == MouseButton.Right)
 			{
-				ExitTargetSelectMode();
-				GetViewport().SetInputAsHandled();
+				if (_selectingTarget)
+				{
+					ExitTargetSelectMode();
+					GetViewport().SetInputAsHandled();
+				}
+				else if (_selectingRowSwap)
+				{
+					ExitRowSwitchMode();
+					GetViewport().SetInputAsHandled();
+				}
 			}
 		}
 
@@ -619,6 +698,11 @@ public partial class Combat : Control
 			if (_selectingTarget)
 			{
 				ExitTargetSelectMode();
+				GetViewport().SetInputAsHandled();
+			}
+			else if (_selectingRowSwap)
+			{
+				ExitRowSwitchMode();
 				GetViewport().SetInputAsHandled();
 			}
 		}
@@ -735,5 +819,30 @@ public partial class Combat : Control
 				return sprite;
 		}
 		return null;
+	}
+	
+	private void OnSwapTargetClicked(Character target)
+	{
+		if (!_selectingRowSwap) return;
+
+		var current = _combatState.CurrentCombatant;
+		if (current == null || !current.IsParty) return;
+
+		ExitRowSwitchMode();
+
+		// Perform the swap
+		_combatState.SwapRows(current.Character, target);
+
+		// Rebuild party sprites to reflect new positions
+		_partySpritemap.Clear();
+		LoadParty();
+		HighlightActiveCombatant();
+
+		RefreshCombatLog();
+		GetNode<PartyHUD>("/root/PartyHud").Refresh();
+
+		// Advance turn
+		_combatState.NextTurn();
+		UpdateUI();
 	}
 }

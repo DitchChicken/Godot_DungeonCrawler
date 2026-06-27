@@ -8,8 +8,11 @@ public partial class Dungeon : Control
 	private Label _roomDescription;
 	private Button _exploreButton;
 	private Button _townButton;
-
+	private Button _combatButton;
+	
 	private GameState _gameState;
+
+	private System.Random _rng = new System.Random();
 
 	public override void _Ready()
 	{
@@ -18,7 +21,10 @@ public partial class Dungeon : Control
 		_roomDescription = GetNode<Label>("RoomPanel/VBoxContainer/RoomDescription");
 		_exploreButton   = GetNode<Button>("ActionsPanel/ButtonRow/ExploreButton");
 		_townButton      = GetNode<Button>("ActionsPanel/ButtonRow/TownButton");
-
+		_combatButton    = GetNode<Button>("ActionsPanel/ButtonRow/CombatButton");
+		
+		_combatButton.Pressed += TryCombat;
+		
 		_gameState = GetNode<GameState>("/root/GameState");
 
 		// Debug: auto form party if empty
@@ -141,4 +147,69 @@ public partial class Dungeon : Control
 		GetNode<PartyHUD>("/root/PartyHud").Refresh();
 	}
 
+	private void TryCombat()
+	{
+		var room      = _gameState.CurrentRoom;
+		var dungeon   = _gameState.CurrentDungeon;
+		var state     = _gameState.GetDungeonState(dungeon);
+
+		EncounterData encounter = null;
+
+		if (DebugFlags.ForceEncounter)
+		{
+			var enc = EncounterLoader.LoadEncounter(
+				_gameState.CurrentDungeon, "SkeletonGuards");
+			if (enc != null)
+			{
+				_gameState.CurrentEncounter     = enc.Formation;
+				_gameState.CurrentEncounterData = enc;
+				GetNode<Main>("/root/Main").CallDeferred(
+					nameof(Main.SwitchScene), "res://Combat/Combat.tscn");
+			}
+			return;
+		}
+		
+		// Roll room encounters first — skip already completed ones
+		if (room?.Encounters != null)
+		{
+			foreach (var entry in room.Encounters)
+			{
+				// Skip if already completed this run
+				if (state.CompletedEncounters.Contains($"{room.Id}_{entry.Id}"))
+					continue;
+
+				if (_rng.NextDouble() < entry.Chance)
+				{
+					encounter = EncounterLoader.LoadEncounter(dungeon, entry.Id);
+					if (encounter != null)
+					{
+						// Mark completed
+						state.CompletedEncounters.Add($"{room.Id}_{entry.Id}");
+						GD.Print($"Room encounter: {encounter.Name}");
+						break;
+					}
+				}
+			}
+		}
+
+		// If no room encounter triggered, roll wandering monsters
+		if (encounter == null)
+		{
+			encounter = EncounterLoader.RollWanderingEncounter(dungeon, _rng);
+			if (encounter != null)
+				GD.Print($"Wandering encounter: {encounter.Name}");
+		}
+
+		if (encounter == null)
+		{
+			GD.Print("No encounter this room.");
+			return;
+		}
+
+		// Store encounter in GameState and switch to combat
+		_gameState.CurrentEncounter = encounter.Formation;
+		_gameState.CurrentEncounterData = encounter;
+		GetNode<Main>("/root/Main").CallDeferred(
+			nameof(Main.SwitchScene), "res://Combat/Combat.tscn");
+	}
 }

@@ -18,14 +18,8 @@ public class RoomData
 	public string Description { get; set; }
 	public string Image { get; set; }
 	public bool Unique { get; set; }
-	public int MinOccurrences { get; set; }
-	public int MaxOccurrences { get; set; }
+	public int MinOccurrences { get; set; } = 1;
+	public int MaxOccurrences { get; set; } = 1;
 	public float SpawnChance { get; set; } = 1.0f;
-}
-
-public class DungeonState
-{
-	public List<string> RoomPool { get; set; } = new List<string>();
-	public List<string> UniqueRoomsFound { get; set; } = new List<string>();
-	public string LastRoomId { get; set; } = "";
+	public List<RoomEncounterEntry> Encounters { get; set; } = new List<RoomEncounterEntry>();
 }

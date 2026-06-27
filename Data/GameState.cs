@@ -19,7 +19,8 @@ public partial class GameState : Node
 	public string CurrentDungeon = "";
 	public RoomData CurrentRoom = null;
 	public Dictionary<string, DungeonState> DungeonStates = new Dictionary<string, DungeonState>();
-
+	public EncounterData CurrentEncounterData { get; set; }
+	
 	// Current combat encounter
 	public List<List<string>> CurrentEncounter = new List<List<string>>();
 

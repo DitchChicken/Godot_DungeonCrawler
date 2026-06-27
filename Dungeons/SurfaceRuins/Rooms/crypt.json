@@ -6,5 +6,8 @@
 	"unique": false,
 	"minOccurrences": 1,
 	"maxOccurrences": 3,
-	"spawnChance": 1.0
+	"spawnChance": 1.0,
+	"encounters": [
+		{ "id": "SkeletonGuards", "chance": 0.75 }
+	]
 }

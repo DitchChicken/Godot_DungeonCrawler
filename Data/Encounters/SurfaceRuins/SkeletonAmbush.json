@@ -1,0 +1,8 @@
+	"id": "SkeletonGuards",
+	"name": "Skeleton Guards",
+	"description": "A group of skeletal guardians.",
+	"formation": [
+		["Skeleton", "Skeleton"],
+		["Skeleton", "Skeleton"],
+		[]
+	],

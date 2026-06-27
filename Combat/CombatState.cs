@@ -231,4 +231,89 @@ public class CombatState
 			AddLog("--- Defeat! ---");
 		}
 	}
+	
+	public int GetPartyRow(Character character)
+	{
+		int index = Party.IndexOf(character);
+		if (index < 0) return -1;
+		return index < 3 ? 0 : 1; // 0 = front, 1 = back
+	}
+
+	public List<Character> GetPartyRow(int row)
+	{
+		var result = new List<Character>();
+		int start  = row == 0 ? 0 : 3;
+		int end    = row == 0 ? 3 : 6;
+		for (int i = start; i < end && i < Party.Count; i++)
+			result.Add(Party[i]);
+		return result;
+	}
+
+	public List<Character> GetValidSwapTargets(Character character)
+	{
+		int currentRow = GetPartyRow(character);
+		int oppositeRow = currentRow == 0 ? 1 : 0;
+
+		var targets = new List<Character>();
+		var opposite = GetPartyRow(oppositeRow);
+
+		// Check if this character is the last one standing
+		int livingCount = 0;
+		foreach (var c in Party)
+			if (c.IsAlive) livingCount++;
+
+		if (livingCount <= 1)
+		{
+			// Last man standing — allow moving to any empty slot in opposite row
+			foreach (var c in opposite)
+				targets.Add(c); // includes dead
+			return targets;
+		}
+
+		// Normal case — only living members in opposite row
+		foreach (var c in opposite)
+			if (c.IsAlive) targets.Add(c);
+
+		return targets;
+	}
+
+	public void SwapRows(Character a, Character b)
+	{
+		int indexA = Party.IndexOf(a);
+		int indexB = Party.IndexOf(b);
+		if (indexA < 0 || indexB < 0) return;
+
+		Party[indexA] = b;
+		Party[indexB] = a;
+
+		AddLog($"{a.Name} and {b.Name} switch rows.");
+	}
+	
+	public bool IsFrontRowWiped()
+	{
+		for (int i = 0; i < 3 && i < Party.Count; i++)
+			if (Party[i].IsAlive) return false;
+		return true;
+	}
+	
+	public void AutoPromoteBackRow()
+	{
+		if (!IsFrontRowWiped()) return;
+
+		// Find first living back row member and swap to front
+		for (int back = 3; back < 6 && back < Party.Count; back++)
+		{
+			if (!Party[back].IsAlive) continue;
+
+			// Find first empty/dead front slot
+			for (int front = 0; front < 3; front++)
+			{
+				if (Party[front].IsAlive) continue;
+				SwapRows(Party[back], Party[front]);
+				AddLog($"{Party[front].Name} moves to the front row!");
+				break;
+			}
+			break;
+		}
+	}
 }

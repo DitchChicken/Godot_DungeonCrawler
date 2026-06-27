@@ -132,3 +132,13 @@ anchor_right = 0.5
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("3_xdggh")
+
+[node name="TurnTracker" type="Control" parent="TurnTracker" unique_id=2026829413]
+z_index = 10
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3_xdggh")
