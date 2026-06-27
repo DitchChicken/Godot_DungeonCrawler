@@ -1,6 +1,6 @@
 public class TransferTarget
 {
-	public enum TargetType { Vault, PersonalInventory, EquipmentSlot }
+	public enum TargetType { Vault, PersonalInventory, EquipmentSlot, Loot }
 
 	public TargetType Type { get; set; }
 	public Character Character { get; set; }       // for inventory or equipment targets
@@ -23,4 +23,8 @@ public class TransferTarget
 			Character = c, 
 			SlotIndex = slotIndex 
 		};		
+		
+
+	public static TransferTarget ToLoot() =>
+		new TransferTarget { Type = TargetType.Loot };
 }

@@ -65,6 +65,9 @@ public static class InventoryTransfer
 					return System.Math.Min(available, item.MaxStack);
 				return available;
 				
+			case TransferTarget.TargetType.Loot:
+				return available;
+				
 			default:
 				return available;
 		}
@@ -82,6 +85,10 @@ public static class InventoryTransfer
 		{
 			gameState.PartyVault.RemoveItem(dragData.Item, count);
 		}
+		else if (dragData.Source == InventoryDragData.SourceType.Loot)
+		{
+			VictoryScreen.ActiveLootInventory?.RemoveItem(dragData.Item, count);
+		}
 		else
 		{
 			dragData.Character?.PersonalInventory.RemoveItem(dragData.Item, count);
@@ -98,6 +105,10 @@ public static class InventoryTransfer
 				gameState.PartyVault.AddItem(item, count);
 				return 0;
 
+			case TransferTarget.TargetType.Loot:
+				VictoryScreen.ActiveLootInventory?.AddItem(item, count);
+				return 0;
+				
 			case TransferTarget.TargetType.PersonalInventory:
 				var inv = target.Character?.PersonalInventory;
 				if (inv == null) return count;

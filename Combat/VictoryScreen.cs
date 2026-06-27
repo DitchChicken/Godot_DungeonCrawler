@@ -13,11 +13,17 @@ public partial class VictoryScreen : Control
 	private LootResult _lootResult;
 	private GameState _gameState;
 	private List<(Equipment item, int count)> _remainingLoot;
+	public static Inventory ActiveLootInventory { get; private set; }
+	
+	public static System.Action RefreshLootCallback;
+	
 	private Random _rng = new Random();
 
 	private const float LootSlotSize   = 128f;
 	private const int   LootGridColumns = 8;
 
+	private Inventory _lootInventory;
+	
 	public override void _Ready()
 	{
 		_gameState     = GetNode<GameState>("/root/GameState");
@@ -28,6 +34,7 @@ public partial class VictoryScreen : Control
 		_rightPanel    = GetNode<Control>("RightPanel");
 
 		_continueButton.Pressed += OnContinuePressed;
+		RefreshLootCallback = BuildLootGrid;
 	}
 
 	public void Initialize(LootResult lootResult, CombatState combatState)
@@ -35,6 +42,12 @@ public partial class VictoryScreen : Control
 		_lootResult    = lootResult;
 		_remainingLoot = new List<(Equipment, int)>(_lootResult.Items);
 
+		// Build loot inventory (unlimited, like vault)
+		_lootInventory = new Inventory(64, 0, 0);
+		foreach (var (item, count) in _lootResult.Items)
+			_lootInventory.AddItem(item.CloneEquipment(), count);
+		ActiveLootInventory = _lootInventory;
+		
 		// Award XP to living conscious survivors
 		int xp = lootResult.ExperiencePerSurvivor;
 		foreach (var character in _gameState.Party)
@@ -66,40 +79,26 @@ public partial class VictoryScreen : Control
 
 		_lootGrid.Columns = LootGridColumns;
 
-		if (_remainingLoot.Count == 0)
-		{
-			var emptyLabel = new Label();
-			emptyLabel.Text = "No loot.";
-			_lootGrid.AddChild(emptyLabel);
-			return;
-		}
-
-		foreach (var (item, count) in _remainingLoot)
+		int totalSlots = LootGridColumns * 2;
+		for (int i = 0; i < totalSlots; i++)
 		{
 			var slot = new InventorySlotButton();
-			slot.Item            = item.CloneEquipment();
-			slot.Item.StackCount = count;
-			slot.SourceType      = InventoryDragData.SourceType.Vault;
+			slot.SlotIndex       = i;
+			slot.SourceType      = InventoryDragData.SourceType.Loot;
 			slot.CustomMinimumSize = new Vector2(LootSlotSize, LootSlotSize);
 			slot.CustomMaximumSize = new Vector2(LootSlotSize, LootSlotSize);
 			slot.ExpandIcon      = true;
 			slot.IconAlignment   = HorizontalAlignment.Center;
 
-			if (!string.IsNullOrEmpty(item.Icon) && ResourceLoader.Exists(item.Icon))
-				slot.Icon = GD.Load<Texture2D>(item.Icon);
+			if (i < _lootInventory.Items.Count)
+			{
+				var item = _lootInventory.Items[i];
+				slot.Item = item;
+				if (!string.IsNullOrEmpty(item.Icon) && ResourceLoader.Exists(item.Icon))
+					slot.Icon = GD.Load<Texture2D>(item.Icon);
+			}
 
 			_lootGrid.AddChild(slot);
-		}
-
-		// Fill remaining empty slots
-		int totalSlots = LootGridColumns * 2;
-		for (int i = _remainingLoot.Count; i < totalSlots; i++)
-		{
-			var empty = new Button();
-			empty.Disabled          = true;
-			empty.CustomMinimumSize = new Vector2(LootSlotSize, LootSlotSize);
-			empty.CustomMaximumSize = new Vector2(LootSlotSize, LootSlotSize);
-			_lootGrid.AddChild(empty);
 		}
 	}
 
@@ -118,5 +117,11 @@ public partial class VictoryScreen : Control
 		// Return to dungeon
 		GetNode<Main>("/root/Main").CallDeferred(
 			nameof(Main.SwitchScene), "res://Dungeons/Dungeon.tscn");
+	}
+	
+	public override void _ExitTree()
+	{
+		ActiveLootInventory = null;
+		RefreshLootCallback = null;
 	}
 }

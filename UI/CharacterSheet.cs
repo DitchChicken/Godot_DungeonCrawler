@@ -21,9 +21,9 @@ public partial class CharacterSheet : CanvasLayer
 	private Label _chaLabel;
 	private Label _hpLabel;
 	private Label _manaLabel;
-	private Label _encumbranceLabel;
 	private Label _backstoryLabel;
-
+	private Label _encumbranceLabel;
+	
 	// Right panel
 	private EquipmentDoll _equipmentDoll;
 	private InventoryPanel _inventoryPanel;
@@ -35,7 +35,7 @@ public partial class CharacterSheet : CanvasLayer
 		// Wire up all nodes
 		string left = "Panel/MainContainer/LeftPanel/";
 		string stats = left + "StatsPanel/";
-		//string right = "Panel/MainContainer/RightPanel/EquipmentPanel/";
+		string right = "Panel/MainContainer/RightPanel/EquipmentPanel/";
 
 		_portrait          = GetNode<TextureRect>(left + "Portrait");
 		_nameLabel         = GetNode<Label>(stats + "NameLabel");
@@ -51,8 +51,7 @@ public partial class CharacterSheet : CanvasLayer
 		_chaLabel          = GetNode<Label>(stats + "ChaLabel");
 		_hpLabel           = GetNode<Label>(stats + "HpLabel");
 		_manaLabel         = GetNode<Label>(stats + "ManaLabel");
-		_encumbranceLabel  = GetNode<Label>(stats + "EncumbranceLabel");
-		_backstoryLabel    = GetNode<Label>(left + "BackstoryLabel");
+		_backstoryLabel    = GetNode<Label>(left + "BackstoryLabel");		
 	
 		// Replace right panel with doll
 		var rightPanel = GetNode<VBoxContainer>("Panel/MainContainer/RightPanel");
@@ -69,14 +68,16 @@ public partial class CharacterSheet : CanvasLayer
 		_equipmentDoll.SlotDoubleClicked  += OnSlotDoubleClicked;
 		rightPanel.AddChild(_equipmentDoll);
 
-		// Wire signals
-		_equipmentDoll.SlotClicked       += OnSlotClicked;
-		_equipmentDoll.SlotDoubleClicked += OnSlotDoubleClicked;
-
 		// Separator
 		var separator = new HSeparator();
 		rightPanel.AddChild(separator);
 
+		// Encumbrance label
+		_encumbranceLabel = new Label();
+		_encumbranceLabel.HorizontalAlignment = HorizontalAlignment.Center;
+		_encumbranceLabel.AddThemeColorOverride("font_color", new Color(0.9f, 0.9f, 0.7f));
+		rightPanel.AddChild(_encumbranceLabel);
+		
 		// Inventory label
 		var label = new Label();
 		label.Text                = "Inventory";
@@ -232,12 +233,29 @@ public partial class CharacterSheet : CanvasLayer
 	}
 
 	public void RefreshInventory()
-	{
+	{		
 		_inventoryPanel?.Refresh();
+		RefreshEncumbrance();
 	}
 	
 	public void RefreshDoll()
 	{
 		_equipmentDoll?.Refresh();
 	}	
+	
+	public void RefreshEncumbrance()
+	{
+		if (_encumbranceLabel == null || CurrentCharacter == null) return;
+
+		float current = CurrentCharacter.PersonalInventory.CurrentWeight;
+		float max     = CurrentCharacter.MaxEncumbrance;
+
+		_encumbranceLabel.Text = $"Encumbrance: {current:F1} / {max:F1} lbs";
+
+		// Color red if over capacity
+		if (current > max)
+			_encumbranceLabel.AddThemeColorOverride("font_color", new Color(1, 0.3f, 0.3f));
+		else
+			_encumbranceLabel.AddThemeColorOverride("font_color", new Color(0.9f, 0.9f, 0.7f));
+	}
 }

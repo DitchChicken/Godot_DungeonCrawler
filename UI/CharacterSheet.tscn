@@ -97,9 +97,6 @@ layout_mode = 2
 [node name="ManaLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=224275532]
 layout_mode = 2
 
-[node name="EncumbranceLabel" type="Label" parent="Panel/MainContainer/LeftPanel/StatsPanel" unique_id=1282233307]
-layout_mode = 2
-
 [node name="BackstoryLabel" type="Label" parent="Panel/MainContainer/LeftPanel" unique_id=1357516599]
 layout_mode = 2
 autowrap_mode = 3

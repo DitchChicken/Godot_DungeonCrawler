@@ -2,7 +2,7 @@ using Godot;
 
 public partial class InventoryDragData : GodotObject
 {
-	public enum SourceType { PersonalInventory, Vault }  // PersonalInventory = 0 now
+	public enum SourceType { PersonalInventory, Vault, Loot }
 
 	public int SourceInt { get; set; } = 0;  // store as int
 	public SourceType Source 

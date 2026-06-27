@@ -135,6 +135,10 @@ public partial class InventorySlotButton : Button
 		{
 			target = TransferTarget.ToVault();
 		}
+		else if (SourceType == InventoryDragData.SourceType.Loot)
+		{
+			target = TransferTarget.ToLoot();
+		}
 		else
 		{
 			// Personal inventory — pass the specific slot for merge detection
@@ -153,6 +157,8 @@ public partial class InventorySlotButton : Button
 
 		var vault = GetTree().Root.GetNodeOrNull<Vault>("Vault");
 		vault?.RefreshAll();
+
+		VictoryScreen.RefreshLootCallback?.Invoke();
 	}
 
 	private void RemoveFromSource(InventoryDragData dragData)
