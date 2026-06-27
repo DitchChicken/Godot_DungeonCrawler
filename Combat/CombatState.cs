@@ -6,13 +6,14 @@ using System.Linq;
 public class CombatState
 {
 	public enum Phase { Initiative, PlayerTurn, EnemyTurn, Victory, Defeat }
-
+	
 	// Combatants
 	public List<Character> Party { get; private set; }
 	public List<List<Monster>> EnemyFormation { get; private set; } // rows of monsters
 	public List<Monster> AllMonsters => EnemyFormation.SelectMany(r => r).ToList();
 
 	// Turn tracking
+	public int CurrentRound { get; private set; } = 1;	
 	public List<Combatant> TurnOrder { get; private set; } = new List<Combatant>();
 	public int CurrentTurnIndex { get; private set; } = 0;
 	public Combatant CurrentCombatant => TurnOrder.Count > 0 
@@ -111,22 +112,25 @@ public class CombatState
 		CurrentPhase = TurnOrder[0].IsParty ? Phase.PlayerTurn : Phase.EnemyTurn;
 	}
 
-	// Advance to next turn
 	public void NextTurn()
 	{
-		// Skip dead combatants
+		int previousIndex = CurrentTurnIndex;
 		do
 		{
 			CurrentTurnIndex = (CurrentTurnIndex + 1) % TurnOrder.Count;
 		}
 		while (!TurnOrder[CurrentTurnIndex].IsAlive);
 
+		// Increment round when we wrap back to start
+		if (CurrentTurnIndex <= previousIndex)
+			CurrentRound++;
+
 		CurrentPhase = TurnOrder[CurrentTurnIndex].IsParty
 			? Phase.PlayerTurn
 			: Phase.EnemyTurn;
 
-		AddLog($"--- {TurnOrder[CurrentTurnIndex].Name}'s turn ---");
-	}
+		// VerboseCombatLogging: AddLog($"--- {TurnOrder[CurrentTurnIndex].Name}'s turn ---");
+	}	
 
 	public int ResolveAttack(Combatant attacker, Combatant defender)
 	{

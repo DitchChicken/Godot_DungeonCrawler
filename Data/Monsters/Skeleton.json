@@ -16,5 +16,6 @@
 	},
 	"attacks": ["BoneStrike"],
 	"armorClass": 2,
+	"portrait": "",
 	"sprite": "res://Data/Monsters/Skeleton.png"
 }

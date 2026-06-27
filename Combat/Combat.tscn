@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dd1oqfkq0nd7c" path="res://Combat/Combat.cs" id="1_jd13n"]
 [ext_resource type="Texture2D" uid="uid://oqke5oax1sf5" path="res://Data/Battleground/Dungeon_Floor_01.png" id="2_4r2th"]
+[ext_resource type="Script" uid="uid://btxfqmeed7qkv" path="res://Combat/TurnTracker.cs" id="3_xdggh"]
 
 [node name="Combat" type="Control" unique_id=168626696]
 layout_mode = 3
@@ -22,21 +23,6 @@ grow_vertical = 2
 texture = ExtResource("2_4r2th")
 expand_mode = 1
 stretch_mode = 6
-
-[node name="TurnTracker" type="PanelContainer" parent="." unique_id=100000001]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.25
-anchor_right = 0.75
-anchor_bottom = 0.1
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="TurnStrip" type="HBoxContainer" parent="TurnTracker" unique_id=100000002]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-alignment = 1
 
 [node name="PartyContainer" type="Control" parent="." unique_id=329633175]
 layout_mode = 1
@@ -136,3 +122,13 @@ text = "Switch Row"
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Flee"
+
+[node name="TurnTracker" type="Control" parent="." unique_id=100000001]
+z_index = 10
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3_xdggh")

@@ -16,4 +16,5 @@ public class MonsterDef
 	public int BaseDamageMin { get; set; } = 1;
 	public int BaseDamageMax { get; set; } = 4;
 	public int ArmorClass { get; set; } = 0;
+	public string Portrait { get; set; } = "";
 }

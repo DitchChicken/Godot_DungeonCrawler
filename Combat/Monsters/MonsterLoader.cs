@@ -42,6 +42,7 @@ public static class MonsterLoader
 			Initiative        = def.Initiative,
 			Resistances       = def.Resistances ?? new Dictionary<string, float>(),
 			Sprite            = def.Sprite,
+			Portrait          = def.Portrait ?? "",
 			AttackIds         = def.Attacks ?? new List<string>()
 		};
 
@@ -49,7 +50,7 @@ public static class MonsterLoader
 		monster.Attacks = AttackLoader.LoadAttacks(monster.AttackIds);
 		monster.Initialize();
 
-		GD.Print($"Loaded monster: {monster.Name} HP:{monster.MaxHP} Level:{monster.Level}");
+		//GD.Print($"Loaded monster: {monster.Name} HP:{monster.MaxHP} Level:{monster.Level}");
 		return monster;
 	}
 

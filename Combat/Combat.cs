@@ -9,7 +9,9 @@ public partial class Combat : Control
 	private Control _enemyContainer;
 	private GameState _gameState;
 	private CombatState _combatState;
-
+	private TurnTracker _turnTracker;
+	private SpriteHighlighter _highlighter = new SpriteHighlighter();
+	
 	// UI nodes
 	private Label _combatantLabel;
 	private Label _logLabel;
@@ -46,7 +48,8 @@ public partial class Combat : Control
 
 	private Dictionary<Character, TextureRect> _partySpritemap = new Dictionary<Character, TextureRect>();
 	private Dictionary<TextureRect, Image> _spriteImages = new Dictionary<TextureRect, Image>();
-
+	private Dictionary<Monster, TextureRect> _monsterSpritemap = new Dictionary<Monster, TextureRect>();
+	
 	public override void _Ready()
 	{
 		_partyContainer  = GetNode<Control>("PartyContainer");
@@ -60,8 +63,12 @@ public partial class Combat : Control
 		_itemButton      = GetNode<Button>("ActionPanel/VBoxContainer/ItemButton");
 		_rowSwitchButton = GetNode<Button>("ActionPanel/VBoxContainer/RowSwitchButton");
 		_fleeButton      = GetNode<Button>("ActionPanel/VBoxContainer/FleeButton");
-		_turnStrip       = GetNode<HBoxContainer>("TurnTracker/TurnStrip");
-
+		_turnTracker = GetNode<TurnTracker>("TurnTracker");
+		_turnTracker.SlotHovered   += OnTrackerSlotHovered;
+		_turnTracker.SlotUnhovered += OnTrackerSlotUnhovered;
+		
+		AddChild(_highlighter);
+		
 		// Connect buttons
 		_attackButton.Pressed    += OnAttackPressed;
 		_spellSkillButton.Pressed += OnSpellSkillPressed;
@@ -100,8 +107,26 @@ public partial class Combat : Control
 
 		_combatState = new CombatState(_gameState.Party, formation);
 		_combatState.RollInitiative();
+		
+		_turnTracker.Initialize(_combatState, this);
+		_turnTracker.SlotHovered   += OnTrackerSlotHovered;
+		_turnTracker.SlotUnhovered += OnTrackerSlotUnhovered;
+
 		RefreshCombatLog();
 		RefreshPartySprites();
+		
+		GD.Print("AllMonsters:");
+		foreach (var m in _combatState.AllMonsters)
+			GD.Print($"  {m.CombatLabel} hash:{m.GetHashCode()}");
+
+		GD.Print("TurnOrder monsters:");
+		foreach (var c in _combatState.TurnOrder.Where(c => !c.IsParty))
+			GD.Print($"  {c.Monster.CombatLabel} hash:{c.Monster.GetHashCode()}");
+
+		GD.Print("EnemyOrder (after LoadEnemies):"); 
+		// Add this after LoadEnemies() call 
+		foreach (var m in _enemyOrder)
+			GD.Print($"  {m.CombatLabel} hash:{m.GetHashCode()}");
 	}
 
 	private void UpdateUI()
@@ -118,11 +143,12 @@ public partial class Combat : Control
 
 		HighlightActiveCombatant();
 		HighlightActiveHudSlot();
+		_turnTracker.Refresh();
 
 		if (!isPlayerTurn)
 			ProcessEnemyTurn();
 	}
-
+	
 	private void SetActionButtonsEnabled(bool enabled)
 	{
 		_attackButton.Disabled    = !enabled;
@@ -197,28 +223,15 @@ public partial class Combat : Control
 	{
 		for (int i = 0; i < _enemySprites.Count; i++)
 		{
-			if (i >= _enemyOrder.Count || !_enemyOrder[i].IsAlive) continue;
-
-			float baseShade = (float)_enemySprites[i].GetMeta("baseShade");
-			// Blend red tint with depth shade
-			_enemySprites[i].Modulate = new Color(
-				baseShade,           // R stays at shade
-				baseShade * 0.4f,    // G reduced → makes it redder
-				baseShade * 0.4f,    // B reduced → makes it redder
-				1.0f);
+			if (i < _enemyOrder.Count && _enemyOrder[i].IsAlive)
+				_highlighter.SetHighlight(_enemySprites[i], 
+					SpriteHighlighter.HighlightType.Target);
 		}
 	}
 
 	private void ClearTargetHighlights()
 	{
-		for (int i = 0; i < _enemySprites.Count; i++)
-		{
-			if (i >= _enemyOrder.Count) continue;
-			if (!_enemyOrder[i].IsAlive) continue;
-
-			float baseShade = (float)_enemySprites[i].GetMeta("baseShade");
-			_enemySprites[i].Modulate = new Color(baseShade, baseShade, baseShade, 1.0f);
-		}
+		_highlighter.ClearHighlight(SpriteHighlighter.HighlightType.Target);
 	}
 
 	// --- Enemy Turn ---
@@ -251,6 +264,17 @@ public partial class Combat : Control
 		};
 
 		int damage = _combatState.ResolveAttack(current, defender);
+		
+		// Fade any unconscious party sprites
+		foreach (var c in _gameState.Party)
+		{
+			if (!c.IsAlive && _partySpritemap.TryGetValue(c, out var pSprite))
+			{
+				_highlighter.Unregister(pSprite);
+				pSprite.Modulate = new Color(0.3f, 0.3f, 0.3f, 0.4f);
+			}
+		}
+		
 		// Spawn damage number on the hit party member
 		if (_partySpritemap.TryGetValue(target, out var hitSprite))
 		{
@@ -281,18 +305,14 @@ public partial class Combat : Control
 		for (int i = 0; i < party.Count; i++)
 		{
 			if (i >= _partySprites.Count) break;
-			var character = party[i];
-			var sprite    = _partySprites[i];
-
-			if (!character.IsAlive)
-				sprite.Modulate = new Color(0.3f, 0.3f, 0.3f, 0.4f);
-			else
+			if (!party[i].IsAlive)
 			{
-				float baseShade = (float)sprite.GetMeta("baseShade", ShadeMax);
-				sprite.Modulate = new Color(baseShade, baseShade, baseShade, 1.0f);
+				_highlighter.Unregister(_partySprites[i]);
+				_partySprites[i].Modulate = new Color(0.3f, 0.3f, 0.3f, 0.4f);
 			}
 		}
 	}
+	
 	private void HandleCombatEnd()
 	{
 		if (_combatState.CurrentPhase == CombatState.Phase.Victory)
@@ -357,6 +377,7 @@ public partial class Combat : Control
 			_partyContainer.AddChild(sprite);
 			_partySprites.Add(sprite);
 			_partySpritemap[character] = sprite;
+			_highlighter.Register(sprite, shade);
 		}
 	}
 
@@ -393,7 +414,7 @@ public partial class Combat : Control
 			// With 3 rows at 0.2 spacing: 0.0, 0.2, 0.4 from right edge
 			float rowX = containerSize.X * (EnemyStartXFrac - reversedRow * EnemyRowOffsetFrac);
 
-			GD.Print($"Row {row} (reversed:{reversedRow}): {count} monsters, rowX:{rowX:F1}");
+			//GD.Print($"Row {row} (reversed:{reversedRow}): {count} monsters, rowX:{rowX:F1}");
 
 			float rowTopY    = containerSize.Y * EnemyStartYFrac;
 			float rowBottomY = topY + 2 * containerSize.Y * EnemyStaggerYFrac;
@@ -426,8 +447,8 @@ public partial class Combat : Control
 					&& !_enemyOrder.Contains(m));
 			if (monster == null) continue;
 
-			GD.Print($"Placing {monster.CombatLabel} at ({pos.X:F1}, {pos.Y:F1}) " +
-					 $"container size: ({containerSize.X:F1}, {containerSize.Y:F1})");
+			//GD.Print($"Placing {monster.CombatLabel} at ({pos.X:F1}, {pos.Y:F1}) " +
+					 //$"container size: ({containerSize.X:F1}, {containerSize.Y:F1})");
 			
 			var sprite  = CreateSprite(spriteSize);
 			if (!string.IsNullOrEmpty(monster.Sprite)
@@ -474,6 +495,8 @@ public partial class Combat : Control
 			_enemyContainer.AddChild(sprite);
 			_enemySprites.Add(sprite);
 			_enemyOrder.Add(monster);
+			_highlighter.Register(sprite, shade);
+			_monsterSpritemap[monster] = sprite;
 		}
 	}
 
@@ -496,6 +519,7 @@ public partial class Combat : Control
 		
 		if (!monster.IsAlive)
 		{
+			_highlighter.Unregister(sprite);  // stop highlighter managing it
 			sprite.Modulate     = new Color(0.3f, 0.3f, 0.3f, 0.5f);
 			sprite.MouseFilter  = Control.MouseFilterEnum.Ignore;
 		}
@@ -602,34 +626,17 @@ public partial class Combat : Control
 	
 	private void HighlightActiveCombatant()
 	{
-		// Clear all party sprite highlights first
-		var party = _gameState.Party;
-		for (int i = 0; i < party.Count; i++)
-		{
-			if (i >= _partySprites.Count) break;
-			if (!party[i].IsAlive) continue;
+		// Clear previous active highlight
+		_highlighter.ClearHighlight(SpriteHighlighter.HighlightType.Active);
 
-			float baseShade = (float)_partySprites[i].GetMeta("baseShade", ShadeMax);
-			_partySprites[i].Modulate = new Color(baseShade, baseShade, baseShade, 1.0f);
-		}
-
-		// Highlight current combatant if party member
 		var current = _combatState?.CurrentCombatant;
-		if (current == null || !current.IsParty) return;
+		if (current == null) return;
 
-		int index = _gameState.Party.IndexOf(current.Character);
-		if (index >= 0 && index < _partySprites.Count)
-		{
-			float baseShade = (float)_partySprites[index].GetMeta("baseShade", ShadeMax);
-			// Green tint — boost G channel, reduce R and B slightly
-			_partySprites[index].Modulate = new Color(
-				baseShade * 0.6f,
-				baseShade * 1.0f,
-				baseShade * 0.6f,
-				1.0f);
-		}
+		TextureRect sprite = GetCombatantSprite(current);
+		if (sprite != null)
+			_highlighter.SetHighlight(sprite, SpriteHighlighter.HighlightType.Active);
 	}
-	
+
 	private void HighlightActiveHudSlot()
 	{
 		var partyHud = GetNode<PartyHUD>("/root/PartyHud");
@@ -656,5 +663,77 @@ public partial class Combat : Control
 		int ty = Mathf.Clamp((int)(localClickPos.Y * scale), 0, image.GetHeight() - 1);
 
 		return image.GetPixel(tx, ty).A > 0.1f;
+	}	
+
+	private Dictionary<TextureRect, Tween> _spriteGlowTweens = new Dictionary<TextureRect, Tween>();
+
+	private void StartSpriteGlow(TextureRect sprite, Color? glowColor = null)
+	{
+		// Kill existing glow on this sprite only
+		if (_spriteGlowTweens.TryGetValue(sprite, out var existing))
+		{
+			existing?.Kill();
+			_spriteGlowTweens.Remove(sprite);
+		}
+
+		float baseShade = (float)sprite.GetMeta("baseShade", ShadeMax);
+		Color color = glowColor ?? new Color(baseShade * 0.6f, baseShade, baseShade * 0.6f);
+
+		var tween = CreateTween();
+		tween.SetLoops();
+		tween.TweenProperty(sprite, "modulate", color, 0.5f);
+		tween.TweenProperty(sprite, "modulate",
+			new Color(baseShade, baseShade, baseShade, 1.0f), 0.5f);
+		_spriteGlowTweens[sprite] = tween;
+
+		// Reapply active highlight AFTER starting glow so it's not overwritten
+		HighlightActiveCombatant();
+	}
+	
+	private void StopAllSpriteGlows()
+	{
+		foreach (var kvp in _spriteGlowTweens)
+		{
+			kvp.Value?.Kill();
+			if (kvp.Key != null && kvp.Key.HasMeta("baseShade"))
+			{
+				float baseShade = (float)kvp.Key.GetMeta("baseShade");
+				kvp.Key.Modulate = new Color(baseShade, baseShade, baseShade, 1.0f);
+			}
+		}
+		_spriteGlowTweens.Clear();
+		HighlightActiveCombatant();
+		RefreshPartySprites();
+	}
+		
+	private void OnTrackerSlotHovered(int turnOrderIndex)
+	{
+		if (turnOrderIndex < 0 || turnOrderIndex >= _combatState.TurnOrder.Count)
+			return;
+
+		var combatant = _combatState.TurnOrder[turnOrderIndex];
+		var sprite = GetCombatantSprite(combatant);
+		if (sprite != null)
+			_highlighter.SetHighlight(sprite, SpriteHighlighter.HighlightType.Hover);
+	}
+
+	private void OnTrackerSlotUnhovered()
+	{
+		_highlighter.ClearHighlight(SpriteHighlighter.HighlightType.Hover);
+	}
+
+	private TextureRect GetCombatantSprite(Combatant combatant)
+	{
+		if (combatant.IsParty)
+		{
+			if (_partySpritemap.TryGetValue(combatant.Character, out var sprite))
+				return sprite;
+		}
+		else
+		{
+			if (_monsterSpritemap.TryGetValue(combatant.Monster, out var sprite))
+				return sprite;
+		}
+		return null;
 	}
 }

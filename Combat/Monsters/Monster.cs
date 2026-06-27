@@ -9,7 +9,8 @@ public partial class Monster : GodotObject
 	public string Name { get; set; }
 	public int Level { get; set; }
 	public string Id { get; set; } = "";
-
+	public string Portrait { get; set; } = "";
+	
 	// HP
 	public int MaxHP { get; set; }
 	public int CurrentHP { get; set; }
