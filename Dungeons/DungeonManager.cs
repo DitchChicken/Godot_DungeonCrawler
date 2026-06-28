@@ -75,6 +75,9 @@ public static class DungeonManager
 		}
 
 		gameState.CurrentRoom = currentRoom;
+		// In Explore() after selecting the room:
+		if (!state.ExploredRooms.Contains(currentRoom.Id))
+			state.ExploredRooms.Add(currentRoom.Id);
 		return currentRoom;
 	}
 
@@ -126,6 +129,9 @@ public static class DungeonManager
 		if (room != null && room.Unique)
 			state.UniqueRoomsFound.Add(roomId);
 
+		if (!state.ExploredRooms.Contains(room.Id))
+			state.ExploredRooms.Add(room.Id);
+			
 		state.LastRoomId = room?.Id ?? "";
 		gameState.CurrentRoom = room;
 

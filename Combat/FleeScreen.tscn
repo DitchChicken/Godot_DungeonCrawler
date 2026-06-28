@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://bcai5v2s3yadw"]
+
+[ext_resource type="Script" uid="uid://b3m0mlp5diclj" path="res://Combat/FleeScreen.cs" id="1"]
+
+[node name="FleeScreen" type="Control" unique_id=1655545445]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="DarkOverlay" type="ColorRect" parent="." unique_id=1213133475]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="Panel" type="PanelContainer" parent="." unique_id=935501560]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.3
+anchor_top = 0.125
+anchor_right = 0.7
+anchor_bottom = 0.525
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=66637279]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="Panel/VBoxContainer" unique_id=1139102945]
+layout_mode = 2
+text = "ESCAPED"
+horizontal_alignment = 1
+
+[node name="MessageLabel" type="Label" parent="Panel/VBoxContainer" unique_id=754751316]
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ContinueButton" type="Button" parent="Panel/VBoxContainer" unique_id=1549452404]
+layout_mode = 2
+text = "Continue"

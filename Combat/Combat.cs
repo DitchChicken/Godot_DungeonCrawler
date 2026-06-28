@@ -243,13 +243,7 @@ public partial class Combat : Control
 		ClearSwapHighlights();
 	}
 
-	private void OnFleePressed()
-	{
-		GD.Print("Flee TODO");
-	}
-
 	// --- Target Selection ---
-
 	private void EnterTargetSelectMode()
 	{
 		_selectingTarget = true;
@@ -928,5 +922,195 @@ public partial class Combat : Control
 		RefreshCombatLog();
 		GetNode<PartyHUD>("/root/PartyHud").Refresh();
 		HandleCombatEnd();
+	}
+	
+	private void OnFleePressed()
+	{
+		//TODO: Custom flee combat confirmation panel
+		if (_combatState.CurrentPhase != CombatState.Phase.PlayerTurn) return;
+		ShowFleeConfirmation();
+	}
+
+	private void ShowFleeConfirmation()
+	{
+		var dialog = new ConfirmationDialog();
+		dialog.Title       = "Flee?";
+		dialog.DialogText  = "Are you sure you want to flee?\n" +
+							 "The enemy will get a chance to strike as you run.";
+		dialog.OkButtonText     = "Flee";
+		dialog.CancelButtonText = "Cancel";
+
+		AddChild(dialog);
+
+		dialog.Confirmed += () =>
+		{
+			dialog.QueueFree();
+			ExecuteFlee();  // the async sequence
+		};
+		dialog.Canceled += () =>
+		{
+			dialog.QueueFree();
+		};
+
+		// Center and show
+		dialog.PopupCentered();
+	}
+
+	private async void ExecuteFlee()
+	{
+		SetActionButtonsEnabled(false);
+		var rolls = _combatState.RollFleeInitiative();
+		RefreshCombatLog();
+
+		// Track which characters have already fled (faded)
+		var fled = new HashSet<Character>();
+
+		// Helper — fade any living character whose flee init beats all REMAINING monsters
+		async System.Threading.Tasks.Task FadeEscapees(List<Monster> remainingMonsters)
+		{
+			var newlyFled = new List<Character>();
+			foreach (var c in _gameState.Party)
+			{
+				if (!c.IsAlive || fled.Contains(c)) continue;
+
+				int cInit = rolls.PartyInit[c];
+				bool caught = false;
+				foreach (var m in remainingMonsters)
+				{
+					if (!m.IsAlive) continue;
+					if (rolls.EnemyInit[m] >= cInit) { caught = true; break; }
+				}
+
+				if (!caught)
+				{
+					newlyFled.Add(c);
+					fled.Add(c);
+				}
+			}
+
+			// Fade them over 1.5s (in parallel)
+			foreach (var c in newlyFled)
+			{
+				if (_partySpritemap.TryGetValue(c, out var sprite))
+				{
+					_highlighter.Unregister(sprite);
+					var tween = CreateTween();
+					tween.TweenProperty(sprite, "modulate:a", 0.0f, 1.5f);
+					_combatState.AddLog($"{c.Name} escapes!");
+				}
+			}
+
+			if (newlyFled.Count > 0)
+			{
+				RefreshCombatLog();
+				await ToSignal(GetTree().CreateTimer(1.5f), "timeout");
+			}
+		}
+
+		// Build the list of monsters in flee-initiative order (highest first)
+		var orderedMonsters = new List<Monster>();
+		foreach (var m in _combatState.AllMonsters)
+			if (m.IsAlive) orderedMonsters.Add(m);
+		orderedMonsters.Sort((a, b) => rolls.EnemyInit[b].CompareTo(rolls.EnemyInit[a]));
+
+		// STEP 1 — fade anyone faster than every monster, before any attacks
+		await FadeEscapees(orderedMonsters);
+
+		// Process each monster in initiative order
+		for (int i = 0; i < orderedMonsters.Count; i++)
+		{
+			var monster = orderedMonsters[i];
+			if (!monster.IsAlive) continue;
+
+			// This monster attacks a random NON-FLED hero with init <= its own
+			int mInit = rolls.EnemyInit[monster];
+			var validTargets = new List<Character>();
+			foreach (var c in _gameState.Party)
+			{
+				if (!c.IsAlive || fled.Contains(c)) continue;
+				if (rolls.PartyInit[c] <= mInit)
+					validTargets.Add(c);
+			}
+
+			if (validTargets.Count > 0)
+			{
+				var target   = validTargets[new Random().Next(validTargets.Count)];
+				var attacker = new Combatant { Monster = monster, IsParty = false };
+				var defender = new Combatant { Character = target, IsParty = true };
+
+				int damage = _combatState.ResolveAttack(attacker, defender);
+				RefreshCombatLog();
+				GetNode<PartyHUD>("/root/PartyHud").Refresh();
+
+				if (_partySpritemap.TryGetValue(target, out var tSprite))
+					SpawnDamageNumber(tSprite.GlobalPosition + tSprite.Size / 2, damage, false);
+
+				// Fade if knocked out
+				if (!target.IsAlive && _partySpritemap.TryGetValue(target, out var koSprite))
+				{
+					_highlighter.Unregister(koSprite);
+					koSprite.Modulate = new Color(0.3f, 0.3f, 0.3f, 0.4f);
+					fled.Add(target); // remove from further targeting
+				}
+
+				// brief beat so the player can read each hit
+				await ToSignal(GetTree().CreateTimer(0.8f), "timeout");
+			}
+
+			// After this monster acts, anyone now faster than all REMAINING monsters escapes
+			var remaining = orderedMonsters.GetRange(i + 1, orderedMonsters.Count - (i + 1));
+			await FadeEscapees(remaining);
+
+			// If the party got wiped, jump to defeat
+			if (_combatState.IsDefeat)
+			{
+				_combatState.CheckVictoryDefeat();
+				HandleCombatEnd();
+				return;
+			}
+		}
+
+		// All hits resolved — wait for the floating numbers to breathe
+		await ToSignal(GetTree().CreateTimer(2.0f), "timeout");
+
+		ShowFleeScreen();
+	}
+
+	private void ShowFleeScreen()
+	{
+		_turnTracker.Visible = false;
+		_actionPanel.Visible = false;
+
+		var fleeScene = GD.Load<PackedScene>("res://Combat/FleeScreen.tscn");
+		var flee      = fleeScene.Instantiate();
+		AddChild(flee);
+		(flee as FleeScreen)?.Initialize();
+	}
+	
+	private void FleeToExploredRoom()
+	{
+		SetActionButtonsEnabled(false);
+		_turnTracker.Visible = false;
+		_actionPanel.Visible = false;
+
+		var dungeon = _gameState.CurrentDungeon;
+		var state   = _gameState.GetDungeonState(dungeon);
+
+		var explored = new List<string>(state.ExploredRooms);
+
+		// Prefer a room other than the current one
+		explored.Remove(_gameState.CurrentRoom?.Id);
+
+		string targetRoom = null;
+		if (explored.Count > 0)
+			targetRoom = explored[new Random().Next(explored.Count)];
+		else
+			targetRoom = _gameState.CurrentRoom?.Id; // nowhere else to go
+
+		if (targetRoom != null)
+			_gameState.CurrentRoom = DungeonManager.LoadRoom(dungeon, targetRoom);
+
+		GetNode<Main>("/root/Main").CallDeferred(
+			nameof(Main.SwitchScene), "res://Dungeons/Dungeon.tscn");
 	}
 }

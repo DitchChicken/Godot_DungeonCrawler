@@ -49,7 +49,6 @@ public class CombatState
 		}
 	}
 
-	// Roll initiative and build turn order
 	public void RollInitiative()
 	{
 		TurnOrder.Clear();
@@ -57,50 +56,26 @@ public class CombatState
 		foreach (var character in Party)
 		{
 			if (!character.IsAlive) continue;
+			var combatant = new Combatant { Character = character, IsParty = true };
+			combatant.Initiative = RollInitiativeFor(combatant);
+			TurnOrder.Add(combatant);
 
-			int roll         = _rng.Next(1, 11);
-			int equipMod     = 0;
-
-			// Check all equipped items for initiative modifiers
+			int equipMod = 0;
 			foreach (var item in character.EquippedItems.Values)
 				equipMod += item.InitiativeModifier;
-
-			int total = character.Dexterity + roll + equipMod;
-
-			string logMsg = $"{character.Name} rolls initiative: " +
-							$"{roll} + DEX({character.Dexterity})";
-			if (equipMod != 0)
-				logMsg += $" + equip({equipMod})";
-			logMsg += $" = {total}";
-
-			TurnOrder.Add(new Combatant
-			{
-				Character  = character,
-				Monster    = null,
-				Initiative = total,
-				IsParty    = true
-			});
-
+			string logMsg = $"{character.Name} rolls initiative: DEX({character.Dexterity})";
+			if (equipMod != 0) logMsg += $" + equip({equipMod})";
+			logMsg += $" = {combatant.Initiative}";
 			AddLog(logMsg);
 		}
 
 		foreach (var monster in AllMonsters)
 		{
 			if (!monster.IsAlive) continue;
-
-			int roll  = _rng.Next(1, 11);
-			// Monster.Initiative is now a small modifier (-2 to +2), not a base score
-			int total = roll + monster.Initiative;
-
-			TurnOrder.Add(new Combatant
-			{
-				Character  = null,
-				Monster    = monster,
-				Initiative = total,
-				IsParty    = false
-			});
-
-			AddLog($"{monster.CombatLabel} rolls initiative: {total}");
+			var combatant = new Combatant { Monster = monster, IsParty = false };
+			combatant.Initiative = RollInitiativeFor(combatant);
+			TurnOrder.Add(combatant);
+			AddLog($"{monster.CombatLabel} rolls initiative: {combatant.Initiative}");
 		}
 
 		TurnOrder = TurnOrder
@@ -315,5 +290,62 @@ public class CombatState
 			}
 			break;
 		}
+	}
+	
+	// Roll initiative for a single combatant — reusable for combat start and fleeing
+	public int RollInitiativeFor(Combatant combatant)
+	{
+		int roll = _rng.Next(1, 11); // 1d10
+
+		if (combatant.IsParty)
+		{
+			int equipMod = 0;
+			foreach (var item in combatant.Character.EquippedItems.Values)
+				equipMod += item.InitiativeModifier;
+			return combatant.Character.Dexterity + roll + equipMod;
+		}
+		else
+		{
+			return roll + combatant.Monster.Initiative;
+		}
+	}
+	
+	// Result of a flee attempt
+	public class FleeResult
+	{
+		public bool Success { get; set; }
+		public List<(Combatant attacker, Combatant defender, int damage)> Hits { get; set; }
+			= new List<(Combatant, Combatant, int)>();
+	}
+
+	public class FleeRolls
+	{
+		public Dictionary<Character, int> PartyInit = new Dictionary<Character, int>();
+		public Dictionary<Monster, int>   EnemyInit = new Dictionary<Monster, int>();
+	}
+
+	public FleeRolls RollFleeInitiative()
+	{
+		var rolls = new FleeRolls();
+		AddLog("The party attempts to flee!");
+
+		foreach (var c in Party)
+		{
+			if (!c.IsAlive) continue;
+			var combatant = new Combatant { Character = c, IsParty = true };
+			rolls.PartyInit[c] = RollInitiativeFor(combatant);
+		}
+
+		foreach (var m in AllMonsters)
+		{
+			if (!m.IsAlive) continue;
+			var combatant = new Combatant { Monster = m, IsParty = false };
+			rolls.EnemyInit[m] = RollInitiativeFor(combatant);
+		}
+
+		// Hardmode TODO: Add flee state and keep low init characters in combat?
+		// General TODO: Combat is marked completed at trigger, do we want to track the
+		//    remaining monsters and make it a new (likely) combat upon reentry to room?
+		return rolls;
 	}
 }
