@@ -233,6 +233,7 @@ ff1961ca0c4c55a79eb12f819a7b6345801bbbaf.d3d12.cache
 uid_cache.bin
 /.editorconfig
 /.gitattributes
+.godot/
 /.godot/editor/Aldric.json-folding-20e7d4e5dd8e38ed1cf8bea6156597ba.cfg
 /.godot/editor/Arrow.json-folding-2358a8783bf37344394f8fa96cba0631.cfg
 /.godot/editor/Attack.cs-folding-ad22d0cc1fdd6c3446e1759de1172f26.cfg
