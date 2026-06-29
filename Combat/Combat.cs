@@ -28,8 +28,6 @@ public partial class Combat : Control
 
 	// Combat state
 	private bool _selectingTarget = false;
-	private List<TextureRect> _enemySprites = new List<TextureRect>();
-	private List<TextureRect> _partySprites = new List<TextureRect>();
 	private List<Monster> _enemyOrder = new List<Monster>(); // matches _enemySprites
 
 	// Formation constants
@@ -49,9 +47,10 @@ public partial class Combat : Control
 	private const float ShadeMin           = 0.67f;
 	private const float ShadeMax           = 1.00f;
 
-	private Dictionary<Character, TextureRect> _partySpritemap = new Dictionary<Character, TextureRect>();
-	private Dictionary<TextureRect, Image> _spriteImages = new Dictionary<TextureRect, Image>();
-	private Dictionary<Monster, TextureRect> _monsterSpritemap = new Dictionary<Monster, TextureRect>();
+	private List<Control> _enemySprites = new List<Control>();
+	private List<Control> _partySprites = new List<Control>();
+	private Dictionary<Monster, Control>   _monsterSpritemap = new Dictionary<Monster, Control>();
+	private Dictionary<Character, Control> _partySpritemap   = new Dictionary<Character, Control>();
 	
 	private bool _selectingRowSwap = false;
 	private List<Character> _validSwapTargets = new List<Character>();
@@ -429,9 +428,7 @@ public partial class Combat : Control
 			var character = party[i];
 			var sprite    = CreateSprite(spriteSize);
 
-			if (!string.IsNullOrEmpty(character.BattleSprite)
-				&& ResourceLoader.Exists(character.BattleSprite))
-				sprite.Texture = GD.Load<Texture2D>(character.BattleSprite);
+			SetSpriteTexture(sprite, character.BattleSprite);
 
 			float shade     = CalculateShade(positions[i].Y, minY, maxY);
 			sprite.Modulate = new Color(shade, shade, shade, 1.0f);
@@ -474,42 +471,26 @@ public partial class Combat : Control
 		var containerSize = _enemyContainer.Size;
 		float spriteSize  = containerSize.X * EnemySpriteSize;
 
-		// Calculate the vertical range from the party constants
-		// so enemy spacing matches party spacing for a row of 3
 		float topY    = containerSize.Y * EnemyStartYFrac;
-		float bottomY = topY + 2 * containerSize.Y * EnemyStaggerYFrac; // 3 monsters = 2 gaps
+		float bottomY = topY + 2 * containerSize.Y * EnemyStaggerYFrac;
 
 		var allPositions = new List<(Vector2 pos, string monsterId)>();
-
 		for (int row = 0; row < formation.Count; row++)
 		{
 			var rowMonsters = formation[row];
 			int count       = rowMonsters.Count;
-
-			// Front row (last in formation) should be leftmost in enemy container
-			// Back row (first in formation) should be rightmost
 			int reversedRow = formation.Count - 1 - row;
-			
-			// Keep all rows within container — max offset should not exceed ~0.6
-			// With 3 rows at 0.2 spacing: 0.0, 0.2, 0.4 from right edge
-			float rowX = containerSize.X * (EnemyStartXFrac - reversedRow * EnemyRowOffsetFrac);
-
-			//GD.Print($"Row {row} (reversed:{reversedRow}): {count} monsters, rowX:{rowX:F1}");
-
-			float rowTopY    = containerSize.Y * EnemyStartYFrac;
-			float rowBottomY = topY + 2 * containerSize.Y * EnemyStaggerYFrac;
+			float rowX      = containerSize.X * (EnemyStartXFrac - reversedRow * EnemyRowOffsetFrac);
 
 			for (int i = 0; i < count; i++)
 			{
 				float t = count == 1 ? 0.5f : (float)i / (count - 1);
-				float y = rowTopY + t * (rowBottomY - rowTopY);
-				float x = rowX; // all monsters in row share same X (no stagger for now)
-
-				allPositions.Add((new Vector2(x, y), rowMonsters[i]));
+				float y = topY + t * (bottomY - topY);
+				allPositions.Add((new Vector2(rowX, y), rowMonsters[i]));
 			}
 		}
 
-		// Sort by Y so front sprites draw on top
+		// Sort by Y so front sprites draw on top (later siblings draw above)
 		allPositions.Sort((a, b) => a.pos.Y.CompareTo(b.pos.Y));
 
 		float minY = float.MaxValue, maxY = float.MinValue;
@@ -527,38 +508,32 @@ public partial class Combat : Control
 					&& !_enemyOrder.Contains(m));
 			if (monster == null) continue;
 
-			//GD.Print($"Placing {monster.CombatLabel} at ({pos.X:F1}, {pos.Y:F1}) " +
-					 //$"container size: ({containerSize.X:F1}, {containerSize.Y:F1})");
-			
-			var sprite  = CreateSprite(spriteSize);
-			if (!string.IsNullOrEmpty(monster.Sprite)
-				&& ResourceLoader.Exists(monster.Sprite))
-				sprite.Texture = GD.Load<Texture2D>(monster.Sprite);
+			var sprite = CreateSprite(spriteSize);
+			SetSpriteTexture(sprite, monster.Sprite);
 
-			if (sprite.Texture != null)
-				_spriteImages[sprite] = sprite.Texture.GetImage();
-	
 			float shade     = CalculateShade(pos.Y, minY, maxY);
 			sprite.Modulate = new Color(shade, shade, shade, 1.0f);
 			sprite.Position = pos;
-			sprite.Size     = new Vector2(spriteSize, spriteSize);			
+			sprite.Size     = new Vector2(spriteSize, spriteSize);
 			sprite.SetMeta("baseShade", shade);
 
 			var capturedMonster = monster;
 			var capturedSprite  = sprite;
+
+			// Click mask guarantees this only fires on opaque pixels.
+			// Transparent-area clicks pass through to the sprite behind.
 			sprite.GuiInput += (inputEvent) =>
 			{
-				if (inputEvent is InputEventMouseButton mouse
-					&& mouse.ButtonIndex == MouseButton.Left
-					&& mouse.Pressed
+				if (inputEvent is not InputEventMouseButton mouse || !mouse.Pressed)
+					return;
+
+				if (mouse.ButtonIndex == MouseButton.Left
 					&& _selectingTarget
 					&& capturedMonster.IsAlive)
 				{
 					OnEnemyClicked(capturedMonster, capturedSprite);
 				}
-				if (inputEvent is InputEventMouseButton rightMouse
-					&& rightMouse.ButtonIndex == MouseButton.Right
-					&& rightMouse.Pressed)
+				else if (mouse.ButtonIndex == MouseButton.Right)
 				{
 					if (_selectingTarget)
 						ExitTargetSelectMode();
@@ -571,7 +546,6 @@ public partial class Combat : Control
 				}
 			};
 
-			sprite.MouseFilter = Control.MouseFilterEnum.Stop;
 			_enemyContainer.AddChild(sprite);
 			_enemySprites.Add(sprite);
 			_enemyOrder.Add(monster);
@@ -580,7 +554,7 @@ public partial class Combat : Control
 		}
 	}
 
-	private void OnEnemyClicked(Monster monster, TextureRect sprite)
+	private void OnEnemyClicked(Monster monster, Control sprite)
 	{	
 		if (!_selectingTarget) return;
 
@@ -655,19 +629,31 @@ public partial class Combat : Control
 
 	// --- Helpers ---
 
-	private TextureRect CreateSprite(float size)
+	private TextureButton CreateSprite(float size)
 	{
-		var sprite = new TextureRect();
-		sprite.CustomMinimumSize   = new Vector2(size, size);
-		sprite.CustomMaximumSize   = new Vector2(size, size);
-		sprite.StretchMode         = TextureRect.StretchModeEnum.KeepAspect;
-		sprite.ExpandMode          = TextureRect.ExpandModeEnum.IgnoreSize;
-		sprite.SizeFlagsVertical   = Control.SizeFlags.ShrinkBegin;
-		sprite.SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin;
-		sprite.MouseFilter         = Control.MouseFilterEnum.Stop;
-		return sprite;
+		var btn = new TextureButton();
+		btn.IgnoreTextureSize = true;
+		btn.StretchMode       = TextureButton.StretchModeEnum.KeepAspectCentered;
+		btn.MouseFilter       = Control.MouseFilterEnum.Stop;
+		btn.CustomMinimumSize = new Vector2(size, size);
+		return btn;
 	}
 	
+	// Sets the displayed texture AND builds a click mask from its alpha,
+	// so only opaque pixels are clickable.
+	private void SetSpriteTexture(TextureButton btn, string path)
+	{
+		if (string.IsNullOrEmpty(path) || !ResourceLoader.Exists(path)) return;
+
+		var texture = GD.Load<Texture2D>(path);
+		btn.TextureNormal = texture;
+
+		var image  = texture.GetImage();
+		var bitmap = new Bitmap();
+		bitmap.CreateFromImageAlpha(image, 0.1f); // alpha < 0.1 = not clickable
+		btn.TextureClickMask = bitmap;
+	}
+
 	private float CalculateShade(float y, float minY, float maxY)
 	{
 		if (maxY <= minY) return ShadeMax;
@@ -734,7 +720,7 @@ public partial class Combat : Control
 		var current = _combatState?.CurrentCombatant;
 		if (current == null) return;
 
-		TextureRect sprite = GetCombatantSprite(current);
+		Control sprite = GetCombatantSprite(current);
 		if (sprite != null)
 			_highlighter.SetHighlight(sprite, SpriteHighlighter.HighlightType.Active);
 	}
@@ -748,66 +734,8 @@ public partial class Combat : Control
 			partyHud.HighlightSlot(current.Character);
 		else
 			partyHud.ClearHighlights();
-	}
-	
-	private bool IsClickOnVisiblePixel(TextureRect sprite, Vector2 localClickPos)
-	{
-		if (!_spriteImages.TryGetValue(sprite, out var image)) return true;
-
-		var textureSize = new Vector2(image.GetWidth(), image.GetHeight());
-		var spriteSize  = sprite.Size;
-
-		float scaleX = textureSize.X / spriteSize.X;
-		float scaleY = textureSize.Y / spriteSize.Y;
-		float scale  = Mathf.Max(scaleX, scaleY);
-
-		int tx = Mathf.Clamp((int)(localClickPos.X * scale), 0, image.GetWidth() - 1);
-		int ty = Mathf.Clamp((int)(localClickPos.Y * scale), 0, image.GetHeight() - 1);
-
-		return image.GetPixel(tx, ty).A > 0.1f;
 	}	
 
-	private Dictionary<TextureRect, Tween> _spriteGlowTweens = new Dictionary<TextureRect, Tween>();
-
-	private void StartSpriteGlow(TextureRect sprite, Color? glowColor = null)
-	{
-		// Kill existing glow on this sprite only
-		if (_spriteGlowTweens.TryGetValue(sprite, out var existing))
-		{
-			existing?.Kill();
-			_spriteGlowTweens.Remove(sprite);
-		}
-
-		float baseShade = (float)sprite.GetMeta("baseShade", ShadeMax);
-		Color color = glowColor ?? new Color(baseShade * 0.6f, baseShade, baseShade * 0.6f);
-
-		var tween = CreateTween();
-		tween.SetLoops();
-		tween.TweenProperty(sprite, "modulate", color, 0.5f);
-		tween.TweenProperty(sprite, "modulate",
-			new Color(baseShade, baseShade, baseShade, 1.0f), 0.5f);
-		_spriteGlowTweens[sprite] = tween;
-
-		// Reapply active highlight AFTER starting glow so it's not overwritten
-		HighlightActiveCombatant();
-	}
-	
-	private void StopAllSpriteGlows()
-	{
-		foreach (var kvp in _spriteGlowTweens)
-		{
-			kvp.Value?.Kill();
-			if (kvp.Key != null && kvp.Key.HasMeta("baseShade"))
-			{
-				float baseShade = (float)kvp.Key.GetMeta("baseShade");
-				kvp.Key.Modulate = new Color(baseShade, baseShade, baseShade, 1.0f);
-			}
-		}
-		_spriteGlowTweens.Clear();
-		HighlightActiveCombatant();
-		RefreshPartySprites();
-	}
-		
 	private void OnTrackerSlotHovered(int turnOrderIndex)
 	{
 		if (turnOrderIndex < 0 || turnOrderIndex >= _combatState.TurnOrder.Count)
@@ -824,7 +752,7 @@ public partial class Combat : Control
 		_highlighter.ClearHighlight(SpriteHighlighter.HighlightType.Hover);
 	}
 
-	private TextureRect GetCombatantSprite(Combatant combatant)
+	private Control GetCombatantSprite(Combatant combatant)
 	{
 		if (combatant.IsParty)
 		{

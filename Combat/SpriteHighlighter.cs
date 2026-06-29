@@ -13,19 +13,19 @@ public partial class SpriteHighlighter : Node
 	}
 
 	// Maps sprite → its base shade (set once on load)
-	private Dictionary<TextureRect, float> _baseShades 
-		= new Dictionary<TextureRect, float>();
+	private Dictionary<Control, float> _baseShades 
+		= new Dictionary<Control, float>();
 
 	// Maps sprite → current highest priority highlight
-	private Dictionary<TextureRect, HighlightType> _highlights 
-		= new Dictionary<TextureRect, HighlightType>();
+	private Dictionary<Control, HighlightType> _highlights 
+		= new Dictionary<Control, HighlightType>();
 
 	// Active tweens per sprite
-	private Dictionary<TextureRect, Tween> _tweens 
-		= new Dictionary<TextureRect, Tween>();
+	private Dictionary<Control, Tween> _tweens 
+		= new Dictionary<Control, Tween>();
 
-	private Dictionary<TextureRect, List<HighlightType>> _highlightStacks
-		= new Dictionary<TextureRect, List<HighlightType>>();
+	private Dictionary<Control, List<HighlightType>> _highlightStacks
+		= new Dictionary<Control, List<HighlightType>>();
 
 	// Priority order — higher index = higher priority
 	private static readonly HighlightType[] Priority = {
@@ -36,13 +36,13 @@ public partial class SpriteHighlighter : Node
 		HighlightType.Hover
 	};
 
-	public void Register(TextureRect sprite, float baseShade)
+	public void Register(Control sprite, float baseShade)
 	{
 		_baseShades[sprite]       = baseShade;
 		_highlightStacks[sprite]  = new List<HighlightType>();
 	}
 
-	public void SetHighlight(TextureRect sprite, HighlightType type)
+	public void SetHighlight(Control sprite, HighlightType type)
 	{
 		if (!_baseShades.ContainsKey(sprite)) return;
 		if (type == HighlightType.None) return;
@@ -54,7 +54,7 @@ public partial class SpriteHighlighter : Node
 		ApplyTopHighlight(sprite);
 	}
 
-	public void ClearHighlight(TextureRect sprite, HighlightType type)
+	public void ClearHighlight(Control sprite, HighlightType type)
 	{
 		if (!_highlightStacks.ContainsKey(sprite)) return;
 		_highlightStacks[sprite].Remove(type);
@@ -63,7 +63,7 @@ public partial class SpriteHighlighter : Node
 
 	public void ClearHighlight(HighlightType type)
 	{
-		foreach (var sprite in new List<TextureRect>(_highlightStacks.Keys))
+		foreach (var sprite in new List<Control>(_highlightStacks.Keys))
 		{
 			_highlightStacks[sprite].Remove(type);
 			ApplyTopHighlight(sprite);
@@ -72,14 +72,14 @@ public partial class SpriteHighlighter : Node
 
 	public void ClearAll()
 	{
-		foreach (var sprite in new List<TextureRect>(_highlightStacks.Keys))
+		foreach (var sprite in new List<Control>(_highlightStacks.Keys))
 		{
 			_highlightStacks[sprite].Clear();
 			ApplyTopHighlight(sprite);
 		}
 	}
 
-	private void ApplyTopHighlight(TextureRect sprite)
+	private void ApplyTopHighlight(Control sprite)
 	{
 		if (!_highlightStacks.ContainsKey(sprite)) return;
 
@@ -131,7 +131,7 @@ public partial class SpriteHighlighter : Node
 		}
 	}
 	
-	private void StartPulse(TextureRect sprite, float shade,
+	private void StartPulse(Control sprite, float shade,
 		Color colorA, Color colorB, float duration)
 	{
 		var tween = sprite.CreateTween();
@@ -142,7 +142,7 @@ public partial class SpriteHighlighter : Node
 	}
 
 	// Call when a sprite is removed (death etc)
-	public void Unregister(TextureRect sprite)
+	public void Unregister(Control sprite)
 	{
 		if (_tweens.TryGetValue(sprite, out var tween))
 		{
