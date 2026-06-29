@@ -168,17 +168,19 @@ public partial class Combat : Control
 		_fleeButton.Disabled      = !enabled;
 	}
 
-	// Refresh combat log display
 	private void RefreshCombatLog()
 	{
 		_logLabel.Text = string.Join("\n", _combatState.Log);
-		// Scroll to bottom
+		// Defer scroll so the container recalculates content height first
 		CallDeferred(nameof(ScrollLogToBottom));
 	}
 
-	private void ScrollLogToBottom()
+	private async void ScrollLogToBottom()
 	{
-		_scrollContainer.ScrollVertical = (int)_scrollContainer.GetVScrollBar().MaxValue;
+		// Wait for the label to resize and the scrollbar to update
+		await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+		var vbar = _scrollContainer.GetVScrollBar();
+		_scrollContainer.ScrollVertical = (int)vbar.MaxValue;
 	}
 
 	private void AddLog(string message)

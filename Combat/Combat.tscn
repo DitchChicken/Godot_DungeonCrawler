@@ -66,16 +66,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 autowrap_mode = 3
 
-[node name="ScrollContainer" type="ScrollContainer" parent="CombatLog" unique_id=2075236129]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="LogLabel" type="Label" parent="CombatLog/ScrollContainer" unique_id=1983207177]
-layout_mode = 2
-size_flags_horizontal = 3
-autowrap_mode = 3
-
 [node name="ActionPanel" type="PanelContainer" parent="." unique_id=100000006]
 layout_mode = 1
 anchors_preset = -1
@@ -124,16 +114,6 @@ size_flags_horizontal = 3
 text = "Flee"
 
 [node name="TurnTracker" type="Control" parent="." unique_id=100000001]
-z_index = 10
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("3_xdggh")
-
-[node name="TurnTracker" type="Control" parent="TurnTracker" unique_id=2026829413]
 z_index = 10
 layout_mode = 1
 anchors_preset = 5
