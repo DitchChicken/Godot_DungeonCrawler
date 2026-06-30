@@ -1,0 +1,25 @@
+{
+	"id": "harvestshrine",
+	"name": "Shrine of the First Harvest",
+	"description": [
+		"At the center of this quiet chamber stands a simple stone altar adorned with carved sheaves of grain and ",
+		"clusters of unfamiliar fungi. There are no weapons, no kings, and no monuments to conquest—only scenes of planting, ",
+		"harvest, and shared meals. Whatever gods the dwarves honored, they thanked them first for abundance.",
+		"Even after all these centuries, the room feels peaceful.TODO: AI Text"
+		],
+	"image": "res://Dungeons/DwarvenBrewery/Images/HarvestShrine.png",
+	"unique": true,
+	"minOccurrences": 1,
+	"maxOccurrences": 1,
+	"spawnChance": 1.0,
+	"actions" : [
+		{
+			"name" : "Examine"
+		},
+		{
+			"name" : "Pray"
+		}
+	],
+	"combat" : "todo",
+	"nextRoom" : "MaintenanceGallery"
+}

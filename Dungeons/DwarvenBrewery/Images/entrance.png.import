@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bo04le52nt7kl"
-path="res://.godot/imported/Basic_Dungeon_05.png-20cfa704e10fb88555e346235bdf8cc5.ctex"
+uid="uid://dtugrlbf5ckbq"
+path="res://.godot/imported/entrance.png-273e51b164e0016bddd183b0c7a7546d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Data/DungeonRooms/BasicDungeon/Basic_Dungeon_05.png"
-dest_files=["res://.godot/imported/Basic_Dungeon_05.png-20cfa704e10fb88555e346235bdf8cc5.ctex"]
+source_file="res://Dungeons/SurfaceRuins/Images/entrance.png"
+dest_files=["res://.godot/imported/entrance.png-273e51b164e0016bddd183b0c7a7546d.ctex"]
 
 [params]
 

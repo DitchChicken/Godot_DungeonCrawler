@@ -1,0 +1,24 @@
+{
+	"id": "guardroom",
+	"name": "Old Guard Room",
+	"description": ["The broad stone stair descends into cool, dry air carrying the faint scent of grain and damp earth. ",
+	                "Enormous bronze doors stand frozen open, their counterweights locked in place by mechanisms that still hum ",
+					"with quiet purpose. Carved reliefs depict dwarves harvesting wheat, tending strange gardens, and raising overflowing mugs in celebration.",
+					"Whatever this place once was, it was built for honest work rather than war. TODO: AI Text"
+					],
+	"image": "res://Dungeons/DwarvenBrewery/Images/GateHouse.png",
+	"unique": true,
+	"minOccurrences": 1,
+	"maxOccurrences": 1,
+	"spawnChance": 1.0,
+	"actions" : [
+		{
+			"name" : "Read Inscription"
+		},
+		{
+			"name" : "Examine Bronze Mechanisms"
+		}
+		
+	]
+	"nextRoom" : "EntryHall"
+}

@@ -1,0 +1,23 @@
+{
+	"id": "maintenancemallery",
+	"name": "Maintenance Gallery",
+	"description": [
+		"Narrow service passages weave between exposed pipes, crystalline conduits, and humming ",
+		"mechanisms hidden behind walls never meant for public eyes. Small articulated machines tirelessly ",
+		"inspect joints, polish fittings, and replace worn components without acknowledging your presence. ",
+		"None appear aware that the civilization they serve vanished ages ago.",
+		"Their work never ended.TODO: AI Text"
+		],
+	"image": "res://Dungeons/DwarvenBrewery/Images/MaintenanceGallery.png",
+	"unique": true,
+	"minOccurrences": 1,
+	"maxOccurrences": 1,
+	"spawnChance": 1.0,
+	"actions" : [
+		{
+			"name" : "Examine"
+		}
+	],
+	"combat" : "todo",
+	"nextRoom" : "WardenControl"
+}

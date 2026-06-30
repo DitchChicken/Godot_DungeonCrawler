@@ -1,0 +1,31 @@
+{
+	"id": "fungalgardens",
+	"name": "Fungal Gardens",
+	"description": ["Tier upon tier of shallow stone beds support sprawling mats of pale fungus unlike anything found on the surface. ",
+	                "Nestled among them rest curious bulbous creatures whose soft tendrils intertwine with the fungal growth in quiet symbiosis. ",
+					"Warm mist drifts through the chamber, carrying a sweet, earthy fragrance unlike any forest mushroom.",
+					"The entire garden feels less cultivated than carefully maintained.TODO: AI Text"
+					],
+	"image": "res://Dungeons/DwarvenBrewery/Images/FungalGardens.png",
+	"unique": true,
+	"minOccurrences": 1,
+	"maxOccurrences": 1,
+	"spawnChance": 1.0,
+	"actions" : [
+		{
+			"name" : "Harvest"
+		},
+		{
+			"name" : "Study"
+		},
+		{
+			"name" : "Repair nutrient flow."
+		},
+		{
+			"name" : "Goblin Workers"
+		}
+		
+	],
+	"combat" : "todo",
+	"nextRoom" : "Engineering"
+}

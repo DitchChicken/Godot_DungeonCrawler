@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dlopmt466xeja"
-path="res://.godot/imported/Basic_Dungeon_04.png-bf7ed2accb47711625716e59f53f08bf.ctex"
+uid="uid://q62473wn6cm4"
+path="res://.godot/imported/guardroom.png-d5545773a5df90331b37ee61875f6a67.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Data/DungeonRooms/BasicDungeon/Basic_Dungeon_04.png"
-dest_files=["res://.godot/imported/Basic_Dungeon_04.png-bf7ed2accb47711625716e59f53f08bf.ctex"]
+source_file="res://Dungeons/SurfaceRuins/Images/guardroom.png"
+dest_files=["res://.godot/imported/guardroom.png-d5545773a5df90331b37ee61875f6a67.ctex"]
 
 [params]
 

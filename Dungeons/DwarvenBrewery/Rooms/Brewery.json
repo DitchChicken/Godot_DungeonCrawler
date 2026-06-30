@@ -1,0 +1,19 @@
+{
+	"id": "engineering",
+	"name": "Central Hyrdaulic System",
+	"description": 
+		["Towering copper vats rise toward the ceiling, connected by polished pipes and curious glass vessels stained ",
+		 "with the memory of countless brews. Ancient presses, mills, and fermentation casks remain remarkably intact, ",
+		 "while small maintenance machines continue to wipe away dust from equipment no one has used in generations.",
+		 "The dwarves did not simply make beer, they perfected it.TODO: AI Text"
+		 ],
+	"image": "res://Dungeons/DwarvenBrewery/Images/Engineering.png",
+	"unique": true,
+	"minOccurrences": 1,
+	"maxOccurrences": 1,
+	"spawnChance": 1.0,
+	"actions" : [
+	],
+	"combat" : "todo",
+	"nextRoom" : "Brewery"
+}

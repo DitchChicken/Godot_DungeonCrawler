@@ -1,0 +1,29 @@
+{
+	"id": "sungallery",
+	"name": "The Sun Gallery",
+	"description": ["The corridor opens onto a breathtaking chamber stretching far beyond the reach of your lanterns. ",
+	                "Endless rows of golden grain sway gently beneath brilliant white lights suspended high overhead, ",
+					"their impossible radiance imitating a summer afternoon. Water flows silently through carefully carved ",
+					"stone channels while tiny brass constructs continue tending the crop as though their makers had left only yesterday.",
+					"Something rustles deep within the wheat.TODO: AI Text"
+					],
+	"image": "res://Dungeons/DwarvenBrewery/Images/SunGallery.png",
+	"unique": true,
+	"minOccurrences": 1,
+	"maxOccurrences": 1,
+	"spawnChance": 1.0,
+	"actions" : [
+		{
+			"name" : "Harvest"
+		},
+		{
+			"name" : "Explore irrigation"
+		},
+		{
+			"name" : "Repair lighting"
+		}
+		
+	],
+	"combat" : "todo",
+	"nextRoom" : "FungalGardens"
+}

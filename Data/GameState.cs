@@ -70,6 +70,7 @@ public partial class GameState : Node
 	
 	public void ReturnToTown()
 	{
+		ConvertTreasureToGold();
 		CurrentDungeon = "";
 		CurrentRoom = null;
 		DungeonStates.Clear();  // wipes ALL dungeon states, fresh run next entry
@@ -101,5 +102,37 @@ public partial class GameState : Node
 			AddToParty(available[i]);
 
 		GD.Print($"Debug: Auto-formed party with {Party.Count} members");
+	}
+	
+	// Converts all treasure items in party inventories to gold, then removes them.
+	public void ConvertTreasureToGold()
+	{
+		int totalValue = 0;
+
+		foreach (var character in Party)
+		{
+			var treasure = new List<Equipment>();
+
+			// Find all treasure items
+			foreach (var item in character.PersonalInventory.Items)
+			{
+				if (item.Slot == EquipmentSlot.Treasure)
+				{
+					// Value = gold cost × stack count
+					totalValue += item.GoldCost * item.StackCount;
+					treasure.Add(item);
+				}
+			}
+
+			// Remove them from inventory
+			foreach (var item in treasure)
+				character.PersonalInventory.RemoveItem(item, item.StackCount);
+		}
+
+		if (totalValue > 0)
+		{
+			Gold += totalValue;
+			GD.Print($"Converted treasure to {totalValue} gold. Party total: {Gold}");
+		}
 	}
 }

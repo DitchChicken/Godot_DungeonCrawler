@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://etqa2h03tmpm"
-path="res://.godot/imported/Basic_Dungeon_10.png-fd6f99ac020494be770dfffd0af40aa9.ctex"
+uid="uid://cey3e6ge8rkd"
+path="res://.godot/imported/collapsed_hall.png-c76e290bd685a8067526e576f830d1bf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Data/DungeonRooms/BasicDungeon/Basic_Dungeon_10.png"
-dest_files=["res://.godot/imported/Basic_Dungeon_10.png-fd6f99ac020494be770dfffd0af40aa9.ctex"]
+source_file="res://Dungeons/SurfaceRuins/Images/collapsed_hall.png"
+dest_files=["res://.godot/imported/collapsed_hall.png-c76e290bd685a8067526e576f830d1bf.ctex"]
 
 [params]
 

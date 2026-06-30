@@ -1,0 +1,23 @@
+{
+	"id": "WardenControl",
+	"name": "Control Room",
+	"description": [
+		"A circular room surrounds a polished stone dais covered in glowing glyphs and bronze controls unlike anything else ",
+		"within the complex. Strange symbols pulse softly beneath a thin layer of dust while crystal lenses continue projecting ",
+		"silent streams of light across the chamber. The air hums with quiet anticipation.",
+		"Your mage and priest exchange uneasy glances.",
+		"Neither is certain whether they stand before a sacred altar... or a machine.TODO: AI Text"
+		],
+	"image": "res://Dungeons/DwarvenBrewery/Images/WardenControl.png",
+	"unique": true,
+	"minOccurrences": 1,
+	"maxOccurrences": 1,
+	"spawnChance": 1.0,
+	"actions" : [
+		{
+			"name" : "Examine"
+		}
+	],
+	"combat" : "todo",
+	"nextRoom" : "HarvestHall"
+}

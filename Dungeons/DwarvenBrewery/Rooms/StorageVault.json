@@ -1,0 +1,22 @@
+{
+	"id": "storagevault",
+	"name": "StorageVault",
+	"description": [
+		"Heavy stone shelves line the walls from floor to ceiling, many still neatly stocked with sealed crates and ",
+		"ceramic jars bearing faded dwarven markings. Thick iron doors and sturdy locks suggest this room once protected ",
+		"goods of exceptional value, though time has claimed much of what was left behind.",
+		"Not everything has been forgotten.TODO: AI Text"
+		],
+	"image": "res://Dungeons/DwarvenBrewery/Images/StorageVault.png",
+	"unique": true,
+	"minOccurrences": 1,
+	"maxOccurrences": 1,
+	"spawnChance": 1.0,
+	"actions" : [
+		{
+			"name" : "Lockpick"
+		}		
+	],
+	"combat" : "todo",
+	"nextRoom" : "HarvestShrine"
+}

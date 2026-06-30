@@ -1,0 +1,22 @@
+{
+	"id": "harvesthall",
+	"name": "Harvest Hall",
+	"description": [
+		"The heart of the ancient complex opens before you in a vast vaulted chamber where irrigation canals converge ",
+		"beneath a towering bronze construct standing perfectly still among the harvest beds. Great articulated limbs rest ",
+		"folded at its sides while pale lights flicker slowly behind an expressionless face of polished metal. Around it, ",
+		"the machinery of the harvest waits in silent expectation. As you step forward, the construct's eyes brighten.",
+		"For the first time in centuries, the Harvest Warden moves.TODO: AI Text"
+		],
+	"image": "res://Dungeons/DwarvenBrewery/Images/HarvestHall.png",
+	"unique": true,
+	"minOccurrences": 1,
+	"maxOccurrences": 1,
+	"spawnChance": 1.0,
+	"actions" : [
+		{
+			"name" : "Examine"
+		}
+	],
+	"combat" : "todo"
+}

@@ -1,0 +1,20 @@
+{
+	"id": "engineering",
+	"name": "Central Hyrdaulic System",
+	"description": [
+		"Great channels of clear water plunge beneath grated walkways before disappearing into the darkness below. ",
+		"Massive wheels and bronze sluice gates stand motionless beside intricate mechanisms whose purpose is no longer obvious. ",
+		"The steady trickle of water echoes through the chamber like the heartbeat of the forgotten brewery.",
+		"The entire complex seems to depend on this room.TODO: AI Text"
+		],
+	"image": "res://Dungeons/DwarvenBrewery/Images/Engineering.png",
+	"unique": true,
+	"minOccurrences": 1,
+	"maxOccurrences": 1,
+	"spawnChance": 1.0,
+	"actions" : [
+		"name" : "Explore"
+	],
+	"combat" : "todo",
+	"nextRoom" : "StorageVault"
+}

@@ -1,0 +1,27 @@
+{
+	"id": "entryhall",
+	"name": "The Entry Hall",
+	"description": ["Dust hangs undisturbed beneath a vaulted ceiling supported by polished stone columns. ",
+	                "Broken carts and abandoned tools lie where they were dropped centuries ago, yet nothing ",
+					"has truly fallen into ruin. Small crystal lamps still glow with a steady white light, ",
+					"casting long shadows across faded floor mosaics that map the surrounding complex. Someone expected people to return.TODO: AI Text"
+					],
+	"image": "res://Dungeons/DwarvenBrewery/Images/EntryHall.png",
+	"unique": true,
+	"minOccurrences": 1,
+	"maxOccurrences": 1,
+	"spawnChance": 1.0,
+	"actions" : [
+		{
+			"name" : "Dwarf notices construction marks."
+		},
+		{
+			"name" : "Rogue finds loose brick."
+		},
+		{
+			"name" : "Mage notices glowing runes."
+		}
+		
+	]
+	"nextRoom" : "GoblinHearth"
+}

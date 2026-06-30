@@ -1,0 +1,7 @@
+{
+	"id": "DwarvenBrewery",
+	"name": "Dwarven Brewery",
+	"levels": 1,
+	"entryRooms": ["Gatehouse"],
+	"rooms": ["Gatehouse"]
+}
