@@ -32,7 +32,7 @@ public partial class Dungeon : Control
 		AutoFormParty();
 		
 		// Enter the dungeon
-		var room = DungeonManager.EnterDungeon("SurfaceRuins", _gameState);
+		var room = DungeonManager.EnterDungeon("DwarvenBrewery", _gameState);
 		DisplayRoom(room);
 	}
 
@@ -67,7 +67,7 @@ public partial class Dungeon : Control
 		if (room == null) return;
 
 		_roomName.Text = room.Name;
-		_roomDescription.Text = room.Description;
+		_roomDescription.Text = room.GetDescriptionText();
 		
 		if (!string.IsNullOrEmpty(room.Image)
 			&& ResourceLoader.Exists(room.Image))

@@ -22,6 +22,7 @@ color = Color(0, 0, 0, 0.7)
 
 [node name="LeftPanel" type="PanelContainer" parent="." unique_id=849245888]
 layout_mode = 1
+anchors_preset = -1
 anchor_right = 0.4
 anchor_bottom = 0.65
 grow_horizontal = 2
