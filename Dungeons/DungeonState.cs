@@ -7,4 +7,5 @@ public class DungeonState
 	public string LastRoomId { get; set; }                = "";
 	public HashSet<string> CompletedEncounters { get; set; } = new HashSet<string>();
 	public List<string> ExploredRooms { get; set; } = new List<string>();
+	public string PendingNextRoom { get; set; } = "";
 }

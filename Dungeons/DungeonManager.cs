@@ -75,9 +75,11 @@ public static class DungeonManager
 		}
 
 		gameState.CurrentRoom = currentRoom;
-		// In Explore() after selecting the room:
+		// Add room to explored rooms
 		if (!state.ExploredRooms.Contains(currentRoom.Id))
 			state.ExploredRooms.Add(currentRoom.Id);
+		RegisterNextRoom(state, currentRoom);
+		
 		return currentRoom;
 	}
 
@@ -112,11 +114,37 @@ public static class DungeonManager
 
 	public static RoomData Explore(GameState gameState)
 	{
-		var state = gameState.GetDungeonState(gameState.CurrentDungeon);
+		string dungeonId = gameState.CurrentDungeon;
+		var state = gameState.GetDungeonState(dungeonId);
+		
+		RoomData room;
 
+		// Forced next room takes priority over the random pool
+		if (!string.IsNullOrEmpty(state.PendingNextRoom))
+		{
+			string nextId = state.PendingNextRoom;
+			state.PendingNextRoom = ""; // consume it
+
+			// Remove from pool if it happened to be there, so we don't draw it again
+			state.RoomPool.Remove(nextId);
+
+			room = LoadRoom(dungeonId, nextId);
+			if (room == null)
+			{
+				GD.PrintErr($"Forced next room '{nextId}' failed to load — falling back to pool");
+				// fall through to random draw below
+			}
+			else
+			{
+				FinalizeExploredRoom(state, room);
+				return room;
+			}
+		}
+
+		// Normal random draw from pool
 		if (state.RoomPool.Count == 0)
 		{
-			GD.PrintErr("Explore called with empty room pool");
+			GD.Print("Room pool empty — nowhere left to explore.");
 			return null;
 		}
 
@@ -124,21 +152,27 @@ public static class DungeonManager
 		string roomId = state.RoomPool[index];
 		state.RoomPool.RemoveAt(index);
 
-		var room = LoadRoom(gameState.CurrentDungeon, roomId);
+		room = LoadRoom(dungeonId, roomId);
+		if (room == null) return null;
 
-		if (room != null && room.Unique)
-			state.UniqueRoomsFound.Add(roomId);
-
-		if (!state.ExploredRooms.Contains(room.Id))
-			state.ExploredRooms.Add(room.Id);
-			
-		state.LastRoomId = room?.Id ?? "";
-		gameState.CurrentRoom = room;
-
-		GD.Print($"Exploring: {room?.Name} - {state.RoomPool.Count} rooms remaining");
+		FinalizeExploredRoom(state, room);
 		return room;
 	}
 
+	// Shared post-load bookkeeping — track explored, uniques, and next-room pointer
+	private static void FinalizeExploredRoom(DungeonState state, RoomData room)
+	{
+		if (!state.ExploredRooms.Contains(room.Id))
+			state.ExploredRooms.Add(room.Id);
+
+		if (room.Unique && !state.UniqueRoomsFound.Contains(room.Id))
+			state.UniqueRoomsFound.Add(room.Id);
+
+		state.LastRoomId = room.Id;
+
+		RegisterNextRoom(state, room);
+	}
+	
 	private static void Shuffle(List<string> list)
 	{
 		int n = list.Count;
@@ -148,5 +182,25 @@ public static class DungeonManager
 			int k = _rng.Next(n + 1);
 			(list[k], list[n]) = (list[n], list[k]);
 		}
+	}
+	
+	// Records a room's nextRoom pointer as the pending forced draw
+	private static void RegisterNextRoom(DungeonState state, RoomData room)
+	{
+		if (room != null && !string.IsNullOrEmpty(room.NextRoom))
+		{
+			state.PendingNextRoom = room.NextRoom;
+		}
+		else
+			state.PendingNextRoom = "";
+	}	
+	
+	public static bool CanExplore(GameState gameState)
+	{
+		var state = gameState.GetDungeonState(gameState.CurrentDungeon);
+		if (state == null) return false;
+
+		// Can explore if there's a forced next room OR rooms left in the pool
+		return !string.IsNullOrEmpty(state.PendingNextRoom) || state.RoomPool.Count > 0;
 	}
 }

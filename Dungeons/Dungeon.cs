@@ -77,12 +77,12 @@ public partial class Dungeon : Control
 
 		// Gray out explore button if pool is empty
 		var state = _gameState.GetDungeonState(_gameState.CurrentDungeon);
-		_exploreButton.Disabled = state.RoomPool.Count == 0;
+		_exploreButton.Disabled = !DungeonManager.CanExplore(_gameState);
 	}
 
 	private void _on_explore_button_pressed()
 	{
-		GD.Print("Explore pressed");
+		//GD.Print("Explore pressed");
 		var room = DungeonManager.Explore(_gameState);
 		if (room == null) return;
 		DisplayRoom(room);
