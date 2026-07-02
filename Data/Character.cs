@@ -12,7 +12,9 @@ public partial class Character : GodotObject
 	//Graphics
 	public string Portrait { get; set; }
 	public string BattleSprite { get; set; }
-
+	public float SpriteTopOffset { get; set; } = 0f;
+	public float SpriteRightOffset { get; set; } = 0f;
+	
 	// Identity
 	public string Name { get; set; }
 	public Race Race { get; set; }
@@ -42,6 +44,7 @@ public partial class Character : GodotObject
 	// State
 	public Status Status { get; set; } = Status.Ok;
 	public Location Location { get; set; } = Location.Stable;
+	public List<StatusEffect> ActiveEffects { get; set; } = new List<StatusEffect>();
 
 	// HP
 	public int MaxHP => CalculateMaxHP();
@@ -60,8 +63,10 @@ public partial class Character : GodotObject
 		= new Dictionary<EquipmentSlot, Equipment>();
 	public Inventory PersonalInventory { get; set; }
 	
+	// Current weapon — main hand, or null
+	public Equipment CurrentWeapon => GetEquipped(EquipmentSlot.WeaponMain);
+	
 	// --- Derived Stat Methods ---
-
 	private int CalculateMaxHP()
 	{
 		// Base HP by class + CON modifier
@@ -102,9 +107,7 @@ public partial class Character : GodotObject
 
 	// --- Helper Methods ---
 
-	public bool IsAlive => Status != Status.Dead
-						&& Status != Status.Ashes
-						&& Status != Status.Lost;
+	public bool IsAlive => Status != Status.Dead && Status != Status.Lost;
 
 	public bool CanCast => IsAlive
 						&& (ClassType == ClassType.Mage || ClassType == ClassType.Priest)
@@ -193,7 +196,39 @@ public partial class Character : GodotObject
 			total += selector(item);
 		return total;
 	}
+		
+	// Add or stack an effect
+	public void AddStatusEffect(StatusEffect effect)
+	{
+		// If same type already present, stack potency and refresh duration
+		foreach (var existing in ActiveEffects)
+		{
+			if (existing.Type == effect.Type)
+			{
+				existing.Potency += effect.Potency;
+				existing.Duration = System.Math.Max(existing.Duration, effect.Duration);
+				return;
+			}
+		}
+		ActiveEffects.Add(effect);
+	}
 
-	// Current weapon — main hand, or null
-	public Equipment CurrentWeapon => GetEquipped(EquipmentSlot.WeaponMain);
+	public bool HasStatus(StatusType type)
+	{
+		return ActiveEffects.Exists(e => e.Type == type);
+	}
+
+	public void RemoveStatus(StatusType type)
+	{
+		ActiveEffects.RemoveAll(e => e.Type == type);
+	}
+
+	// Can this character take an action right now?
+	public bool CanAct()
+	{
+		if (!IsAlive) return false;
+		foreach (var e in ActiveEffects)
+			if (e.PreventsAction()) return false;
+		return true;
+	}
 }

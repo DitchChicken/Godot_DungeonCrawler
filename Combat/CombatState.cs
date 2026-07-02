@@ -89,6 +89,13 @@ public class CombatState
 
 	public void NextTurn()
 	{
+		// End-of-turn processing for the combatant who just acted
+		if (CurrentCombatant != null)
+		{
+			var endLog = StatusProcessor.ProcessTurnEnd(CurrentCombatant);
+			foreach (var msg in endLog) AddLog(msg);
+		}
+
 		int previousIndex = CurrentTurnIndex;
 		do
 		{
@@ -96,16 +103,27 @@ public class CombatState
 		}
 		while (!TurnOrder[CurrentTurnIndex].IsAlive);
 
-		// Increment round when we wrap back to start
 		if (CurrentTurnIndex <= previousIndex)
 			CurrentRound++;
 
-		CurrentPhase = TurnOrder[CurrentTurnIndex].IsParty
-			? Phase.PlayerTurn
-			: Phase.EnemyTurn;
+		// Start-of-turn processing for the new combatant
+		var startLog = StatusProcessor.ProcessTurnStart(CurrentCombatant, out bool skipTurn);
+		foreach (var msg in startLog) AddLog(msg);
 
-		// VerboseCombatLogging: AddLog($"--- {TurnOrder[CurrentTurnIndex].Name}'s turn ---");
-	}	
+		CurrentPhase = CurrentCombatant.IsParty ? Phase.PlayerTurn : Phase.EnemyTurn;
+
+		// If the combatant can't act, skip straight to the next turn
+		if (skipTurn)
+		{
+			CheckVictoryDefeat();
+			if (CurrentPhase != Phase.Victory && CurrentPhase != Phase.Defeat)
+			{
+				AddLog($"--- {CurrentCombatant.Name}'s turn is skipped ---");
+				NextTurn(); // recurse to next combatant
+				return;
+			}
+		}
+	}
 
 	public int ResolveAttack(Combatant attacker, Combatant defender)
 	{
@@ -131,6 +149,17 @@ public class CombatState
 				rawDamage = _rng.Next(monsterAttack.BaseDamageMin, monsterAttack.BaseDamageMax + 1);
 			else
 				rawDamage = _rng.Next(1, 4);
+			if (monsterAttack != null
+				&& !string.IsNullOrEmpty(monsterAttack.StatusEffect)
+				&& _rng.NextDouble() < monsterAttack.StatusChance)
+			{
+				if (Enum.TryParse<StatusType>(monsterAttack.StatusEffect, out var statusType))
+				{
+					int duration = 3; // default; could come from the attack JSON later
+					defender.AddEffect(new StatusEffect(statusType, duration));
+					AddLog($"{defender.Name} is {statusType}!");
+				}
+			}
 		}
 
 		int defenderAC = defender.IsParty
@@ -152,7 +181,7 @@ public class CombatState
 			// Death/unconscious AFTER damage log
 			if (defender.Character.CurrentHP <= 0)
 			{
-				defender.Character.Status = Status.Asleep;
+				defender.Character.Status = Status.Dead;
 				AddLog($"{defender.Character.Name} is knocked unconscious!");
 			}
 
@@ -176,6 +205,9 @@ public class CombatState
 				AddLog($"{defender.Monster.CombatLabel} is defeated!");
 		}
 
+		var wakeLog = StatusProcessor.OnDamageTaken(defender);
+		foreach (var msg in wakeLog) AddLog(msg);
+		
 		return damage;
 	}
 

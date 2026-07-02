@@ -12,4 +12,10 @@ public class Combatant
 	public string Name => IsParty
 		? Character.Name
 		: Monster.CombatLabel;
+		
+	public void AddEffect(StatusEffect effect)
+	{
+		if (IsParty) Character.AddStatusEffect(effect);
+		else Monster.AddStatusEffect(effect);
+	}
 }

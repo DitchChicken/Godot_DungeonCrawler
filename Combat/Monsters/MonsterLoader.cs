@@ -43,7 +43,9 @@ public static class MonsterLoader
 			Resistances       = def.Resistances ?? new Dictionary<string, float>(),
 			Sprite            = def.Sprite,
 			Portrait          = def.Portrait ?? "",
-			AttackIds         = def.Attacks ?? new List<string>()
+			AttackIds         = def.Attacks ?? new List<string>(),
+			SpriteTopOffset   = def.SpriteTopOffset,
+			SpriteRightOffset = def.SpriteRightOffset,
 		};
 
 		// Load attacks

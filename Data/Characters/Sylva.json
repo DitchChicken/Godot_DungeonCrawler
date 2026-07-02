@@ -19,5 +19,7 @@
 		{ "id": "Arrows", "count": 25 }
 	],
 	"portrait": "res://Data/Characters/Sylva_Portrait.png",
-	"battleSprite": "res://Data/Characters/Sylva_BattleSprite.png"
+	"battleSprite": "res://Data/Characters/Sylva_BattleSprite.png",
+	"spriteTopOffset": 412,
+	"spriteRightOffset": 200
 }

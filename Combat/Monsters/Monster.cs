@@ -10,6 +10,8 @@ public partial class Monster : GodotObject
 	public int Level { get; set; }
 	public string Id { get; set; } = "";
 	public string Portrait { get; set; } = "";
+	public float SpriteTopOffset { get; set; } = 0f;
+	public float SpriteRightOffset { get; set; } = 0f;
 	
 	// HP
 	public int MaxHP { get; set; }
@@ -21,6 +23,7 @@ public partial class Monster : GodotObject
 
 	// State
 	public MonsterStatus Status { get; set; } = MonsterStatus.Ok;
+	public List<StatusEffect> ActiveEffects { get; set; } = new List<StatusEffect>();
 
 	// Rewards
 	public int ExperienceReward { get; set; }
@@ -55,5 +58,40 @@ public partial class Monster : GodotObject
 	{
 		CurrentHP = MaxHP;
 		CurrentMP = MaxMP;
+	}
+	
+	// Add or stack an effect
+	public void AddStatusEffect(StatusEffect effect)
+	{
+		// If same type already present, stack potency and refresh duration
+		foreach (var existing in ActiveEffects)
+		{
+			if (existing.Type == effect.Type)
+			{
+				existing.Potency += effect.Potency;
+				existing.Duration = System.Math.Max(existing.Duration, effect.Duration);
+				return;
+			}
+		}
+		ActiveEffects.Add(effect);
+	}
+
+	public bool HasStatus(StatusType type)
+	{
+		return ActiveEffects.Exists(e => e.Type == type);
+	}
+
+	public void RemoveStatus(StatusType type)
+	{
+		ActiveEffects.RemoveAll(e => e.Type == type);
+	}
+
+	// Can this character take an action right now?
+	public bool CanAct()
+	{
+		if (!IsAlive) return false;
+		foreach (var e in ActiveEffects)
+			if (e.PreventsAction()) return false;
+		return true;
 	}
 }

@@ -18,4 +18,6 @@ public class MonsterDef
 	public int ArmorClass { get; set; } = 0;
 	public string Portrait { get; set; } = "";
 	public List<EncounterItemReward> Drops { get; set; } = new List<EncounterItemReward>();
+	public float SpriteTopOffset { get; set; } = 0f;
+	public float SpriteRightOffset { get; set; } = 0f;
 }

@@ -17,5 +17,7 @@
 		{ "id": "Dagger", "count": 1 }
 	],
 	"portrait": "res://Data/Characters/Ezren_Portrait.png",
-	"battleSprite": "res://Data/Characters/Ezren_BattleSprite.png"	
+	"battleSprite": "res://Data/Characters/Ezren_BattleSprite.png",
+	"spriteTopOffset": 412,
+	"spriteRightOffset": 200
 }

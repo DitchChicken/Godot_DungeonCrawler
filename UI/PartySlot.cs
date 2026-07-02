@@ -6,7 +6,8 @@ public partial class PartySlot : PanelContainer
 	private Label _nameLabel;
 	private Label _hpLabel;
 	private Label _manaLabel;
-
+	private StatusIconRow _statusRow;
+	
 	public Character Character { get; private set; }
 
 	[Export] public bool IsHudSlot = false;
@@ -17,7 +18,12 @@ public partial class PartySlot : PanelContainer
 		_nameLabel = GetNode<Label>("HBoxContainer/VBoxContainer/NameLabel");
 		_hpLabel   = GetNode<Label>("HBoxContainer/VBoxContainer/HpLabel");
 		_manaLabel = GetNode<Label>("HBoxContainer/VBoxContainer/MpLabel");
-
+		_statusRow = new StatusIconRow();
+		_statusRow.Alignment = BoxContainer.AlignmentMode.Center;
+		_statusRow.MouseFilter = Control.MouseFilterEnum.Ignore;
+		var vbox = GetNode<VBoxContainer>("HBoxContainer/VBoxContainer");
+		vbox.AddChild(_statusRow);
+		
 		Clear();
 	}
 
@@ -178,5 +184,13 @@ public partial class PartySlot : PanelContainer
 		Modulate = inParty 	        
 			? new Color(1.0f, 1.0f, 1.0f)  // normal
 			: new Color(0.85f, 1.0f, 0.85f); // green tint = on bench
+	}
+	
+	public void RefreshStatus()
+	{
+		if (Character != null)
+			_statusRow?.Refresh(Character.ActiveEffects);
+		else
+			_statusRow?.Refresh(null);
 	}
 }

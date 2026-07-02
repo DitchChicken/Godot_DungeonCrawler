@@ -51,6 +51,7 @@ public partial class Combat : Control
 	private List<Control> _partySprites = new List<Control>();
 	private Dictionary<Monster, Control>   _monsterSpritemap = new Dictionary<Monster, Control>();
 	private Dictionary<Character, Control> _partySpritemap   = new Dictionary<Character, Control>();
+	private Dictionary<Control, StatusIconRow> _statusRows = new Dictionary<Control, StatusIconRow>();
 	
 	private bool _selectingRowSwap = false;
 	private List<Character> _validSwapTargets = new List<Character>();
@@ -94,6 +95,32 @@ public partial class Combat : Control
 		LoadParty();		
 		InitializeCombat();
 		LoadEnemies();
+		
+		//Apply status effects to an enemy for testing
+		if (DebugFlags.ApplyTestStatuses)
+		{
+			var testMonster = _combatState.AllMonsters.FirstOrDefault();
+			if (testMonster != null)
+			{
+				testMonster.AddStatusEffect(new StatusEffect(StatusType.Poisoned, 5, 3));
+				testMonster.AddStatusEffect(new StatusEffect(StatusType.Asleep, 3));
+				testMonster.AddStatusEffect(new StatusEffect(StatusType.Paralyzed, 3));
+				GD.Print($"Applied test statuses to {testMonster.CombatLabel}");
+			}
+
+			var testHero = _gameState.Party.FirstOrDefault(c => c.IsAlive);
+			if (testHero != null)
+			{
+				testHero.AddStatusEffect(new StatusEffect(StatusType.Poisoned, 5, 3));
+				testHero.AddStatusEffect(new StatusEffect(StatusType.Asleep, 3));
+				testHero.AddStatusEffect(new StatusEffect(StatusType.Paralyzed, 3));
+				GD.Print($"Applied test statuses to {testHero.Name}");
+			}
+
+			RefreshStatusIcons();
+			GetNode<PartyHUD>("/root/PartyHud").Refresh();
+		}
+		
 		UpdateUI();
 	}
 
@@ -153,6 +180,7 @@ public partial class Combat : Control
 		HighlightActiveCombatant();
 		HighlightActiveHudSlot();
 		_turnTracker.Refresh();
+		RefreshStatusIcons();
 
 		if (!isPlayerTurn)
 			ProcessEnemyTurn();
@@ -331,6 +359,7 @@ public partial class Combat : Control
 		}
 
 		RefreshCombatLog();
+		RefreshStatusIcons();
 		RefreshPartySprites();
 		GetNode<PartyHUD>("/root/PartyHud").Refresh();
 		
@@ -369,6 +398,8 @@ public partial class Combat : Control
 		_turnTracker.Visible  = false;
 		_actionPanel.Visible  = false;
 
+		StatusProcessor.ClearCombatEffects(_gameState.Party);
+		
 		if (_combatState.CurrentPhase == CombatState.Phase.Victory)
 		{
 			var loot = LootCalculator.Calculate(
@@ -397,7 +428,9 @@ public partial class Combat : Control
 		foreach (Node child in _partyContainer.GetChildren())
 			child.QueueFree();
 		_partySprites.Clear();
-
+		foreach (var sprite in _partySprites)
+			_statusRows.Remove(sprite);
+			
 		var party        = _gameState.Party;
 		var containerSize = _partyContainer.Size;
 		float spriteSize  = containerSize.X * PartySpriteSize;		
@@ -440,7 +473,8 @@ public partial class Combat : Control
 			_partySprites.Add(sprite);
 			_partySpritemap[character] = sprite;
 			_highlighter.Register(sprite, shade);
-			
+			AttachStatusRow(sprite, spriteSize, character.SpriteTopOffset, character.SpriteRightOffset);
+
 			var capturedCharacter = character;
 			var capturedSprite    = sprite;
 			sprite.GuiInput += (inputEvent) =>
@@ -550,6 +584,7 @@ public partial class Combat : Control
 			_enemySprites.Add(sprite);
 			_enemyOrder.Add(monster);
 			_highlighter.Register(sprite, shade);
+			AttachStatusRow(sprite, spriteSize, monster.SpriteTopOffset, monster.SpriteRightOffset);
 			_monsterSpritemap[monster] = sprite;
 		}
 	}
@@ -577,6 +612,7 @@ public partial class Combat : Control
 
 		SpawnDamageNumber(sprite.GlobalPosition + sprite.Size / 2, damage, false);
 		RefreshCombatLog();
+		RefreshStatusIcons();
 		RefreshPartySprites();
 		GetNode<PartyHUD>("/root/PartyHud").Refresh();
 		
@@ -839,7 +875,7 @@ public partial class Combat : Control
 		foreach (var character in _gameState.Party)
 		{
 			character.CurrentHP = 0;
-			character.Status    = Status.Asleep;
+			character.Status    = Status.Dead;  // was Status.Asleep
 			if (_partySpritemap.TryGetValue(character, out var sprite))
 			{
 				_highlighter.Unregister(sprite);
@@ -1042,5 +1078,53 @@ public partial class Combat : Control
 
 		GetNode<Main>("/root/Main").CallDeferred(
 			nameof(Main.SwitchScene), "res://Dungeons/Dungeon.tscn");
+	}
+	
+	private const float SourceImageSize = 1024f;
+	
+	private void AttachStatusRow(Control sprite, float spriteSize, float topOffsetPx, float rightOffsetPx)
+	{
+		var row = new StatusIconRow();
+		row.Alignment    = BoxContainer.AlignmentMode.Center;
+		row.MouseFilter  = Control.MouseFilterEnum.Ignore;
+		row.ZIndex       = 5;
+		row.CustomMinimumSize = new Vector2(spriteSize, 32);
+
+		// Convert source-pixel offset to on-screen offset
+		float scale         = spriteSize / SourceImageSize;
+		float topScreenPx   = topOffsetPx * scale;
+		float rightScreenPx = rightOffsetPx * scale;
+
+		// Place the icon row just above where the body starts,
+		// nudged in from the right by rightOffset
+		row.Position = new Vector2(
+			sprite.Position.X + rightScreenPx,
+			sprite.Position.Y + topScreenPx - 32); // 32 = row height, sits just above body top
+
+		sprite.GetParent().AddChild(row);
+		_statusRows[sprite] = row;
+	}
+	
+	private void RefreshStatusIcons()
+	{
+		// Party
+		foreach (var character in _gameState.Party)
+		{
+			if (_partySpritemap.TryGetValue(character, out var sprite)
+				&& _statusRows.TryGetValue(sprite, out var row))
+			{
+				row.Refresh(character.ActiveEffects);
+			}
+		}
+
+		// Enemies
+		foreach (var monster in _combatState.AllMonsters)
+		{
+			if (_monsterSpritemap.TryGetValue(monster, out var sprite)
+				&& _statusRows.TryGetValue(sprite, out var row))
+			{
+				row.Refresh(monster.ActiveEffects);
+			}
+		}
 	}
 }

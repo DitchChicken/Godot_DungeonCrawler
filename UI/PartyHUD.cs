@@ -70,6 +70,8 @@ public partial class PartyHUD : CanvasLayer
 			else
 				_slots[i].Clear();
 		}
+		foreach (var slot in _slots)
+			slot.RefreshStatus();
 	}
 	
 	public void HighlightSlot(Character character)

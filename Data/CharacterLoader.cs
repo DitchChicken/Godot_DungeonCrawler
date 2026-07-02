@@ -72,6 +72,8 @@ public static class CharacterLoader
 			Charisma     = def.Charisma,
 			Portrait     = def.Portrait,
 			BattleSprite = def.BattleSprite,
+			SpriteTopOffset   = def.SpriteTopOffset,
+			SpriteRightOffset = def.SpriteRightOffset,
 		};
 		
 		c.Initialize();
@@ -128,4 +130,6 @@ public class CharacterDef
 	public List<StartingEquipmentEntry> StartingEquipment { get; set; }
 	public string Portrait { get; set; }
 	public string BattleSprite { get; set; }
+	public float SpriteTopOffset { get; set; } = 0f;
+	public float SpriteRightOffset { get; set; } = 0f;
 }
