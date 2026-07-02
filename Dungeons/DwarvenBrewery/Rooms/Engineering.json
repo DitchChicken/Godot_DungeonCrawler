@@ -13,7 +13,7 @@
 	"maxOccurrences": 1,
 	"spawnChance": 1.0,
 	"actions" : [
-		"name" : "Explore"
+		{"name" : "Explore"}
 	],
 	"combat" : "todo",
 	"nextRoom" : "StorageVault"
