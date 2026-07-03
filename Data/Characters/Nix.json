@@ -19,6 +19,6 @@
 	],
 	"portrait": "res://Data/Characters/Nix_Portrait.png",
 	"battleSprite": "res://Data/Characters/Nix_BattleSprite.png",
-	"spriteTopOffset": 412,
-	"spriteRightOffset": 200
+	"spriteRightOffset": 330,
+	"spriteTopOffset": 527
 }

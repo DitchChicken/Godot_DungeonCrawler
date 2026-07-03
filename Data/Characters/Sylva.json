@@ -20,6 +20,6 @@
 	],
 	"portrait": "res://Data/Characters/Sylva_Portrait.png",
 	"battleSprite": "res://Data/Characters/Sylva_BattleSprite.png",
-	"spriteTopOffset": 412,
-	"spriteRightOffset": 200
+	"spriteRightOffset": 301,
+	"spriteTopOffset": 255
 }

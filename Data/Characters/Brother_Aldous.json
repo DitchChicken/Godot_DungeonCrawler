@@ -18,7 +18,7 @@
 		{ "id": "LeatherArmor", "count": 1 }
 	],
 	"portrait": "res://Data/Characters/Brother_Aldous_Portrait.png",
-	"battleSprite": "res://Data/Characters/Brother_Aldous_BattleSprite.png"	,
-	"spriteTopOffset": 412,
-	"spriteRightOffset": 200
+	"battleSprite": "res://Data/Characters/Brother_Aldous_BattleSprite.png"	,	
+	"spriteRightOffset": 4507,
+	"spriteTopOffset": 290
 }

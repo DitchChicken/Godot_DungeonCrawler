@@ -473,7 +473,7 @@ public partial class Combat : Control
 			_partySprites.Add(sprite);
 			_partySpritemap[character] = sprite;
 			_highlighter.Register(sprite, shade);
-			AttachStatusRow(sprite, spriteSize, character.SpriteTopOffset, character.SpriteRightOffset);
+			AttachStatusRow(sprite, character.SpriteTopOffset, character.SpriteRightOffset);
 
 			var capturedCharacter = character;
 			var capturedSprite    = sprite;
@@ -584,7 +584,7 @@ public partial class Combat : Control
 			_enemySprites.Add(sprite);
 			_enemyOrder.Add(monster);
 			_highlighter.Register(sprite, shade);
-			AttachStatusRow(sprite, spriteSize, monster.SpriteTopOffset, monster.SpriteRightOffset);
+			AttachStatusRow(sprite, monster.SpriteTopOffset, monster.SpriteRightOffset);
 			_monsterSpritemap[monster] = sprite;
 		}
 	}
@@ -1082,24 +1082,29 @@ public partial class Combat : Control
 	
 	private const float SourceImageSize = 1024f;
 	
-	private void AttachStatusRow(Control sprite, float spriteSize, float topOffsetPx, float rightOffsetPx)
+	private void AttachStatusRow(Control sprite, float topOffsetPx, float rightOffsetPx)
 	{
 		var row = new StatusIconRow();
-		row.Alignment    = BoxContainer.AlignmentMode.Center;
 		row.MouseFilter  = Control.MouseFilterEnum.Ignore;
 		row.ZIndex       = 5;
-		row.CustomMinimumSize = new Vector2(spriteSize, 32);
 
-		// Convert source-pixel offset to on-screen offset
-		float scale         = spriteSize / SourceImageSize;
-		float topScreenPx   = topOffsetPx * scale;
-		float rightScreenPx = rightOffsetPx * scale;
+		// Use the sprite's ACTUAL on-screen size, not the passed parameter
+		float scale = sprite.Size.X / 1024f;
 
-		// Place the icon row just above where the body starts,
-		// nudged in from the right by rightOffset
+		GD.Print($"Scale: {scale}");
+		GD.Print($"rightOffsetPx: {rightOffsetPx}");
+		GD.Print($"topOffsetPx: {topOffsetPx}");
+		float xScreen = rightOffsetPx * scale;
+		float yScreen = topOffsetPx   * scale;
+		GD.Print($"xScreen: {xScreen}");
+		GD.Print($"yScreen: {yScreen}");
+		
+		// Straight proportional offset from the image's top-left corner
 		row.Position = new Vector2(
-			sprite.Position.X + rightScreenPx,
-			sprite.Position.Y + topScreenPx - 32); // 32 = row height, sits just above body top
+			sprite.Position.X + xScreen,
+			sprite.Position.Y + yScreen);
+		GD.Print($"sprite.Position.X : {sprite.Position.X}, sprite.Position.Y: {sprite.Position.Y}");
+		GD.Print($"row.Position.X: {row.Position.X}, row.Position.Y: {row.Position.Y}");
 
 		sprite.GetParent().AddChild(row);
 		_statusRows[sprite] = row;

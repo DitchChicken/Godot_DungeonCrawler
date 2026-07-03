@@ -12,13 +12,13 @@ public partial class StatusIconRow : HBoxContainer
 
 		if (effects == null) return;
 
-		GD.Print($"StatusIconRow.Refresh: {effects.Count} effects");
+		//GD.Print($"StatusIconRow.Refresh: {effects.Count} effects");
 
 		AddThemeConstantOverride("separation", 2);
 
 		foreach (var effect in effects)
 		{
-			GD.Print($"  Effect {effect.Type}, icon: {effect.Icon}, exists: {ResourceLoader.Exists(effect.Icon)}");
+			//GD.Print($"  Effect {effect.Type}, icon: {effect.Icon}, exists: {ResourceLoader.Exists(effect.Icon)}");
 
 			if (string.IsNullOrEmpty(effect.Icon) || !ResourceLoader.Exists(effect.Icon))
 				continue;

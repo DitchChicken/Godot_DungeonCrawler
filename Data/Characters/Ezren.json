@@ -18,6 +18,6 @@
 	],
 	"portrait": "res://Data/Characters/Ezren_Portrait.png",
 	"battleSprite": "res://Data/Characters/Ezren_BattleSprite.png",
-	"spriteTopOffset": 412,
-	"spriteRightOffset": 200
+	"spriteTopOffset": 447,
+	"spriteRightOffset": 305
 }
