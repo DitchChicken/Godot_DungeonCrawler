@@ -74,6 +74,7 @@ public static class CharacterLoader
 			BattleSprite = def.BattleSprite,
 			SpriteTopOffset   = def.SpriteTopOffset,
 			SpriteRightOffset = def.SpriteRightOffset,
+			KnownAbilities    = def.KnownAbilities ?? new List<string>(),
 		};
 		
 		c.Initialize();
@@ -132,4 +133,5 @@ public class CharacterDef
 	public string BattleSprite { get; set; }
 	public float SpriteTopOffset { get; set; } = 0f;
 	public float SpriteRightOffset { get; set; } = 0f;
+	public List<string> KnownAbilities { get; set; } = new List<string>();
 }

@@ -83,33 +83,35 @@ public partial class PartySlot : PanelContainer
 
 	public override bool _CanDropData(Vector2 atPosition, Variant data)
 	{
-		// Accept inventory drag data (transferring items to this character)
-		if (data.As<InventoryDragData>() != null) return true;
+		var obj = data.Obj;
 
-		// Existing party-member drag acceptance
-		if (IsHudSlot) return data.As<Character>() != null;
+		// Item transfer (from inventory/vault/equipment)
+		if (obj is InventoryDragData) return true;
+
+		// Party member swap (HUD only)
+		if (IsHudSlot && obj is Character) return true;
 
 		return false;
 	}
 
 
+
 	public override void _DropData(Vector2 atPosition, Variant data)
 	{
 		var gameState = GetNode<GameState>("/root/GameState");
-		
+		var obj = data.Obj;
+
 		// Handle item transfer to this character
-		var itemData = data.As<InventoryDragData>();
-		if (itemData != null && Character != null)
-		{			
-			var target    = TransferTarget.ToInventory(Character);
-			bool moved    = InventoryTransfer.Transfer(itemData, target, gameState);
+		if (obj is InventoryDragData itemData && Character != null)
+		{
+			var target = TransferTarget.ToInventory(Character);
+			bool moved = InventoryTransfer.Transfer(itemData, target, gameState);
 
 			if (moved)
 				GD.Print($"Transferred {itemData.Item.Name} to {Character.Name}");
 			else
 				GD.Print($"{Character.Name} can't accept {itemData.Item.Name}");
 
-			// Refresh everything
 			var sheet = GetTree().Root.GetNodeOrNull<CharacterSheet>("/root/CharacterSheet");
 			sheet?.RefreshDoll();
 			sheet?.RefreshInventory();
@@ -118,7 +120,10 @@ public partial class PartySlot : PanelContainer
 			return;
 		}
 		
-		var incomingCharacter = data.As<Character>();
+		// Party member swap
+		if (obj is not Character incomingCharacter) return;
+	
+		incomingCharacter = data.As<Character>();
 		if (incomingCharacter == null) return;
 
 		var partyHud  = GetNode<PartyHUD>("/root/PartyHud");

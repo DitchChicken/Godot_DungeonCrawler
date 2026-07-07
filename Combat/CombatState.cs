@@ -96,6 +96,16 @@ public class CombatState
 			foreach (var msg in endLog) AddLog(msg);
 		}
 
+		// Tick down ability cooldowns for the combatant who just acted
+		if (CurrentCombatant != null && CurrentCombatant.IsParty)
+		{
+			var cds = CurrentCombatant.Character.AbilityCooldowns;
+			foreach (var key in new List<string>(cds.Keys))
+			{
+				if (cds[key] > 0) cds[key]--;
+			}
+		}
+
 		int previousIndex = CurrentTurnIndex;
 		do
 		{
@@ -379,5 +389,46 @@ public class CombatState
 		// General TODO: Combat is marked completed at trigger, do we want to track the
 		//    remaining monsters and make it a new (likely) combat upon reentry to room?
 		return rolls;
+	}
+	
+	// Resolves an ability from caster onto a single target.
+	// Returns a log-friendly result amount (heal or damage).
+	public int ResolveAbility(Combatant caster, Ability ability, Combatant target)
+	{
+		// Spend costs
+		if (caster.IsParty)
+		{
+			caster.Character.CurrentMana -= ability.ManaCost;
+			if (ability.HealthCost > 0)
+				caster.Character.CurrentHP -= ability.HealthCost;
+
+			// Set cooldown
+			if (ability.Cooldown > 0)
+				caster.Character.AbilityCooldowns[ability.Id] = ability.Cooldown;
+		}
+
+		int amount = 0;
+
+		switch (ability.EffectType)
+		{
+			case AbilityEffectType.Heal:
+				amount = ability.Power;
+				if (target.IsParty)
+				{
+					int before = target.Character.CurrentHP;
+					target.Character.CurrentHP = System.Math.Min(
+						target.Character.MaxHP,
+						target.Character.CurrentHP + amount);
+					amount = target.Character.CurrentHP - before; // actual healed (no overheal)
+				}
+				AddLog($"{caster.Name} heals {target.Name} for {amount} HP.");
+				break;
+
+			case AbilityEffectType.Damage:
+				// (built out when we add attack spells)
+				break;
+		}
+
+		return amount;
 	}
 }

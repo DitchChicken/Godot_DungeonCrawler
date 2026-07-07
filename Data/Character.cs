@@ -63,6 +63,10 @@ public partial class Character : GodotObject
 		= new Dictionary<EquipmentSlot, Equipment>();
 	public Inventory PersonalInventory { get; set; }
 	
+	//Abilities
+	public List<string> KnownAbilities { get; set; } = new List<string>();
+	public Dictionary<string, int> AbilityCooldowns { get; set; } = new Dictionary<string, int>();
+
 	// Current weapon — main hand, or null
 	public Equipment CurrentWeapon => GetEquipped(EquipmentSlot.WeaponMain);
 	
@@ -229,6 +233,14 @@ public partial class Character : GodotObject
 		if (!IsAlive) return false;
 		foreach (var e in ActiveEffects)
 			if (e.PreventsAction()) return false;
+		return true;
+	}
+	
+	public bool CanUseAbility(Ability ability)
+	{
+		if (CurrentMana < ability.ManaCost) return false;
+		if (CurrentHP <= ability.HealthCost) return false; // can't kill self to cast
+		if (AbilityCooldowns.TryGetValue(ability.Id, out int cd) && cd > 0) return false;
 		return true;
 	}
 }

@@ -17,6 +17,7 @@
 		{ "id": "Club", "count": 1 },
 		{ "id": "LeatherArmor", "count": 1 }
 	],
+	"knownAbilities": ["Heal"],
 	"portrait": "res://Data/Characters/Brother_Aldous_Portrait.png",
 	"battleSprite": "res://Data/Characters/Brother_Aldous_BattleSprite.png"	,	
 	"spriteRightOffset": 4507,

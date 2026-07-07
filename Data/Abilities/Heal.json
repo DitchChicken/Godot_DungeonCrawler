@@ -1,0 +1,13 @@
+{
+	"id": "Heal",
+	"name": "Heal",
+	"description": "Restores health to a single ally.",
+	"abilityType": "Spell",
+	"targetType": "SingleAlly",
+	"effectType": "Heal",
+	"power": 12,
+	"manaCost": 4,
+	"cooldown": 0,
+	"classRestriction": "Priest",
+	"icon": "res://Data/Abilities/Icons/Heal.png"
+}

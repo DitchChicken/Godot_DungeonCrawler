@@ -26,6 +26,12 @@ public partial class Combat : Control
 	private Button _autoWinButton;
 	private Button _autoLoseButton;
 
+	//Ability Menu
+	private AbilityMenu _abilityMenu;
+	private Ability _pendingAbility;        // ability chosen, awaiting target
+	private bool _selectingAllyTarget = false;
+	private List<Character> _validAllyTargets = new List<Character>();
+	
 	// Combat state
 	private bool _selectingTarget = false;
 	private List<Monster> _enemyOrder = new List<Monster>(); // matches _enemySprites
@@ -76,6 +82,14 @@ public partial class Combat : Control
 		
 		AddChild(_highlighter);
 		
+		//Ability Menu
+		_abilityMenu = new AbilityMenu();
+		_abilityMenu.Visible = false;
+		_abilityMenu.ZIndex  = 20;
+		AddChild(_abilityMenu);
+		_abilityMenu.AbilitySelected += OnAbilitySelected;
+		_abilityMenu.Cancelled       += OnAbilityMenuCancelled;
+
 		// Connect buttons
 		_attackButton.Pressed    += OnAttackPressed;
 		_spellSkillButton.Pressed += OnSpellSkillPressed;
@@ -226,7 +240,11 @@ public partial class Combat : Control
 
 	private void OnSpellSkillPressed()
 	{
-		GD.Print("Spell/Skill menu TODO");
+			if (_combatState.CurrentPhase != CombatState.Phase.PlayerTurn) return;
+			var current = _combatState.CurrentCombatant;
+			if (current == null || !current.IsParty) return;
+
+			_abilityMenu.Open(current.Character);
 	}
 
 	private void OnItemPressed()
@@ -425,11 +443,16 @@ public partial class Combat : Control
 	
 	private void LoadParty()
 	{
+		// Unregister old party sprites from the highlighter before freeing them
+		foreach (var sprite in _partySprites)
+		{
+			_highlighter.Unregister(sprite);
+			_statusRows.Remove(sprite);
+		}
+
 		foreach (Node child in _partyContainer.GetChildren())
 			child.QueueFree();
 		_partySprites.Clear();
-		foreach (var sprite in _partySprites)
-			_statusRows.Remove(sprite);
 			
 		var party        = _gameState.Party;
 		var containerSize = _partyContainer.Size;
@@ -481,11 +504,16 @@ public partial class Combat : Control
 			{
 				if (inputEvent is InputEventMouseButton mouse
 					&& mouse.Pressed
-					&& mouse.ButtonIndex == MouseButton.Left
-					&& _selectingRowSwap
-					&& _validSwapTargets.Contains(capturedCharacter))
+					&& mouse.ButtonIndex == MouseButton.Left)
 				{
-					OnSwapTargetClicked(capturedCharacter);
+					GD.Print($"Party sprite clicked: {capturedCharacter.Name}, " +
+							 $"allyMode:{_selectingAllyTarget}, " +
+							 $"inList:{_validAllyTargets.Contains(capturedCharacter)}");
+
+					if (_selectingRowSwap && _validSwapTargets.Contains(capturedCharacter))
+						OnSwapTargetClicked(capturedCharacter);
+					else if (_selectingAllyTarget && _validAllyTargets.Contains(capturedCharacter))
+						OnAllyTargetClicked(capturedCharacter);
 				}
 			};
 			sprite.MouseFilter = Control.MouseFilterEnum.Stop;
@@ -730,6 +758,11 @@ public partial class Combat : Control
 					ExitRowSwitchMode();
 					GetViewport().SetInputAsHandled();
 				}
+				else if (_selectingAllyTarget)
+				{
+					ExitAllyTargetMode();
+					GetViewport().SetInputAsHandled();
+				}
 			}
 		}
 
@@ -743,6 +776,11 @@ public partial class Combat : Control
 			else if (_selectingRowSwap)
 			{
 				ExitRowSwitchMode();
+				GetViewport().SetInputAsHandled();
+			}
+			else if (_selectingAllyTarget)
+			{
+				ExitAllyTargetMode();
 				GetViewport().SetInputAsHandled();
 			}
 		}
@@ -1091,20 +1129,20 @@ public partial class Combat : Control
 		// Use the sprite's ACTUAL on-screen size, not the passed parameter
 		float scale = sprite.Size.X / 1024f;
 
-		GD.Print($"Scale: {scale}");
-		GD.Print($"rightOffsetPx: {rightOffsetPx}");
-		GD.Print($"topOffsetPx: {topOffsetPx}");
+		//GD.Print($"Scale: {scale}");
+		//GD.Print($"rightOffsetPx: {rightOffsetPx}");
+		//GD.Print($"topOffsetPx: {topOffsetPx}");
 		float xScreen = rightOffsetPx * scale;
 		float yScreen = topOffsetPx   * scale;
-		GD.Print($"xScreen: {xScreen}");
-		GD.Print($"yScreen: {yScreen}");
-		
+		//GD.Print($"xScreen: {xScreen}");
+		//GD.Print($"yScreen: {yScreen}");
+				
 		// Straight proportional offset from the image's top-left corner
 		row.Position = new Vector2(
 			sprite.Position.X + xScreen,
 			sprite.Position.Y + yScreen);
-		GD.Print($"sprite.Position.X : {sprite.Position.X}, sprite.Position.Y: {sprite.Position.Y}");
-		GD.Print($"row.Position.X: {row.Position.X}, row.Position.Y: {row.Position.Y}");
+		//GD.Print($"sprite.Position.X : {sprite.Position.X}, sprite.Position.Y: {sprite.Position.Y}");
+		//GD.Print($"row.Position.X: {row.Position.X}, row.Position.Y: {row.Position.Y}");
 
 		sprite.GetParent().AddChild(row);
 		_statusRows[sprite] = row;
@@ -1131,5 +1169,117 @@ public partial class Combat : Control
 				row.Refresh(monster.ActiveEffects);
 			}
 		}
+	}
+	
+	private void OnAbilityMenuCancelled()
+	{
+		_abilityMenu.Visible = false;
+	}
+
+	private void OnAbilitySelected(string abilityId)
+	{
+		_abilityMenu.Visible = false;
+		_abilityMenu.MouseFilter = Control.MouseFilterEnum.Ignore;  // ensure it can't catch input
+
+		GD.Print($"Ability selected: {abilityId}");
+
+		var ability = AbilityLoader.LoadAbility(abilityId);
+		if (ability == null) { GD.Print("  ability null!"); return; }
+
+		_pendingAbility = ability;
+		GD.Print($"  targetType: {ability.TargetType}");
+
+		switch (ability.TargetType)
+		{
+			case AbilityTargetType.SingleAlly:
+				EnterAllyTargetMode(ability);
+				break;
+			case AbilityTargetType.Self:
+				ResolveAbilityOnTarget(_combatState.CurrentCombatant);
+				break;
+			default:
+				GD.Print($"  target type {ability.TargetType} not handled");
+				break;
+		}
+	}
+	
+	private void EnterAllyTargetMode(Ability ability)
+	{
+		_validAllyTargets = new List<Character>();
+		foreach (var c in _gameState.Party)
+			if (c.IsAlive) _validAllyTargets.Add(c);
+
+		GD.Print($"EnterAllyTargetMode: {_validAllyTargets.Count} valid targets");
+
+		if (_validAllyTargets.Count == 0)
+		{
+			AddLog("No valid targets.");
+			_pendingAbility = null;
+			return;
+		}
+
+		_selectingAllyTarget = true;
+
+		foreach (var c in _validAllyTargets)
+		{
+			if (_partySpritemap.TryGetValue(c, out var sprite))
+				_highlighter.SetHighlight(sprite, SpriteHighlighter.HighlightType.Ally);
+		}
+		GD.Print($"_selectingAllyTarget = {_selectingAllyTarget}");
+	}
+
+	private void ExitAllyTargetMode()
+	{
+		_selectingAllyTarget = false;
+		_validAllyTargets.Clear();
+		_highlighter.ClearHighlight(SpriteHighlighter.HighlightType.Ally);
+		_pendingAbility = null;
+	}
+	
+	private void OnAllyTargetClicked(Character target)
+	{
+		if (!_selectingAllyTarget || _pendingAbility == null) return;
+
+		var ability = _pendingAbility;
+		ExitAllyTargetMode();
+
+		var targetCombatant = new Combatant { Character = target, IsParty = true };
+		ResolveAbilityOnTarget(targetCombatant, ability);
+	}
+	
+	private void ResolveAbilityOnTarget(Combatant target, Ability ability = null)
+	{
+		ability ??= _pendingAbility;
+		if (ability == null) return;
+
+		var caster = _combatState.CurrentCombatant;
+		if (caster == null) return;
+
+		int amount = _combatState.ResolveAbility(caster, ability, target);
+
+		// Floating number — green heal on the target
+		if (ability.EffectType == AbilityEffectType.Heal
+			&& target.IsParty
+			&& _partySpritemap.TryGetValue(target.Character, out var sprite))
+		{
+			SpawnDamageNumber(sprite.GlobalPosition + sprite.Size / 2, amount, true);
+		}
+
+		_pendingAbility = null;
+
+		RefreshCombatLog();
+		RefreshStatusIcons();
+		GetNode<PartyHUD>("/root/PartyHud").Refresh();
+
+		_combatState.CheckVictoryDefeat();
+		if (_combatState.CurrentPhase == CombatState.Phase.Victory ||
+			_combatState.CurrentPhase == CombatState.Phase.Defeat)
+		{
+			HandleCombatEnd();
+			return;
+		}
+
+		_combatState.NextTurn();
+		UpdateUI();
 	}
 }

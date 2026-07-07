@@ -44,6 +44,7 @@ public partial class SpriteHighlighter : Node
 
 	public void SetHighlight(Control sprite, HighlightType type)
 	{
+		if (sprite == null || !GodotObject.IsInstanceValid(sprite)) return;
 		if (!_baseShades.ContainsKey(sprite)) return;
 		if (type == HighlightType.None) return;
 
@@ -56,6 +57,14 @@ public partial class SpriteHighlighter : Node
 
 	public void ClearHighlight(Control sprite, HighlightType type)
 	{
+		if (sprite == null || !GodotObject.IsInstanceValid(sprite))
+		{
+			_baseShades.Remove(sprite);
+			_highlightStacks.Remove(sprite);
+			_tweens.Remove(sprite);
+			return;
+		}
+
 		if (!_highlightStacks.ContainsKey(sprite)) return;
 		_highlightStacks[sprite].Remove(type);
 		ApplyTopHighlight(sprite);
@@ -65,6 +74,13 @@ public partial class SpriteHighlighter : Node
 	{
 		foreach (var sprite in new List<Control>(_highlightStacks.Keys))
 		{
+			if (!GodotObject.IsInstanceValid(sprite))
+			{
+				_baseShades.Remove(sprite);
+				_highlightStacks.Remove(sprite);
+				_tweens.Remove(sprite);
+				continue;
+			}
 			_highlightStacks[sprite].Remove(type);
 			ApplyTopHighlight(sprite);
 		}
@@ -81,6 +97,15 @@ public partial class SpriteHighlighter : Node
 
 	private void ApplyTopHighlight(Control sprite)
 	{
+		if (sprite == null || !GodotObject.IsInstanceValid(sprite))
+		{
+			// Sprite was freed — purge it from tracking
+			_baseShades.Remove(sprite);
+			_highlightStacks.Remove(sprite);
+			_tweens.Remove(sprite);
+			return;
+		}
+
 		if (!_highlightStacks.ContainsKey(sprite)) return;
 
 		var stack = _highlightStacks[sprite];
