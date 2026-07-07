@@ -1,3 +1,6 @@
+using Godot;
+using System.Collections.Generic;
+
 public enum AbilityType { Spell, Skill }
 public enum AbilityTargetType { SingleEnemy, AllEnemies, EnemyRow, SingleAlly, AllAllies, Self }
 public enum AbilityEffectType { Damage, Heal, ApplyStatus, CureStatus, Buff }
@@ -10,7 +13,10 @@ public class Ability
 	public AbilityType Type { get; set; } = AbilityType.Spell;
 	public AbilityTargetType TargetType { get; set; }
 	public AbilityEffectType EffectType { get; set; }
-
+	
+	public List<string> UsableIn { get; set; } = new List<string>(); // "Combat", "Dungeon"
+	public bool CanUseIn(string context) => UsableIn.Contains(context);
+	
 	public int Power { get; set; } = 0;
 	public int ManaCost { get; set; } = 0;
 	public int HealthCost { get; set; } = 0;

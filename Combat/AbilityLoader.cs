@@ -41,6 +41,7 @@ public static class AbilityLoader
 			Element     = def.Element ?? "None",
 			StatusEffect = def.StatusEffect ?? "",
 			ClassRestriction = def.ClassRestriction ?? "",
+			UsableIn = def.UsableIn ?? new List<string>(),
 			Icon        = def.Icon ?? ""
 		};
 
@@ -59,4 +60,5 @@ public static class AbilityLoader
 		}
 		return list;
 	}
+	
 }

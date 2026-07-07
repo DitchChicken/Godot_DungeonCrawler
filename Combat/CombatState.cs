@@ -393,16 +393,13 @@ public class CombatState
 	
 	// Resolves an ability from caster onto a single target.
 	// Returns a log-friendly result amount (heal or damage).
-	public int ResolveAbility(Combatant caster, Ability ability, Combatant target)
+	public int ResolveAbility(Combatant caster, Ability ability, Combatant target, bool freeCost = false)
 	{
-		// Spend costs
-		if (caster.IsParty)
+		if (caster.IsParty && !freeCost)
 		{
 			caster.Character.CurrentMana -= ability.ManaCost;
 			if (ability.HealthCost > 0)
 				caster.Character.CurrentHP -= ability.HealthCost;
-
-			// Set cooldown
 			if (ability.Cooldown > 0)
 				caster.Character.AbilityCooldowns[ability.Id] = ability.Cooldown;
 		}

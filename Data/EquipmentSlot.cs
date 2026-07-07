@@ -1,5 +1,6 @@
 public enum EquipmentSlot
 {
+	None,  // Carryable but not equipable
 	Head,
 	Necklace,
 	Chest,
@@ -10,5 +11,5 @@ public enum EquipmentSlot
 	WeaponMain,
 	OffHand,
 	Ammo,
-	Treasure
+	Treasure,	
 }

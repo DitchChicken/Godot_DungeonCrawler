@@ -1,3 +1,6 @@
+using Godot;
+using System.Collections.Generic;
+
 public class AbilityDef
 {
 	public string Id { get; set; }
@@ -14,4 +17,5 @@ public class AbilityDef
 	public string StatusEffect { get; set; } = "";
 	public string ClassRestriction { get; set; } = "";
 	public string Icon { get; set; } = "";
+	public List<string> UsableIn { get; set; } = new List<string>();
 }

@@ -1,0 +1,14 @@
+{
+	"id": "HealingPotion",
+	"name": "Healing Potion",
+	"description": "Restores health when consumed.",
+	"slot": "None",
+	"consumableType": "Potion",
+	"useAbility": "Heal",
+	"isStackable": true,
+	"maxStack": 10,
+	"weight": 0.5,
+	"goldCost": 25,
+	"isIdentified": true,
+	"icon": "res://Data/Equipment/Consumables/HealingPotion.png"
+}

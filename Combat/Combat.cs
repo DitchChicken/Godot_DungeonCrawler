@@ -32,6 +32,10 @@ public partial class Combat : Control
 	private bool _selectingAllyTarget = false;
 	private List<Character> _validAllyTargets = new List<Character>();
 	
+	//Item menu
+	private ItemMenu _itemMenu;
+	private Equipment _pendingItem;
+
 	// Combat state
 	private bool _selectingTarget = false;
 	private List<Monster> _enemyOrder = new List<Monster>(); // matches _enemySprites
@@ -90,6 +94,14 @@ public partial class Combat : Control
 		_abilityMenu.AbilitySelected += OnAbilitySelected;
 		_abilityMenu.Cancelled       += OnAbilityMenuCancelled;
 
+		//Item Menu
+		_itemMenu = new ItemMenu();
+		_itemMenu.Visible = false;
+		_itemMenu.ZIndex  = 20;
+		AddChild(_itemMenu);
+		_itemMenu.ItemSelected += OnItemSelected;
+		_itemMenu.Cancelled    += OnItemMenuCancelled;
+		
 		// Connect buttons
 		_attackButton.Pressed    += OnAttackPressed;
 		_spellSkillButton.Pressed += OnSpellSkillPressed;
@@ -245,11 +257,6 @@ public partial class Combat : Control
 			if (current == null || !current.IsParty) return;
 
 			_abilityMenu.Open(current.Character);
-	}
-
-	private void OnItemPressed()
-	{
-		GD.Print("Item menu TODO");
 	}
 
 	private void OnRowSwitchPressed()
@@ -618,8 +625,20 @@ public partial class Combat : Control
 	}
 
 	private void OnEnemyClicked(Monster monster, Control sprite)
-	{	
+	{
 		if (!_selectingTarget) return;
+		ExitTargetSelectMode();
+
+		// If we're using an item/ability on an enemy, route there
+		if (_pendingItem != null || _pendingAbility != null)
+		{
+			var target = new Combatant { Monster = monster, IsParty = false };
+			if (_pendingItem != null)
+				ResolveItemOnTarget(target);
+			else
+				ResolveAbilityOnTarget(target);
+			return;
+		}
 
 		ExitTargetSelectMode();
 
@@ -1238,13 +1257,14 @@ public partial class Combat : Control
 	
 	private void OnAllyTargetClicked(Character target)
 	{
-		if (!_selectingAllyTarget || _pendingAbility == null) return;
-
-		var ability = _pendingAbility;
+		if (!_selectingAllyTarget) return;
+		var targetCombatant = new Combatant { Character = target, IsParty = true };
 		ExitAllyTargetMode();
 
-		var targetCombatant = new Combatant { Character = target, IsParty = true };
-		ResolveAbilityOnTarget(targetCombatant, ability);
+		if (_pendingItem != null)
+			ResolveItemOnTarget(targetCombatant);
+		else
+			ResolveAbilityOnTarget(targetCombatant, _pendingAbility);
 	}
 	
 	private void ResolveAbilityOnTarget(Combatant target, Ability ability = null)
@@ -1281,5 +1301,109 @@ public partial class Combat : Control
 
 		_combatState.NextTurn();
 		UpdateUI();
+	}
+	
+	private void ResolveItemOnTarget(Combatant target)
+	{
+		var caster  = _combatState.CurrentCombatant;
+		var ability = _pendingAbility;
+		var item    = _pendingItem;
+		if (caster == null || ability == null || item == null) return;
+
+		// Resolve the ability's effect (no mana cost for items)
+		int amount = _combatState.ResolveAbility(caster, ability, target, freeCost: true);
+
+		// Floating number
+		if (ability.EffectType == AbilityEffectType.Heal
+			&& target.IsParty
+			&& _partySpritemap.TryGetValue(target.Character, out var sprite))
+		{
+			SpawnDamageNumber(sprite.GlobalPosition + sprite.Size / 2, amount, true);
+		}
+
+		// Consume one from the stack
+		caster.Character.PersonalInventory.RemoveItem(item, 1);
+		AddLog($"{caster.Name} uses {item.Name}.");
+
+		_pendingItem    = null;
+		_pendingAbility = null;
+
+		RefreshCombatLog();
+		RefreshStatusIcons();
+		GetNode<PartyHUD>("/root/PartyHud").Refresh();
+
+		_combatState.CheckVictoryDefeat();
+		if (_combatState.CurrentPhase == CombatState.Phase.Victory ||
+			_combatState.CurrentPhase == CombatState.Phase.Defeat)
+		{
+			HandleCombatEnd();
+			return;
+		}
+
+		_combatState.NextTurn();
+		UpdateUI();
+	}
+
+	private void OnItemPressed()
+	{
+		if (_combatState.CurrentPhase != CombatState.Phase.PlayerTurn) return;
+		var current = _combatState.CurrentCombatant;
+		if (current == null || !current.IsParty) return;
+		_itemMenu.Open(current.Character);
+	}
+
+	private void OnItemMenuCancelled()
+	{
+		_itemMenu.Visible = false;
+	}
+
+	private void OnItemSelected(string itemId)
+	{
+		_itemMenu.Visible = false;
+
+		var current = _combatState.CurrentCombatant;
+		if (current == null || !current.IsParty) return;
+
+		// Find the item in the user's inventory
+		Equipment item = null;
+		foreach (var i in current.Character.PersonalInventory.Items)
+			if (i.Id == itemId) { item = i; break; }
+		if (item == null) return;
+
+		var ability = AbilityLoader.LoadAbility(item.UseAbility);
+		if (ability == null) return;
+
+		_pendingItem    = item;
+		_pendingAbility = ability;
+
+		// Determine targeting. Potions collapse ally-targeting to self.
+		bool isPotion = item.ConsumableType == "Potion";
+
+		switch (ability.TargetType)
+		{
+			case AbilityTargetType.SingleAlly:
+			case AbilityTargetType.AllAllies:
+			case AbilityTargetType.Self:
+				if (isPotion)
+				{
+					// Potion: only the acting PC (drink it)
+					ResolveItemOnTarget(current);
+				}
+				else
+				{
+					// Scroll/Liturgy: normal ally targeting
+					EnterAllyTargetMode(ability);
+				}
+				break;
+
+			case AbilityTargetType.SingleEnemy:
+				// Thrown potion or offensive scroll — enemy targeting
+				EnterTargetSelectMode(); // existing enemy select; see note below
+				break;
+
+			default:
+				GD.Print($"Item target type {ability.TargetType} not yet handled");
+				break;
+		}
 	}
 }

@@ -24,7 +24,8 @@ public static class EquipmentLoader
 			$"res://Data/Equipment/Weapons/{equipmentId}.json",
 			$"res://Data/Equipment/Armor/{equipmentId}.json",
 			$"res://Data/Equipment/Misc/{equipmentId}.json",
-			$"res://Data/Equipment/Treasure/{equipmentId}.json"
+			$"res://Data/Equipment/Treasure/{equipmentId}.json",
+			$"res://Data/Equipment/Consumables/{equipmentId}.json"
 		};
 
 		string json = null;
@@ -96,6 +97,8 @@ public static class EquipmentLoader
 			UnknownName         = def.UnknownName ?? "Unknown Item",
 			MaxStack            = def.MaxStack,
 			InitiativeModifier = def.InitiativeModifier,
+			ConsumableType = def.ConsumableType ?? "None",
+			UseAbility     = def.UseAbility ?? "",
 			Icon                = def.Icon ?? ""			
 		};
 

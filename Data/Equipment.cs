@@ -64,6 +64,9 @@ public class Equipment
 	public List<string> Abilities { get; set; } = new List<string>();
 	// e.g. "Cleave", "Parry", "Backstab" - resolved by combat system
 
+	public string ConsumableType { get; set; } = "None"; // Potion / Scroll / Liturgy / None
+	public string UseAbility { get; set; } = "";          // ability id triggered on use
+
 	// Unidentified display name
 	public string UnknownName { get; set; } = "Unknown Item";
 
@@ -101,7 +104,30 @@ public class Equipment
 			BaseDamageMin = BaseDamageMin, BaseDamageMax = BaseDamageMax,
 			MagicBonus = MagicBonus, IsTwoHanded = IsTwoHanded,
 			Range = Range, Element = Element, Abilities = Abilities,
+			ConsumableType = ConsumableType, UseAbility = UseAbility,
 			Icon = Icon, UnknownName = UnknownName, InitiativeModifier = InitiativeModifier
 		};
+	}
+	
+	public bool IsCombatConsumable
+	{
+		get
+		{
+			if (ConsumableType == "None" || string.IsNullOrEmpty(UseAbility))
+				return false;
+			var ability = AbilityLoader.LoadAbility(UseAbility);
+			return ability != null && ability.CanUseIn("Combat");
+		}
+	}
+	
+	public bool IsDungeonConsumable
+	{
+		get
+		{
+			if (ConsumableType == "None" || string.IsNullOrEmpty(UseAbility))
+				return false;
+			var ability = AbilityLoader.LoadAbility(UseAbility);
+			return ability != null && ability.CanUseIn("Combat");
+		}
 	}
 }

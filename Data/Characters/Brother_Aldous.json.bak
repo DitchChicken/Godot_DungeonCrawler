@@ -9,14 +9,13 @@
 	"backstory": "A wandering monk whose order was destroyed. He carries their teachings and a quiet fury.",
 	"strength": 12,
 	"constitution": 13,
-	"dexterity": 9,
+	"dexterity": 59,
 	"intelligence": 12,
 	"wisdom": 16,
 	"charisma": 13,
 	"startingEquipment": [
 		{ "id": "Club", "count": 1 },
-		{ "id": "LeatherArmor", "count": 1 },
-		{ "id": "HealingPotion", "count": 1}
+		{ "id": "LeatherArmor", "count": 1 }
 	],
 	"knownAbilities": ["Heal"],
 	"portrait": "res://Data/Characters/Brother_Aldous_Portrait.png",

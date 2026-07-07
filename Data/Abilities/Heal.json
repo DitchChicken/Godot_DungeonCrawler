@@ -9,5 +9,6 @@
 	"manaCost": 4,
 	"cooldown": 0,
 	"classRestriction": "Priest",
+	"usableIn": ["Combat", "Dungeon"],
 	"icon": "res://Data/Abilities/Icons/Heal.png"
 }

@@ -17,7 +17,8 @@
 		{ "id": "ShortSword", "count": 1 },
 		{ "id": "Buckler", "count": 1 },
 		{ "id": "LeatherArmor", "count": 1 },		
-		{ "id": "Arrows", "count": 25 }
+		{ "id": "Arrows", "count": 25 },
+		{ "id": "HealingPotion", "count": 1}
 	],
 	"portrait": "res://Data/Characters/Brega_Portrait.png",
 	"battleSprite": "res://Data/Characters/Brega_BattleSprite.png",

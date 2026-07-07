@@ -145,7 +145,7 @@ public partial class CharacterSheet : CanvasLayer
 		if (slotIndex >= items.Count) return;
 
 		var item = items[slotIndex];
-		GD.Print($"Double clicked: {item.Name}");
+		//GD.Print($"Double clicked: {item.Name}");
 
 		// Try to equip if it has an equipment slot
 		if (_currentCharacter.Equip(item))
@@ -153,7 +153,7 @@ public partial class CharacterSheet : CanvasLayer
 			_currentCharacter.PersonalInventory.RemoveItem(item);
 			_equipmentDoll.Refresh();
 			_inventoryPanel.Refresh();
-			GD.Print($"Equipped {item.Name} from inventory");
+			//GD.Print($"Equipped {item.Name} from inventory");
 		}
 	}
 	public void Open(Character character, CharacterSheetMode mode = CharacterSheetMode.Right)
