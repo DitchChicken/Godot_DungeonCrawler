@@ -1,0 +1,14 @@
+{
+	"id": "GeneralStore",
+	"name": "General Store",
+	"stock": [
+		{ "id": "ShortSword", "price": 0, "quantity": -1 },
+		{ "id": "Dagger", "price": 0, "quantity": -1 },
+		{ "id": "LeatherArmor", "price": 0, "quantity": -1 },
+		{ "id": "Buckler", "price": 0, "quantity": -1 },
+		{ "id": "Club", "price": 0, "quantity": -1 },
+		{ "id": "ShortBow", "price": 0, "quantity": -1 },
+		{ "id": "Arrows", "price": 0, "quantity": -1 },
+		{ "id": "HealingPotion", "price": 0, "quantity": -1 }
+	]
+}

@@ -15,6 +15,8 @@ public partial class GameState : Node
 	// Stash
 	// public List<Item> Stash = new List<Item>();  // wire in when ready
 
+	public ShopState CurrentShop { get; set; }
+	
 	//Dungeon State
 	public string CurrentDungeon = "";
 	public RoomData CurrentRoom = null;

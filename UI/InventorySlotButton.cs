@@ -6,7 +6,8 @@ public partial class InventorySlotButton : Button
 	public InventoryDragData.SourceType SourceType { get; set; }
 	public Character Character { get; set; }
 	public bool IsEquipmentSlot { get; set; } = false;
-	
+	public bool IsShopSlot { get; set; } = false;
+		
 	private Label _stackLabel;
 	
 	public Equipment Item
@@ -89,10 +90,11 @@ public partial class InventorySlotButton : Button
 		{
 			Source          = SourceType,
 			Item            = Item,
-			Count           = capturedCount,  // store captured count
+			Count           = capturedCount,
 			SlotIndex       = SlotIndex,
 			Character       = Character,
-			IsEquipmentSlot = IsEquipmentSlot
+			IsEquipmentSlot = IsEquipmentSlot,
+			FromShop        = IsShopSlot
 		};
 
 		return Variant.From(data);
@@ -130,6 +132,10 @@ public partial class InventorySlotButton : Button
 				return;
 			}
 			target = TransferTarget.ToEquipment(Character, equipSlot);
+		}
+		else if (IsShopSlot)
+		{
+			target = TransferTarget.ToShop(GetNode<GameState>("/root/GameState").CurrentShop);
 		}
 		else if (SourceType == InventoryDragData.SourceType.Vault)
 		{
@@ -210,5 +216,5 @@ public partial class InventorySlotButton : Button
 		{
 			dragData.Character?.PersonalInventory.RemoveItem(dragData.Item, count);
 		}
-	}
+	}	
 }

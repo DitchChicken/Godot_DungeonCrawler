@@ -49,6 +49,10 @@ text = "Vault"
 layout_mode = 2
 text = "Dungeon"
 
+[node name="Shop" type="Button" parent="ButtonPanel/VBoxContainer" unique_id=987614175]
+layout_mode = 2
+text = "Market"
+
 [connection signal="pressed" from="ButtonPanel/VBoxContainer/Roster" to="." method="_on_roster_pressed"]
 [connection signal="pressed" from="ButtonPanel/VBoxContainer/Vault" to="." method="_on_vault_button_pressed"]
 [connection signal="pressed" from="ButtonPanel/VBoxContainer/Dungeon" to="." method="_on_dungeon_pressed"]

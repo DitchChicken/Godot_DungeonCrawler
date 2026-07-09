@@ -18,6 +18,7 @@ public partial class Town : Control
 			GD.Print($"  Total AC: {c.TotalArmorClass()}");
 			*/
 		}
+		GetNode<Button>("ButtonPanel/VBoxContainer/Shop").Pressed += OnShopPressed;
 	}
 	
 	private void _on_roster_pressed()
@@ -36,4 +37,10 @@ public partial class Town : Control
 		GetNode<Main>("/root/Main")
 			.CallDeferred(nameof(Main.SwitchScene), "res://Town/Vault/Vault.tscn");
 	}	
+	
+	private void OnShopPressed()
+	{
+		GetNode<Main>("/root/Main").CallDeferred(
+			nameof(Main.SwitchScene), "res://Town/Shop/Shop.tscn");
+	}
 }

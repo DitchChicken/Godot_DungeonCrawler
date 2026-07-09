@@ -5,43 +5,6 @@ public static class InventoryTransfer
 	// Result of a transfer attempt
 	public enum Result { Success, PartialSuccess, Failed }
 
-	// Main entry point — moves an item from a source to a target.
-	// Returns true if anything was transferred.
-	public static bool Transfer(
-		InventoryDragData dragData,
-		TransferTarget target,
-		GameState gameState)
-	{
-		var item  = dragData.Item;
-		int count = dragData.Count;
-
-		if (item == null || count <= 0)
-			return false;
-
-		// Determine how many we'll move
-		int moveCount = CalculateMoveCount(item, count, target, gameState);
-		if (moveCount <= 0)
-		{
-			GD.Print($"Nothing can be transferred (target full or capped)");
-			return false;
-		}
-
-		// Remove from source first
-		RemoveFromSource(dragData, moveCount, gameState);
-
-		// Add to target — returns leftover that didn't fit
-		int leftover = AddToTarget(item, moveCount, target, gameState);
-
-		// Return leftover to source
-		if (leftover > 0)
-		{
-			GD.Print($"{leftover} couldn't fit — returning to source");
-			ReturnToSource(dragData, leftover, gameState);
-		}
-
-		return leftover < moveCount;
-	}
-
 	// How many items should move given the target's constraints
 	private static int CalculateMoveCount(
 		Equipment item, int available, TransferTarget target, GameState gameState)
@@ -180,5 +143,96 @@ public static class InventoryTransfer
 		{
 			dragData.Character?.PersonalInventory.AddItem(dragData.Item, count);
 		}
+	}
+	
+	
+	// Buying: shop item → target inventory. Buys ONE per drop.
+	private static bool BuyFromShop(
+		InventoryDragData dragData, TransferTarget target, GameState gameState)
+	{
+		var item = dragData.Item;
+
+		// Resolve the destination inventory
+		Inventory destInv = target.Type switch
+		{
+			TransferTarget.TargetType.Vault             => gameState.PartyVault,
+			TransferTarget.TargetType.PersonalInventory => target.Character?.PersonalInventory,
+			_ => null
+		};
+
+		if (destInv == null)
+		{
+			ShopSignals.RaiseMessage("Can't buy there");
+			return false;
+		}
+
+		var shop = gameState.CurrentShop;
+		bool ok = ShopManager.Buy(shop, item, gameState, destInv, out string msg);
+		if (!ok)
+			ShopSignals.RaiseMessage(msg);
+
+		if (ok) ShopSignals.RaiseTransaction();
+		
+		return ok;
+	}
+
+	// Selling: source inventory item → shop. Sells the dragged count.
+	private static bool SellToShop(
+		InventoryDragData dragData, TransferTarget target, GameState gameState)
+	{
+		var item  = dragData.Item;
+		int count = dragData.Count;
+
+		// Resolve the source inventory
+		Inventory srcInv = dragData.Source switch
+		{
+			InventoryDragData.SourceType.Vault             => gameState.PartyVault,
+			InventoryDragData.SourceType.PersonalInventory => dragData.Character?.PersonalInventory,
+			_ => null
+		};
+
+		if (srcInv == null) return false;
+
+		ShopManager.Sell(target.Shop, item, count, gameState, srcInv, out string msg);
+		ShopSignals.RaiseMessage(msg);		
+		ShopSignals.RaiseTransaction();
+		
+		return true;
+	}
+	
+	public static bool Transfer(
+		InventoryDragData dragData,
+		TransferTarget target,
+		GameState gameState)
+	{
+		var item  = dragData.Item;
+		int count = dragData.Count;
+
+		if (item == null || count <= 0)
+			return false;
+
+		// --- SHOP BUY: source is shop, target is inventory/vault ---
+		if (dragData.Source == InventoryDragData.SourceType.Shop)
+		{
+			return BuyFromShop(dragData, target, gameState);
+		}
+
+		// --- SHOP SELL: target is shop ---
+		if (target.Type == TransferTarget.TargetType.Shop)
+		{
+			return SellToShop(dragData, target, gameState);
+		}
+
+		// --- normal (non-shop) transfer path, unchanged ---
+		int moveCount = CalculateMoveCount(item, count, target, gameState);
+		if (moveCount <= 0) return false;
+
+		RemoveFromSource(dragData, moveCount, gameState);
+		int leftover = AddToTarget(item, moveCount, target, gameState);
+
+		if (leftover > 0)
+			ReturnToSource(dragData, leftover, gameState);
+
+		return leftover < moveCount;
 	}
 }

@@ -98,4 +98,5 @@ public partial class RosterSlot : PanelContainer
 		var roster = GetTree().Root.GetNodeOrNull<Roster>("Roster");
 		roster?.RefreshPartyStatus();
 	}	
+	
 }
