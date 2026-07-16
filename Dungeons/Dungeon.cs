@@ -6,9 +6,10 @@ public partial class Dungeon : Control
 	private TextureRect _roomImage;
 	private Label _roomName;
 	private Label _roomDescription;
-	private Button _exploreButton;
+	private Button _moveButton;
 	private Button _townButton;
 	private Button _combatButton;
+	private MoveMenu _moveMenu;
 	
 	private GameState _gameState;
 
@@ -19,7 +20,7 @@ public partial class Dungeon : Control
 		_roomImage       = GetNode<TextureRect>("RoomImage");
 		_roomName        = GetNode<Label>("RoomPanel/VBoxContainer/RoomName");
 		_roomDescription = GetNode<Label>("RoomPanel/VBoxContainer/RoomDescription");
-		_exploreButton   = GetNode<Button>("ActionsPanel/ButtonRow/ExploreButton");
+		_moveButton      = GetNode<Button>("ActionsPanel/ButtonRow/MoveButton");
 		_townButton      = GetNode<Button>("ActionsPanel/ButtonRow/TownButton");
 		_combatButton    = GetNode<Button>("ActionsPanel/ButtonRow/CombatButton");
 		
@@ -27,6 +28,17 @@ public partial class Dungeon : Control
 		
 		_gameState = GetNode<GameState>("/root/GameState");
 
+		_moveMenu = new MoveMenu();
+		_moveMenu.Visible = false;
+		_moveMenu.ZIndex  = 20;
+		AddChild(_moveMenu);
+		_moveMenu.RoomChosen    += OnMoveToRoom;
+		_moveMenu.ExploreChosen += OnExploreChosen;
+		_moveMenu.Cancelled     += OnMoveCancelled;
+
+		// Rewire the (renamed) Move button
+		_moveButton.Pressed += OnMovePressed;
+		
 		// Debug: auto form party if empty
 		if (DebugFlags.AutoFormPartyOnEmbark && _gameState.Party.Count == 0)
 		AutoFormParty();
@@ -74,17 +86,13 @@ public partial class Dungeon : Control
 			_roomImage.Texture = GD.Load<Texture2D>(room.Image);
 		else
 			_roomImage.Texture = null;
-
-		// Gray out explore button if pool is empty
-		var state = _gameState.GetDungeonState(_gameState.CurrentDungeon);
-		_exploreButton.Disabled = !DungeonManager.CanExplore(_gameState);
 	}
 
-	private void _on_explore_button_pressed()
-	{
-		//GD.Print("Explore pressed");
+	private void DoExplore()
+	{		
 		var room = DungeonManager.Explore(_gameState);
-		if (room == null) return;
+		if (room == null) return;	
+		
 		DisplayRoom(room);
 	}
 
@@ -211,5 +219,76 @@ public partial class Dungeon : Control
 		_gameState.CurrentEncounterData = encounter;
 		GetNode<Main>("/root/Main").CallDeferred(
 			nameof(Main.SwitchScene), "res://Combat/Combat.tscn");
+	}
+	
+	private void OnMovePressed()
+	{
+		var dungeon = _gameState.CurrentDungeon;
+		var state   = _gameState.GetDungeonState(dungeon);
+
+		// Build (id, name) list of explored rooms
+		var rooms = new System.Collections.Generic.List<(string, string)>();
+		foreach (var roomId in state.ExploredRooms)
+		{
+			var room = DungeonManager.LoadRoom(dungeon, roomId);
+			string name = room?.Name ?? roomId;
+			rooms.Add((roomId, name));
+		}
+
+		bool canExplore = DungeonManager.CanExplore(_gameState);
+		string currentId = _gameState.CurrentRoom?.Id ?? "";
+
+		_moveMenu.Open(rooms, canExplore, currentId);
+	}
+
+	private void OnMoveToRoom(string roomId)
+	{
+		_moveMenu.Visible = false;
+
+		var dungeon = _gameState.CurrentDungeon;
+		var room    = DungeonManager.LoadRoom(dungeon, roomId);
+		if (room == null) return;
+
+		_gameState.CurrentRoom = room;
+
+		// Update last-room pointer for consistency
+		var state = _gameState.GetDungeonState(dungeon);
+		state.LastRoomId = roomId;
+
+		RefreshRoomDisplay();   // your existing method that redraws the room
+		// Revisiting does NOT re-roll encounters (they were completed on first visit)
+	}
+
+	private void OnExploreChosen()
+	{
+		_moveMenu.Visible = false;
+		DoExplore();   // your existing explore logic (the old button handler body)
+	}
+
+	private void OnMoveCancelled()
+	{
+		_moveMenu.Visible = false;
+	}
+	
+	private void RefreshRoomDisplay()
+	{
+		var room = _gameState.CurrentRoom;
+		if (room == null) return;
+
+		// Room name
+		_roomName.Text = room.Name;
+
+		// Description (joined from the string array)
+		_roomDescription.Text = room.GetDescriptionText();
+
+		// Room image
+		if (!string.IsNullOrEmpty(room.Image) && ResourceLoader.Exists(room.Image))
+			_roomImage.Texture = GD.Load<Texture2D>(room.Image);
+		else
+			_roomImage.Texture = null;
+
+		// Update Move button availability — always allow Move (revisit is always possible
+		// once you've explored at least the entry room), but Explore Further depends on pool
+		_moveButton.Disabled = false;
 	}
 }

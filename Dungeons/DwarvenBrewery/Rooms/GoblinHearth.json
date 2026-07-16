@@ -1,8 +1,8 @@
 {
-	"id": "goblinHearth",
+	"id": "GoblinHearth",
 	"name": "Goblin Hearth",
 	"description": ["Rows of old stone bunks have been patched together with blankets, woven reeds, and scavenged timber. ",
-	                "A cooking fire crackles cheerfully in the center of the room while several goblins prepare a meal, ",
+					"A cooking fire crackles cheerfully in the center of the room while several goblins prepare a meal, ",
 					"their children darting between piles of supplies. The scent of roasted mushrooms fills the air.",
 					"These are not raiders preparing for battle. These are families making a home.TODO: AI Text"
 					],

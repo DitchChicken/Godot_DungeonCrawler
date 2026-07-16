@@ -68,10 +68,10 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
 
-[node name="ExploreButton" type="Button" parent="ActionsPanel/ButtonRow" unique_id=551308957]
+[node name="MoveButton" type="Button" parent="ActionsPanel/ButtonRow" unique_id=551308957]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Explore"
+text = "Move Between Rooms"
 
 [node name="TownButton" type="Button" parent="ActionsPanel/ButtonRow" unique_id=36490425]
 layout_mode = 2
@@ -83,6 +83,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Combat"
 
-[connection signal="pressed" from="ActionsPanel/ButtonRow/ExploreButton" to="." method="_on_explore_button_pressed"]
+[connection signal="pressed" from="ActionsPanel/ButtonRow/MoveButton" to="." method="_on_explore_button_pressed"]
 [connection signal="pressed" from="ActionsPanel/ButtonRow/TownButton" to="." method="_on_town_button_pressed"]
 [connection signal="pressed" from="ActionsPanel/ButtonRow/CombatButton" to="." method="_on_combat_button_pressed"]

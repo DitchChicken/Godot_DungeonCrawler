@@ -1,8 +1,8 @@
 {
-	"id": "guardroom",
-	"name": "Old Guard Room",
+	"id": "Gatehouse",
+	"name": "The Gatehouse",
 	"description": ["The broad stone stair descends into cool, dry air carrying the faint scent of grain and damp earth. ",
-	                "Enormous bronze doors stand frozen open, their counterweights locked in place by mechanisms that still hum ",
+					"Enormous bronze doors stand frozen open, their counterweights locked in place by mechanisms that still hum ",
 					"with quiet purpose. Carved reliefs depict dwarves harvesting wheat, tending strange gardens, and raising overflowing mugs in celebration.",
 					"Whatever this place once was, it was built for honest work rather than war. TODO: AI Text"
 					],

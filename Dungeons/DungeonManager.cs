@@ -72,9 +72,9 @@ public static class DungeonManager
 		{
 			string entryRoomId = dungeon.EntryRooms[_rng.Next(dungeon.EntryRooms.Count)];
 			currentRoom = LoadRoom(dungeonId, entryRoomId);
-		}
-
+		}		
 		gameState.CurrentRoom = currentRoom;
+		
 		// Add room to explored rooms
 		if (!state.ExploredRooms.Contains(currentRoom.Id))
 			state.ExploredRooms.Add(currentRoom.Id);
@@ -137,6 +137,7 @@ public static class DungeonManager
 			else
 			{
 				FinalizeExploredRoom(state, room);
+				gameState.CurrentRoom = room;		
 				return room;
 			}
 		}
@@ -156,6 +157,7 @@ public static class DungeonManager
 		if (room == null) return null;
 
 		FinalizeExploredRoom(state, room);
+		gameState.CurrentRoom = room;
 		return room;
 	}
 
