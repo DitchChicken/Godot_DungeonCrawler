@@ -32,6 +32,13 @@ public partial class DungeonTargetController : Control
 		AddChild(_promptLabel);
 
 		DungeonItemUse.TargetController = this;
+		DungeonAbilityUse.TargetController = this;
+	}
+
+	public override void _ExitTree()
+	{
+		if (DungeonItemUse.TargetController == this)    DungeonItemUse.TargetController = null;
+		if (DungeonAbilityUse.TargetController == this) DungeonAbilityUse.TargetController = null;
 	}
 
 	public void BeginPartyTargetSelect(Ability ability, string itemName, Action<Character> onChosen)
@@ -70,6 +77,9 @@ public partial class DungeonTargetController : Control
 
 	private void OnPortraitClicked(Character target)
 	{
+		GD.Print($"OnPortraitClicked: {target?.Name}, selecting:{_selecting}, " +
+			 $"valid:{_validTargets.Contains(target)}");
+			
 		if (!_selecting) return;
 		if (!_validTargets.Contains(target)) return;
 

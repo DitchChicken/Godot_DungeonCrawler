@@ -7,6 +7,10 @@ public partial class AbilityMenu : PanelContainer
 	private VBoxContainer _list;
 	private Character _caster;
 
+	private System.Action<string> _dungeonCallback;
+	private AbilityType _filterType;
+	private bool _dungeonMode = false;
+
 	// Fired when the player picks an ability; null-ish handled by caller
 	[Signal] public delegate void AbilitySelectedEventHandler(string abilityId);
 	[Signal] public delegate void CancelledEventHandler();
@@ -40,6 +44,16 @@ public partial class AbilityMenu : PanelContainer
 		Visible = true;
 	}
 
+	public void OpenForDungeon(Character caster, AbilityType type, System.Action<string> onChosen)
+	{
+		_caster          = caster;
+		_filterType      = type;
+		_dungeonMode     = true;
+		_dungeonCallback = onChosen;
+		BuildDungeonList();
+		Visible = true;
+	}
+
 	private void BuildList()
 	{
 		foreach (Node child in _list.GetChildren())
@@ -66,7 +80,7 @@ public partial class AbilityMenu : PanelContainer
 
 			string label = $"{ability.Name}  ({ability.ManaCost} MP)";
 			// Show cooldown if active
-			if (_caster.AbilityCooldowns.TryGetValue(ability.Id, out int cd) && cd > 0)
+			if (_caster.CombatCooldowns.TryGetValue(ability.Id, out int cd) && cd > 0)
 				label += $"  [CD {cd}]";
 
 			btn.Text     = label;
@@ -94,5 +108,47 @@ public partial class AbilityMenu : PanelContainer
 			EmitSignal(SignalName.Cancelled);
 			GetViewport().SetInputAsHandled();
 		}
+	}
+	
+	private void BuildDungeonList()
+	{
+		foreach (Node child in _list.GetChildren()) child.QueueFree();
+
+		var title = new Label();
+		title.Text = _filterType == AbilityType.Spell ? "Spells" : "Skills";
+		title.HorizontalAlignment = HorizontalAlignment.Center;
+		_list.AddChild(title);
+
+		var abilities = AbilityLoader.LoadAbilities(_caster.KnownAbilities);
+
+		foreach (var ability in abilities)
+		{
+			if (ability.Type != _filterType) continue;
+
+			var btn = new Button();
+			string label = $"{ability.Name}  ({ability.ManaCost} MP)";
+
+			if (_caster.ExplorationCooldowns.TryGetValue(ability.Id, out int cd) && cd > 0)
+				label += $"  [CD {cd}]";
+			if (!ability.CanUseIn("Dungeon"))
+				label += "  (combat only)";
+
+			btn.Text     = label;
+			btn.Disabled = !_caster.CanUseAbilityInDungeon(ability);
+
+			string capturedId = ability.Id;
+			btn.Pressed += () =>
+			{
+				Visible = false;
+				_dungeonCallback?.Invoke(capturedId);
+			};
+
+			_list.AddChild(btn);
+		}
+
+		var cancel = new Button();
+		cancel.Text = "Cancel";
+		cancel.Pressed += () => { Visible = false; DungeonAbilityUse.Cancel(); };
+		_list.AddChild(cancel);
 	}
 }

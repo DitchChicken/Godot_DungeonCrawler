@@ -65,7 +65,9 @@ public partial class Character : GodotObject
 	
 	//Abilities
 	public List<string> KnownAbilities { get; set; } = new List<string>();
-	public Dictionary<string, int> AbilityCooldowns { get; set; } = new Dictionary<string, int>();
+	public Dictionary<string, int> CombatCooldowns { get; set; } = new Dictionary<string, int>();
+	public Dictionary<string, int> ExplorationCooldowns { get; set; } = new Dictionary<string, int>();
+
 
 	// Current weapon — main hand, or null
 	public Equipment CurrentWeapon => GetEquipped(EquipmentSlot.WeaponMain);
@@ -236,11 +238,22 @@ public partial class Character : GodotObject
 		return true;
 	}
 	
+	// Combat usability — checks mana, health, and COMBAT cooldown
 	public bool CanUseAbility(Ability ability)
 	{
 		if (CurrentMana < ability.ManaCost) return false;
-		if (CurrentHP <= ability.HealthCost) return false; // can't kill self to cast
-		if (AbilityCooldowns.TryGetValue(ability.Id, out int cd) && cd > 0) return false;
+		if (CurrentHP <= ability.HealthCost) return false;
+		if (CombatCooldowns.TryGetValue(ability.Id, out int cd) && cd > 0) return false;
+		return true;
+	}
+
+	// Dungeon usability — checks mana, health, dungeon-legality, and EXPLORATION cooldown
+	public bool CanUseAbilityInDungeon(Ability ability)
+	{
+		if (!ability.CanUseIn("Dungeon")) return false;
+		if (CurrentMana < ability.ManaCost) return false;
+		if (CurrentHP <= ability.HealthCost) return false;
+		if (ExplorationCooldowns.TryGetValue(ability.Id, out int cd) && cd > 0) return false;
 		return true;
 	}
 }

@@ -51,6 +51,7 @@ public static class StatusProcessor
 			? combatant.Character.ActiveEffects
 			: combatant.Monster.ActiveEffects;
 
+		// Tick status effect durations
 		var toRemove = new List<StatusEffect>();
 		foreach (var effect in effects)
 		{
@@ -64,9 +65,18 @@ public static class StatusProcessor
 				}
 			}
 		}
-
 		foreach (var e in toRemove)
 			effects.Remove(e);
+
+		// Tick combat ability cooldowns (party only — monsters use attack weights, not cooldowns)
+		if (combatant.IsParty)
+		{
+			var cds = combatant.Character.CombatCooldowns;
+			foreach (var key in new List<string>(cds.Keys))
+			{
+				if (cds[key] > 0) cds[key]--;
+			}
+		}
 
 		return log;
 	}

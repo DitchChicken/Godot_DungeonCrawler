@@ -43,6 +43,15 @@ public partial class Dungeon : Control
 		if (DebugFlags.AutoFormPartyOnEmbark && _gameState.Party.Count == 0)
 		AutoFormParty();
 		
+		// Ability menu
+		var abilityMenu = new AbilityMenu();
+		abilityMenu.Visible = false;
+		abilityMenu.ZIndex  = 25;
+		AddChild(abilityMenu);
+
+		DungeonAbilityUse.Menu             = abilityMenu;
+		DungeonAbilityUse.TargetController = GetNode<DungeonTargetController>("DungeonTargetController");
+		
 		// Enter the dungeon
 		var room = DungeonManager.EnterDungeon("DwarvenBrewery", _gameState);
 		DisplayRoom(room);
@@ -93,7 +102,8 @@ public partial class Dungeon : Control
 		var room = DungeonManager.Explore(_gameState);
 		if (room == null) return;	
 		
-		DisplayRoom(room);
+		TickExplorationCooldowns();
+		DisplayRoom(room);		
 	}
 
 	private void _on_town_button_pressed()
@@ -250,7 +260,8 @@ public partial class Dungeon : Control
 		if (room == null) return;
 
 		_gameState.CurrentRoom = room;
-
+		TickExplorationCooldowns();
+		
 		// Update last-room pointer for consistency
 		var state = _gameState.GetDungeonState(dungeon);
 		state.LastRoomId = roomId;
@@ -290,5 +301,18 @@ public partial class Dungeon : Control
 		// Update Move button availability — always allow Move (revisit is always possible
 		// once you've explored at least the entry room), but Explore Further depends on pool
 		_moveButton.Disabled = false;
+	}
+	
+	private void TickExplorationCooldowns()
+	{
+		foreach (var c in _gameState.Party)
+		{
+			var keys = new List<string>(c.ExplorationCooldowns.Keys);
+			foreach (var key in keys)
+			{
+				if (c.ExplorationCooldowns[key] > 0)
+					c.ExplorationCooldowns[key]--;
+			}
+		}
 	}
 }

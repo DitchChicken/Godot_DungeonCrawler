@@ -12,7 +12,8 @@ public partial class PartyHUD : CanvasLayer
 	private System.Action<Character> _targetCallback;
 	private List<Character> _targetValidList;
 	private bool _targetSelecting = false;
-
+	public bool IsTargetSelecting => _targetSelecting;
+	
 	public override void _Ready()
 	{
 		var frontRow = GetNode<HBoxContainer>("Panel/VBoxContainer/FrontRow");
@@ -73,8 +74,10 @@ public partial class PartyHUD : CanvasLayer
 			else
 				_slots[i].Clear();
 		}
-		foreach (var slot in _slots)
+		foreach (var slot in _slots) {
 			slot.RefreshStatus();
+			slot.RefreshAbilityIcons();
+		}
 	}
 	
 	public void HighlightSlot(Character character)
@@ -100,13 +103,12 @@ public partial class PartyHUD : CanvasLayer
 		_targetValidList = validTargets;
 		_targetCallback  = onClick;
 
-		// Highlight valid slots (green tint), dim invalid
 		foreach (var slot in _slots)
 		{
 			if (slot.Character != null && validTargets.Contains(slot.Character))
-				slot.Modulate = new Color(0.6f, 1.0f, 0.6f, 1.0f); // valid — green
+				slot.Modulate = new Color(0.6f, 1.0f, 0.6f, 1.0f);  // valid — green
 			else
-				slot.Modulate = new Color(0.5f, 0.5f, 0.5f, 1.0f); // invalid — dim
+				slot.Modulate = new Color(0.5f, 0.5f, 0.5f, 1.0f);  // invalid — dim
 		}
 	}
 
@@ -115,16 +117,17 @@ public partial class PartyHUD : CanvasLayer
 		_targetSelecting = false;
 		_targetValidList = null;
 		_targetCallback  = null;
-		ClearHighlights(); // restore normal tint
+		ClearHighlights();
 	}
 
-	// Called by PartySlot when clicked during target select
 	public void OnSlotClickedForTarget(Character character)
 	{
+		GD.Print($"OnSlotClickedForTarget: {character?.Name}, selecting:{_targetSelecting}, " +
+			$"inList:{_targetValidList?.Contains(character)}, " +
+			$"callbackNull:{_targetCallback == null}");
+
 		if (!_targetSelecting) return;
 		if (_targetValidList == null || !_targetValidList.Contains(character)) return;
 		_targetCallback?.Invoke(character);
 	}
-
-	public bool IsTargetSelecting => _targetSelecting;
 }

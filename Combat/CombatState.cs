@@ -55,6 +55,7 @@ public class CombatState
 
 		foreach (var character in Party)
 		{
+			character.CombatCooldowns.Clear();			
 			if (!character.IsAlive) continue;
 			var combatant = new Combatant { Character = character, IsParty = true };
 			combatant.Initiative = RollInitiativeFor(combatant);
@@ -94,16 +95,6 @@ public class CombatState
 		{
 			var endLog = StatusProcessor.ProcessTurnEnd(CurrentCombatant);
 			foreach (var msg in endLog) AddLog(msg);
-		}
-
-		// Tick down ability cooldowns for the combatant who just acted
-		if (CurrentCombatant != null && CurrentCombatant.IsParty)
-		{
-			var cds = CurrentCombatant.Character.AbilityCooldowns;
-			foreach (var key in new List<string>(cds.Keys))
-			{
-				if (cds[key] > 0) cds[key]--;
-			}
 		}
 
 		int previousIndex = CurrentTurnIndex;
@@ -400,8 +391,8 @@ public class CombatState
 			caster.Character.CurrentMana -= ability.ManaCost;
 			if (ability.HealthCost > 0)
 				caster.Character.CurrentHP -= ability.HealthCost;
-			if (ability.Cooldown > 0)
-				caster.Character.AbilityCooldowns[ability.Id] = ability.Cooldown;
+			if (ability.CombatCooldown > 0)
+				caster.Character.CombatCooldowns[ability.Id] = ability.CombatCooldown;
 		}
 
 		int amount = 0;

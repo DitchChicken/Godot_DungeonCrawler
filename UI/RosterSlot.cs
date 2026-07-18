@@ -30,7 +30,7 @@ public partial class RosterSlot : PanelContainer
 		else
 			_portrait.Texture = null;
 
-		_nameLabel.Text = character.Name;
+		_nameLabel.Text = character.Name;		
 	}
 
 	public void SetInParty(bool inParty)

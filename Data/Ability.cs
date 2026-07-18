@@ -20,7 +20,8 @@ public class Ability
 	public int Power { get; set; } = 0;
 	public int ManaCost { get; set; } = 0;
 	public int HealthCost { get; set; } = 0;
-	public int Cooldown { get; set; } = 0;
+	public int CombatCooldown { get; set; } = 0; 
+	public int ExplorationCooldown { get; set; } = 0;
 
 	public string Element { get; set; } = "None";
 	public string StatusEffect { get; set; } = "";

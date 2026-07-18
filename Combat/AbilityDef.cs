@@ -12,7 +12,8 @@ public class AbilityDef
 	public int Power { get; set; }
 	public int ManaCost { get; set; }
 	public int HealthCost { get; set; }
-	public int Cooldown { get; set; }
+	public int CombatCooldown { get; set; } = 0;
+	public int ExplorationCooldown { get; set; } = 0;
 	public string Element { get; set; } = "None";
 	public string StatusEffect { get; set; } = "";
 	public string ClassRestriction { get; set; } = "";

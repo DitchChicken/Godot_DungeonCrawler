@@ -28,21 +28,22 @@ public static class AbilityLoader
 
 		var ability = new Ability
 		{
-			Id          = def.Id,
-			Name        = def.Name,
-			Description = def.Description,
-			Type        = Enum.Parse<AbilityType>(def.AbilityType ?? "Spell"),
-			TargetType  = Enum.Parse<AbilityTargetType>(def.TargetType ?? "SingleAlly"),
-			EffectType  = Enum.Parse<AbilityEffectType>(def.EffectType ?? "Heal"),
-			Power       = def.Power,
-			ManaCost    = def.ManaCost,
-			HealthCost  = def.HealthCost,
-			Cooldown    = def.Cooldown,
-			Element     = def.Element ?? "None",
-			StatusEffect = def.StatusEffect ?? "",
-			ClassRestriction = def.ClassRestriction ?? "",
-			UsableIn = def.UsableIn ?? new List<string>(),
-			Icon        = def.Icon ?? ""
+			Id                  = def.Id,
+			Name                = def.Name,
+			Description         = def.Description,
+			Type                = Enum.Parse<AbilityType>(def.AbilityType ?? "Spell"),
+			TargetType          = Enum.Parse<AbilityTargetType>(def.TargetType ?? "SingleAlly"),
+			EffectType          = Enum.Parse<AbilityEffectType>(def.EffectType ?? "Heal"),
+			Power               = def.Power,
+			ManaCost            = def.ManaCost,
+			HealthCost          = def.HealthCost,
+			CombatCooldown      = def.CombatCooldown,
+			ExplorationCooldown = def.ExplorationCooldown,
+			Element             = def.Element ?? "None",
+			StatusEffect        = def.StatusEffect ?? "",
+			ClassRestriction    = def.ClassRestriction ?? "",
+			UsableIn            = def.UsableIn ?? new List<string>(),
+			Icon                = def.Icon ?? ""
 		};
 
 		_cache[abilityId] = ability;

@@ -8,6 +8,11 @@ public partial class PartySlot : PanelContainer
 	private Label _manaLabel;
 	private StatusIconRow _statusRow;
 	
+	//Icons
+	private TextureButton _spellIcon;
+	private TextureButton _skillIcon;
+	private HBoxContainer _abilityIconRow;
+
 	public Character Character { get; private set; }
 
 	[Export] public bool IsHudSlot = false;
@@ -20,9 +25,10 @@ public partial class PartySlot : PanelContainer
 		_manaLabel = GetNode<Label>("HBoxContainer/VBoxContainer/MpLabel");
 		_statusRow = new StatusIconRow();
 		_statusRow.Alignment = BoxContainer.AlignmentMode.Center;
-		_statusRow.MouseFilter = Control.MouseFilterEnum.Ignore;
+		_statusRow.MouseFilter = Control.MouseFilterEnum.Ignore;		
 		var vbox = GetNode<VBoxContainer>("HBoxContainer/VBoxContainer");
 		vbox.AddChild(_statusRow);
+		BuildAbilityIcons();
 		
 		Clear();
 	}
@@ -58,6 +64,9 @@ public partial class PartySlot : PanelContainer
 		{
 			_manaLabel.Visible = false;
 		}
+		
+		RefreshAbilityIcons();
+		RefreshStatus();
 	}
 
 	public void Clear()
@@ -67,6 +76,8 @@ public partial class PartySlot : PanelContainer
 		_nameLabel.Text    = "";
 		_hpLabel.Text      = "";
 		_manaLabel.Visible = false;
+		RefreshAbilityIcons();
+		RefreshStatus();
 	}
 
 	public override Variant _GetDragData(Vector2 atPosition)
@@ -173,21 +184,21 @@ public partial class PartySlot : PanelContainer
 	
 	public override void _GuiInput(InputEvent @event)
 	{
-		// Target-select mode takes priority — requires a real left click
 		if (@event is InputEventMouseButton mouse)
 		{
-			if( mouse.Pressed && mouse.ButtonIndex == MouseButton.Left)
+			if (mouse.Pressed && mouse.ButtonIndex == MouseButton.Left)
 			{
 				var hud = GetNode<PartyHUD>("/root/PartyHud");
-				if (hud.IsTargetSelecting && Character != null)
+				if (hud != null && hud.IsTargetSelecting && Character != null)
 				{
+					//GD.Print($"PartySlot routing click to target select: {Character.Name}");
 					hud.OnSlotClickedForTarget(Character);
-					AcceptEvent();   // consume so normal slot behavior doesn't run
+					AcceptEvent();
 					return;
 				}
 			}
-
-			if ( mouse.ButtonIndex == MouseButton.Left
+			
+			if (mouse.ButtonIndex == MouseButton.Left
 				&& mouse.Pressed && Character != null)
 			{
 				GetNode<CharacterSheet>("/root/CharacterSheet")
@@ -210,5 +221,70 @@ public partial class PartySlot : PanelContainer
 			_statusRow?.Refresh(Character.ActiveEffects);
 		else
 			_statusRow?.Refresh(null);
+	}
+	
+	private void BuildAbilityIcons()
+	{
+		_abilityIconRow = new HBoxContainer();
+		_abilityIconRow.AddThemeConstantOverride("separation", 4);
+
+		_spellIcon = MakeAbilityIcon("res://UI/Icons/SpellIcon.png", AbilityType.Spell);
+		_skillIcon = MakeAbilityIcon("res://UI/Icons/SkillIcon.png", AbilityType.Skill);
+
+		_abilityIconRow.AddChild(_spellIcon);
+		_abilityIconRow.AddChild(_skillIcon);
+
+		var vbox = GetNode<VBoxContainer>("HBoxContainer/VBoxContainer");
+		vbox.AddChild(_abilityIconRow);
+	}
+
+	private TextureButton MakeAbilityIcon(string iconPath, AbilityType type)
+	{
+		var btn = new TextureButton();
+		btn.CustomMinimumSize = new Vector2(24, 24);
+		btn.IgnoreTextureSize = true;
+		btn.StretchMode       = TextureButton.StretchModeEnum.KeepAspectCentered;
+		if (ResourceLoader.Exists(iconPath))
+			btn.TextureNormal = GD.Load<Texture2D>(iconPath);
+
+		var capturedType = type;
+		btn.Pressed += () => OnAbilityIconPressed(capturedType);
+		return btn;
+	}
+
+	private void OnAbilityIconPressed(AbilityType type)
+	{
+		if (Character == null) return;
+		DungeonAbilityUse.OpenMenu(Character, type);
+	}
+
+	// Show/hide icons based on what this character knows
+	public void RefreshAbilityIcons()
+	{
+		if (_spellIcon == null) return;
+
+		if (Character == null)
+		{
+			_abilityIconRow.Visible = false;
+			return;
+		}
+
+		var abilities = AbilityLoader.LoadAbilities(Character.KnownAbilities);
+
+		bool hasSpells = abilities.Exists(a => a.Type == AbilityType.Spell);
+		bool hasSkills = abilities.Exists(a => a.Type == AbilityType.Skill);
+
+		_spellIcon.Visible = hasSpells;
+		_skillIcon.Visible = hasSkills;
+		_abilityIconRow.Visible = hasSpells || hasSkills;
+
+		// Gray out if nothing of that type is currently usable in the dungeon
+		bool anySpellUsable = abilities.Exists(a =>
+			a.Type == AbilityType.Spell && Character.CanUseAbilityInDungeon(a));
+		bool anySkillUsable = abilities.Exists(a =>
+			a.Type == AbilityType.Skill && Character.CanUseAbilityInDungeon(a));
+
+		_spellIcon.Modulate = anySpellUsable ? Colors.White : new Color(0.4f, 0.4f, 0.4f);
+		_skillIcon.Modulate = anySkillUsable ? Colors.White : new Color(0.4f, 0.4f, 0.4f);
 	}
 }
