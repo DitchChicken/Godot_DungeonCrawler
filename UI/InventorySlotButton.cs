@@ -9,6 +9,7 @@ public partial class InventorySlotButton : Button
 	public bool IsShopSlot { get; set; } = false;
 		
 	private Label _stackLabel;
+	private PopupMenu _contextMenu;
 	
 	public Equipment Item
 	{
@@ -217,4 +218,51 @@ public partial class InventorySlotButton : Button
 			dragData.Character?.PersonalInventory.RemoveItem(dragData.Item, count);
 		}
 	}	
+	
+	public override void _GuiInput(InputEvent @event)
+	{
+		if (@event is InputEventMouseButton mouse
+			&& mouse.Pressed
+			&& mouse.ButtonIndex == MouseButton.Right
+			&& Item != null)
+		{
+			ShowContextMenu(mouse.GlobalPosition);
+			AcceptEvent();
+		}
+	}
+
+	private void ShowContextMenu(Vector2 globalPos)
+	{
+		// Only offer dungeon item use when actually in the dungeon
+		var GameState = GetNode<GameState>("/root/GameState");
+		if (GameState.CurrentDungeon == "") return;
+		if (Item == null) return;
+
+		// Is this item usable in the dungeon?
+		if (string.IsNullOrEmpty(Item.UseAbility)) return;
+		var ability = AbilityLoader.LoadAbility(Item.UseAbility);
+		if (ability == null || !ability.CanUseIn("Dungeon")) return;
+
+		if (_contextMenu == null)
+		{
+			_contextMenu = new PopupMenu();
+			AddChild(_contextMenu);
+			_contextMenu.IdPressed += OnContextMenuId;
+		}
+
+		_contextMenu.Clear();
+		_contextMenu.AddItem("Use Item", 0);
+		// Future: AddItem("Drop", 1), etc.
+
+		_contextMenu.Position = (Vector2I)globalPos;
+		_contextMenu.Popup();
+	}
+
+	private void OnContextMenuId(long id)
+	{
+		if (id == 0) // Use Item
+		{
+			DungeonItemUse.BeginItemUse(this.Item, this.Character, this.SourceType, this.SlotIndex);
+		}
+	}
 }

@@ -9,7 +9,10 @@ public partial class PartyHUD : CanvasLayer
 	private List<PartySlot> _slots = new List<PartySlot>();
 	private PackedScene _slotScene = GD.Load<PackedScene>("res://UI/PartySlot.tscn");
 	
-	
+	private System.Action<Character> _targetCallback;
+	private List<Character> _targetValidList;
+	private bool _targetSelecting = false;
+
 	public override void _Ready()
 	{
 		var frontRow = GetNode<HBoxContainer>("Panel/VBoxContainer/FrontRow");
@@ -90,4 +93,38 @@ public partial class PartyHUD : CanvasLayer
 		foreach (var slot in _slots)
 			slot.Modulate = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 	}	
+	
+	public void BeginTargetSelect(List<Character> validTargets, System.Action<Character> onClick)
+	{
+		_targetSelecting = true;
+		_targetValidList = validTargets;
+		_targetCallback  = onClick;
+
+		// Highlight valid slots (green tint), dim invalid
+		foreach (var slot in _slots)
+		{
+			if (slot.Character != null && validTargets.Contains(slot.Character))
+				slot.Modulate = new Color(0.6f, 1.0f, 0.6f, 1.0f); // valid — green
+			else
+				slot.Modulate = new Color(0.5f, 0.5f, 0.5f, 1.0f); // invalid — dim
+		}
+	}
+
+	public void EndTargetSelect()
+	{
+		_targetSelecting = false;
+		_targetValidList = null;
+		_targetCallback  = null;
+		ClearHighlights(); // restore normal tint
+	}
+
+	// Called by PartySlot when clicked during target select
+	public void OnSlotClickedForTarget(Character character)
+	{
+		if (!_targetSelecting) return;
+		if (_targetValidList == null || !_targetValidList.Contains(character)) return;
+		_targetCallback?.Invoke(character);
+	}
+
+	public bool IsTargetSelecting => _targetSelecting;
 }

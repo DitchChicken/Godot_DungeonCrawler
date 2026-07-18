@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://hm2gnyn5bflv"]
 
 [ext_resource type="Script" uid="uid://pf5mylbhpbgp" path="res://Dungeons/Dungeon.cs" id="1_5h6mw"]
+[ext_resource type="Script" uid="uid://btr45uglbrc0h" path="res://Dungeons/DungeonTargetController.cs" id="2_qbu34"]
 
 [node name="Dungeon" type="Control" unique_id=1876372441]
 layout_mode = 3
@@ -82,6 +83,10 @@ text = "Return to Town"
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Combat"
+
+[node name="DungeonTargetController" type="Control" parent="." unique_id=1685510114]
+anchors_preset = 0
+script = ExtResource("2_qbu34")
 
 [connection signal="pressed" from="ActionsPanel/ButtonRow/MoveButton" to="." method="_on_explore_button_pressed"]
 [connection signal="pressed" from="ActionsPanel/ButtonRow/TownButton" to="." method="_on_town_button_pressed"]

@@ -173,13 +173,26 @@ public partial class PartySlot : PanelContainer
 	
 	public override void _GuiInput(InputEvent @event)
 	{
-		if (@event is InputEventMouseButton mouse
-			&& mouse.ButtonIndex == MouseButton.Left
-			&& mouse.Pressed
-			&& Character != null)
+		// Target-select mode takes priority — requires a real left click
+		if (@event is InputEventMouseButton mouse)
 		{
-			GetNode<CharacterSheet>("/root/CharacterSheet")
-				.Open(Character, CharacterSheetMode.Right);
+			if( mouse.Pressed && mouse.ButtonIndex == MouseButton.Left)
+			{
+				var hud = GetNode<PartyHUD>("/root/PartyHud");
+				if (hud.IsTargetSelecting && Character != null)
+				{
+					hud.OnSlotClickedForTarget(Character);
+					AcceptEvent();   // consume so normal slot behavior doesn't run
+					return;
+				}
+			}
+
+			if ( mouse.ButtonIndex == MouseButton.Left
+				&& mouse.Pressed && Character != null)
+			{
+				GetNode<CharacterSheet>("/root/CharacterSheet")
+					.Open(Character, CharacterSheetMode.Right);
+			}
 		}
 	}
 	
