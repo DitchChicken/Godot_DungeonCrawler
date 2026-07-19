@@ -30,7 +30,8 @@ public partial class GameState : Node
 
 	// Current combat encounter
 	public List<List<string>> CurrentEncounter = new List<List<string>>();
-
+	public EncounterInstance CurrentEncounterInstance { get; set; }
+	
 	public void SetEncounter(List<List<string>> formation)
 	{
 		CurrentEncounter = formation;

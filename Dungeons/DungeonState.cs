@@ -5,7 +5,21 @@ public class DungeonState
 	public List<string> RoomPool { get; set; }            = new List<string>();
 	public List<string> UniqueRoomsFound { get; set; }    = new List<string>();
 	public string LastRoomId { get; set; }                = "";
-	public HashSet<string> CompletedEncounters { get; set; } = new HashSet<string>();
 	public List<string> ExploredRooms { get; set; } = new List<string>();
 	public string PendingNextRoom { get; set; } = "";
+	
+	public Dictionary<string, RoomState> RoomStates { get; set; } = new Dictionary<string, RoomState>();
+
+	public EncounterManager Encounters { get; set; } = new EncounterManager();
+
+	public RoomState GetRoomState(string roomId)
+	{
+		if (!RoomStates.TryGetValue(roomId, out var state))
+		{
+			state = new RoomState { RoomId = roomId };
+			RoomStates[roomId] = state;
+		}
+		return state;
+	}
+
 }

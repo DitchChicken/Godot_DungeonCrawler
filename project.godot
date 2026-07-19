@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+DebugConsole="*uid://1raw1odi1cp2"
 GameState="*uid://d0qc01fkekk2h"
 Main="*uid://jixeh2p70ewh"
 PartyHud="*uid://di5rdkbg33sn4"

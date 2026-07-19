@@ -50,6 +50,8 @@ public static class DungeonManager
 		gameState.CurrentDungeon = dungeonId;
 		var state = gameState.GetDungeonState(dungeonId);
 
+		bool freshDungeon = state.RoomPool.Count == 0 && string.IsNullOrEmpty(state.LastRoomId);
+
 		// Only generate pool if this dungeon hasn't been visited this run
 		if (state.RoomPool.Count == 0)
 		{
@@ -72,13 +74,27 @@ public static class DungeonManager
 		{
 			string entryRoomId = dungeon.EntryRooms[_rng.Next(dungeon.EntryRooms.Count)];
 			currentRoom = LoadRoom(dungeonId, entryRoomId);
-		}		
+		}
+
 		gameState.CurrentRoom = currentRoom;
-		
+
+		// Eagerly populate encounters — only on a fresh dungeon, never on resume
+		if (freshDungeon)
+		{
+			var allRoomIds = new List<string>(state.RoomPool);
+			if (currentRoom != null && !allRoomIds.Contains(currentRoom.Id))
+				allRoomIds.Add(currentRoom.Id);
+
+			state.Encounters.PopulateDungeon(dungeonId, allRoomIds);
+		}
+
 		// Add room to explored rooms
 		if (!state.ExploredRooms.Contains(currentRoom.Id))
 			state.ExploredRooms.Add(currentRoom.Id);
+
 		RegisterNextRoom(state, currentRoom);
+
+		GD.Print($"freshDungeon: {freshDungeon}, roomPool: {state.RoomPool.Count}");
 		
 		return currentRoom;
 	}

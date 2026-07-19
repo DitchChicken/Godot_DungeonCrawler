@@ -167,66 +167,28 @@ public partial class Dungeon : Control
 
 	private void TryCombat()
 	{
-		var room      = _gameState.CurrentRoom;
-		var dungeon   = _gameState.CurrentDungeon;
-		var state     = _gameState.GetDungeonState(dungeon);
+		var dungeon = _gameState.CurrentDungeon;
+		var state   = _gameState.GetDungeonState(dungeon);
+		var roomId  = _gameState.CurrentRoom?.Id;
+		if (string.IsNullOrEmpty(roomId)) return;
 
-		EncounterData encounter = null;
+		var instance = state.Encounters.GetRoomEncounter(roomId);
 
-		if (DebugFlags.ForceEncounter)
+		// Debug: force-spawn an encounter into this room if none exists
+		if (instance == null && DebugFlags.ForceEncounter)
 		{
-			var enc = EncounterLoader.LoadEncounter(
-				_gameState.CurrentDungeon, "SkeletonGuards");
-			if (enc != null)
-			{
-				_gameState.CurrentEncounter     = enc.Formation;
-				_gameState.CurrentEncounterData = enc;
-				GetNode<Main>("/root/Main").CallDeferred(
-					nameof(Main.SwitchScene), "res://Combat/Combat.tscn");
-			}
-			return;
-		}
-		
-		// Roll room encounters first — skip already completed ones
-		if (room?.Encounters != null)
-		{
-			foreach (var entry in room.Encounters)
-			{
-				// Skip if already completed this run
-				if (state.CompletedEncounters.Contains($"{room.Id}_{entry.Id}"))
-					continue;
-
-				if (_rng.NextDouble() < entry.Chance)
-				{
-					encounter = EncounterLoader.LoadEncounter(dungeon, entry.Id);
-					if (encounter != null)
-					{
-						// Mark completed
-						state.CompletedEncounters.Add($"{room.Id}_{entry.Id}");
-						GD.Print($"Room encounter: {encounter.Name}");
-						break;
-					}
-				}
-			}
+			instance = state.Encounters.CreateInstance(
+				dungeon, DebugFlags.ForcedEncounterId, roomId, EncounterAttachment.Permanent);
+			GD.Print($"[DEBUG] Forced encounter: {instance?.InstanceId ?? "FAILED"}");
 		}
 
-		// If no room encounter triggered, roll wandering monsters
-		if (encounter == null)
+		if (instance == null)
 		{
-			encounter = EncounterLoader.RollWanderingEncounter(dungeon, _rng);
-			if (encounter != null)
-				GD.Print($"Wandering encounter: {encounter.Name}");
+			GD.Print("No encounter here.");
+			return;   // ← make sure nothing below this switches scenes
 		}
 
-		if (encounter == null)
-		{
-			GD.Print("No encounter this room.");
-			return;
-		}
-
-		// Store encounter in GameState and switch to combat
-		_gameState.CurrentEncounter = encounter.Formation;
-		_gameState.CurrentEncounterData = encounter;
+		_gameState.CurrentEncounterInstance = instance;
 		GetNode<Main>("/root/Main").CallDeferred(
 			nameof(Main.SwitchScene), "res://Combat/Combat.tscn");
 	}

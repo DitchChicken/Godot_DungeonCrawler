@@ -152,6 +152,13 @@ public partial class Combat : Control
 
 	private void InitializeCombat()
 	{
+		var instance = _gameState.CurrentEncounterInstance;
+		if (instance == null) { GD.PrintErr("No encounter instance!"); return; }
+
+		// Use the LIVE formation — damage and deaths persist
+		_combatState = new CombatState(_gameState.Party, instance.Formation);
+		_combatState.RollInitiative();
+		
 		var formation = new List<List<Monster>>();
 		foreach (var row in _gameState.CurrentEncounter)
 		{
@@ -423,6 +430,13 @@ public partial class Combat : Control
 		_turnTracker.Visible  = false;
 		_actionPanel.Visible  = false;
 
+		var instance = _gameState.CurrentEncounterInstance;
+		var state    = _gameState.GetDungeonState(_gameState.CurrentDungeon);
+		string roomId = _gameState.CurrentRoom?.Id ?? "";
+
+		state.Encounters.ResolveAfterCombat(instance, roomId);
+		_gameState.CurrentEncounterInstance = null;
+		
 		StatusProcessor.ClearCombatEffects(_gameState.Party);
 		
 		if (_combatState.CurrentPhase == CombatState.Phase.Victory)
@@ -534,7 +548,8 @@ public partial class Combat : Control
 		_enemySprites.Clear();
 		_enemyOrder.Clear();
 
-		var formation = _gameState.CurrentEncounter;
+		// Use the live instance formation (List<List<Monster>>), not the old ID list
+		var formation = _combatState?.EnemyFormation;
 		if (formation == null || formation.Count == 0) return;
 
 		var containerSize = _enemyContainer.Size;
@@ -543,7 +558,9 @@ public partial class Combat : Control
 		float topY    = containerSize.Y * EnemyStartYFrac;
 		float bottomY = topY + 2 * containerSize.Y * EnemyStaggerYFrac;
 
-		var allPositions = new List<(Vector2 pos, string monsterId)>();
+		// Now carrying Monster references directly instead of string ids
+		var allPositions = new List<(Vector2 pos, Monster monster)>();
+
 		for (int row = 0; row < formation.Count; row++)
 		{
 			var rowMonsters = formation[row];
@@ -559,7 +576,6 @@ public partial class Combat : Control
 			}
 		}
 
-		// Sort by Y so front sprites draw on top (later siblings draw above)
 		allPositions.Sort((a, b) => a.pos.Y.CompareTo(b.pos.Y));
 
 		float minY = float.MaxValue, maxY = float.MinValue;
@@ -569,12 +585,8 @@ public partial class Combat : Control
 			if (pos.Y > maxY) maxY = pos.Y;
 		}
 
-		foreach (var (pos, monsterId) in allPositions)
+		foreach (var (pos, monster) in allPositions)
 		{
-			var monster = _combatState.AllMonsters
-				.FirstOrDefault(m =>
-					string.Equals(m.Id, monsterId, StringComparison.OrdinalIgnoreCase)
-					&& !_enemyOrder.Contains(m));
 			if (monster == null) continue;
 
 			var sprite = CreateSprite(spriteSize);
@@ -589,8 +601,6 @@ public partial class Combat : Control
 			var capturedMonster = monster;
 			var capturedSprite  = sprite;
 
-			// Click mask guarantees this only fires on opaque pixels.
-			// Transparent-area clicks pass through to the sprite behind.
 			sprite.GuiInput += (inputEvent) =>
 			{
 				if (inputEvent is not InputEventMouseButton mouse || !mouse.Pressed)
@@ -619,8 +629,8 @@ public partial class Combat : Control
 			_enemySprites.Add(sprite);
 			_enemyOrder.Add(monster);
 			_highlighter.Register(sprite, shade);
-			AttachStatusRow(sprite, monster.SpriteTopOffset, monster.SpriteRightOffset);
 			_monsterSpritemap[monster] = sprite;
+			AttachStatusRow(sprite, monster.SpriteTopOffset, monster.SpriteRightOffset);
 		}
 	}
 
