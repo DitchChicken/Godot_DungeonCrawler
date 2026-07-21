@@ -2,11 +2,10 @@ using System.Collections.Generic;
 
 public class DungeonState
 {
-	public List<string> RoomPool { get; set; }            = new List<string>();
+	public DungeonMap Map { get; set; }
 	public List<string> UniqueRoomsFound { get; set; }    = new List<string>();
 	public string LastRoomId { get; set; }                = "";
 	public List<string> ExploredRooms { get; set; } = new List<string>();
-	public string PendingNextRoom { get; set; } = "";
 	
 	public Dictionary<string, RoomState> RoomStates { get; set; } = new Dictionary<string, RoomState>();
 

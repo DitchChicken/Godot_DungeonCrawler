@@ -1,6 +1,5 @@
 using Godot;
 using System;
-
 using System.Collections.Generic;
 using System.Text.Json;
 
@@ -41,7 +40,7 @@ public static class DungeonManager
 		return JsonSerializer.Deserialize<RoomData>(json,
 			new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 	}
-		
+
 	public static RoomData EnterDungeon(string dungeonId, GameState gameState)
 	{
 		var dungeon = LoadDungeon(dungeonId);
@@ -50,175 +49,98 @@ public static class DungeonManager
 		gameState.CurrentDungeon = dungeonId;
 		var state = gameState.GetDungeonState(dungeonId);
 
-		bool freshDungeon = state.RoomPool.Count == 0 && string.IsNullOrEmpty(state.LastRoomId);
+		// Build the full graph once, on first entry this run
+		if (state.Map == null)
+		{
+			string mapEntryId = dungeon.EntryRooms[_rng.Next(dungeon.EntryRooms.Count)];
+			state.Map = DungeonMapBuilder.Build(dungeonId, mapEntryId);
+			GD.Print($"Built map for {dungeon.Name}: {state.Map.Rooms.Count} rooms");
 
-		// Only generate pool if this dungeon hasn't been visited this run
-		if (state.RoomPool.Count == 0)
-		{
-			state.RoomPool = GenerateRoomPool(dungeon, state);
-			GD.Print($"Generated new pool for {dungeon.Name} - {state.RoomPool.Count} rooms");
-		}
-		else
-		{
-			GD.Print($"Resuming {dungeon.Name} - {state.RoomPool.Count} rooms remaining");
+			state.Encounters.PopulateDungeon(dungeonId, state.Map.AllRoomIds);
 		}
 
-		// Pick entry room or resume last room
-		RoomData currentRoom;
-		if (!string.IsNullOrEmpty(state.LastRoomId))
-		{
-			currentRoom = LoadRoom(dungeonId, state.LastRoomId);
-			GD.Print($"Resuming at {currentRoom?.Name}");
-		}
-		else
-		{
-			string entryRoomId = dungeon.EntryRooms[_rng.Next(dungeon.EntryRooms.Count)];
-			currentRoom = LoadRoom(dungeonId, entryRoomId);
-		}
+		// Resume where we left off, or start at the map's entry room
+		string startRoomId = !string.IsNullOrEmpty(state.LastRoomId)
+			? state.LastRoomId
+			: state.Map.EntryRoomId;
+
+		var currentRoom = LoadRoom(dungeonId, startRoomId);
+		if (currentRoom == null) return null;
 
 		gameState.CurrentRoom = currentRoom;
+		MarkExplored(state, currentRoom.Id);
 
-		// Eagerly populate encounters — only on a fresh dungeon, never on resume
-		if (freshDungeon)
-		{
-			var allRoomIds = new List<string>(state.RoomPool);
-			if (currentRoom != null && !allRoomIds.Contains(currentRoom.Id))
-				allRoomIds.Add(currentRoom.Id);
-
-			state.Encounters.PopulateDungeon(dungeonId, allRoomIds);
-		}
-
-		// Add room to explored rooms
-		if (!state.ExploredRooms.Contains(currentRoom.Id))
-			state.ExploredRooms.Add(currentRoom.Id);
-
-		RegisterNextRoom(state, currentRoom);
-
-		GD.Print($"freshDungeon: {freshDungeon}, roomPool: {state.RoomPool.Count}");
-		
 		return currentRoom;
 	}
 
-	public static List<string> GenerateRoomPool(DungeonData dungeon, DungeonState state)
-	{
-		var pool = new List<string>();
-
-		foreach (var roomId in dungeon.Rooms)
-		{
-			if (dungeon.EntryRooms.Contains(roomId)) continue;
-
-			var room = LoadRoom(dungeon.Id, roomId);
-			if (room == null) continue;
-
-			if (room.Unique)
-			{
-				if (_rng.NextDouble() <= room.SpawnChance
-					&& !state.UniqueRoomsFound.Contains(roomId))
-					pool.Add(roomId);
-			}
-			else
-			{
-				int count = _rng.Next(room.MinOccurrences, room.MaxOccurrences + 1);
-				for (int i = 0; i < count; i++)
-					pool.Add(roomId);
-			}
-		}
-
-		Shuffle(pool);
-		return pool;
-	}
-
-	public static RoomData Explore(GameState gameState)
+	// Move through an exit from the current room. Returns the new room, or null.
+	public static RoomData MoveThroughExit(GameState gameState, Direction direction)
 	{
 		string dungeonId = gameState.CurrentDungeon;
 		var state = gameState.GetDungeonState(dungeonId);
-		
-		RoomData room;
+		if (state?.Map == null) return null;
 
-		// Forced next room takes priority over the random pool
-		if (!string.IsNullOrEmpty(state.PendingNextRoom))
+		var here = state.Map.GetRoom(gameState.CurrentRoom?.Id);
+		if (here == null) return null;
+
+		var exit = here.GetExit(direction);
+		if (exit == null)
 		{
-			string nextId = state.PendingNextRoom;
-			state.PendingNextRoom = ""; // consume it
-
-			// Remove from pool if it happened to be there, so we don't draw it again
-			state.RoomPool.Remove(nextId);
-
-			room = LoadRoom(dungeonId, nextId);
-			if (room == null)
-			{
-				GD.PrintErr($"Forced next room '{nextId}' failed to load — falling back to pool");
-				// fall through to random draw below
-			}
-			else
-			{
-				FinalizeExploredRoom(state, room);
-				gameState.CurrentRoom = room;		
-				return room;
-			}
+			GD.Print($"No exit {direction} from {here.RoomId}");
+			return null;
 		}
-
-		// Normal random draw from pool
-		if (state.RoomPool.Count == 0)
+		if (!exit.IsPassable)
 		{
-			GD.Print("Room pool empty — nowhere left to explore.");
+			GD.Print($"The {direction} exit is {exit.State}.");
 			return null;
 		}
 
-		int index = _rng.Next(state.RoomPool.Count);
-		string roomId = state.RoomPool[index];
-		state.RoomPool.RemoveAt(index);
+		return MoveToRoom(gameState, exit.TargetRoomId);
+	}
 
-		room = LoadRoom(dungeonId, roomId);
+	// Direct jump to a room by id (used by the cheater Move menu and flee).
+	public static RoomData MoveToRoom(GameState gameState, string roomId)
+	{
+		string dungeonId = gameState.CurrentDungeon;
+		var state = gameState.GetDungeonState(dungeonId);
+
+		var room = LoadRoom(dungeonId, roomId);
 		if (room == null) return null;
 
-		FinalizeExploredRoom(state, room);
 		gameState.CurrentRoom = room;
+		MarkExplored(state, room.Id);
+
 		return room;
 	}
 
-	// Shared post-load bookkeeping — track explored, uniques, and next-room pointer
-	private static void FinalizeExploredRoom(DungeonState state, RoomData room)
+	private static void MarkExplored(DungeonState state, string roomId)
 	{
-		if (!state.ExploredRooms.Contains(room.Id))
-			state.ExploredRooms.Add(room.Id);
+		if (!state.ExploredRooms.Contains(roomId))
+			state.ExploredRooms.Add(roomId);
 
-		if (room.Unique && !state.UniqueRoomsFound.Contains(room.Id))
-			state.UniqueRoomsFound.Add(room.Id);
+		state.LastRoomId = roomId;
 
-		state.LastRoomId = room.Id;
-
-		RegisterNextRoom(state, room);
+		var mapRoom = state.Map?.GetRoom(roomId);
+		if (mapRoom != null) mapRoom.Discovered = true;
 	}
-	
-	private static void Shuffle(List<string> list)
-	{
-		int n = list.Count;
-		while (n > 1)
-		{
-			n--;
-			int k = _rng.Next(n + 1);
-			(list[k], list[n]) = (list[n], list[k]);
-		}
-	}
-	
-	// Records a room's nextRoom pointer as the pending forced draw
-	private static void RegisterNextRoom(DungeonState state, RoomData room)
-	{
-		if (room != null && !string.IsNullOrEmpty(room.NextRoom))
-		{
-			state.PendingNextRoom = room.NextRoom;
-		}
-		else
-			state.PendingNextRoom = "";
-	}	
-	
+
+	// Are there any passable exits from the current room?
 	public static bool CanExplore(GameState gameState)
 	{
 		var state = gameState.GetDungeonState(gameState.CurrentDungeon);
-		if (state == null) return false;
+		var here  = state?.Map?.GetRoom(gameState.CurrentRoom?.Id);
+		if (here == null) return false;
 
-		// Can explore if there's a forced next room OR rooms left in the pool
-		return !string.IsNullOrEmpty(state.PendingNextRoom) || state.RoomPool.Count > 0;
+		return here.Exits.Exists(e => e.IsPassable);
+	}
+
+	// Passable, party-visible exits from the current room — for the Move menu later.
+	public static List<Exit> GetAvailableExits(GameState gameState)
+	{
+		var state = gameState.GetDungeonState(gameState.CurrentDungeon);
+		var here  = state?.Map?.GetRoom(gameState.CurrentRoom?.Id);
+		if (here == null) return new List<Exit>();
+
+		return here.Exits.FindAll(e => e.IsPassable && e.IsVisibleToParty);
 	}
 }

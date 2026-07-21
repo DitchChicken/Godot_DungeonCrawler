@@ -20,5 +20,13 @@
 		}
 		
 	],
-	"nextRoom" : "EntryHall"
+	"exits": [
+		{
+			"direction": "East",
+			"target": "EntryHall",
+			"state": "Open",
+			"corridorLength": 1,
+			"travelTime": 2.0
+		}
+	]
 }

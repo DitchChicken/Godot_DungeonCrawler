@@ -21,7 +21,7 @@ public class RoomData
 
 	// New fields — loaded now, used later
 	public List<RoomAction> Actions { get; set; } = new List<RoomAction>();
-	public string NextRoom { get; set; } = "";
+	public List<ExitDef> Exits { get; set; } = new List<ExitDef>();
 
 	// Convenience — joins the description lines into one string
 	public string GetDescriptionText() => string.Join("", Description);

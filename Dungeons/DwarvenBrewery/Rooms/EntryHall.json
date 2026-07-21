@@ -23,5 +23,13 @@
 		}
 		
 	],
-	"nextRoom" : "GoblinHearth"
+	"exits": [
+		{
+			"direction": "West",
+			"target": "Gatehouse",
+			"state": "Open",
+			"corridorLength": 1,
+			"travelTime": 3.0
+		}
+	]
 }

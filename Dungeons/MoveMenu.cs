@@ -7,9 +7,8 @@ public partial class MoveMenu : PanelContainer
 
 	// Emits the room id to move to, or the special "explore" sentinel
 	[Signal] public delegate void RoomChosenEventHandler(string roomId);
-	[Signal] public delegate void ExploreChosenEventHandler();
 	[Signal] public delegate void CancelledEventHandler();
-
+	
 	public const string ExploreSentinel = "__EXPLORE__";
 
 	public override void _Ready()
@@ -36,34 +35,24 @@ public partial class MoveMenu : PanelContainer
 		scroll.AddChild(_list);
 	}
 
-	// exploredRooms: list of (roomId, displayName). canExplore: whether "Explore Further" is offered.
-	public void Open(List<(string id, string name)> exploredRooms, bool canExplore, string currentRoomId)
+	public void Open(List<(string id, string name, bool explored)> rooms, string currentRoomId)
 	{
 		foreach (Node c in _list.GetChildren()) c.QueueFree();
 
 		var title = new Label();
-		title.Text = "Where to?";
+		title.Text = "Move to (debug)";
 		title.HorizontalAlignment = HorizontalAlignment.Center;
 		_list.AddChild(title);
 
-		// Explore Further first (primary action)
-		if (canExplore)
-		{
-			var exploreBtn = new Button();
-			exploreBtn.Text = "Explore Further";
-			exploreBtn.Pressed += () => EmitSignal(SignalName.ExploreChosen);
-			_list.AddChild(exploreBtn);
-
-			_list.AddChild(new HSeparator());
-		}
-
-		// Explored rooms
-		foreach (var (id, name) in exploredRooms)
+		foreach (var (id, name, explored) in rooms)
 		{
 			var btn = new Button();
-			// Mark the current room so the player knows where they are
-			btn.Text = (id == currentRoomId) ? $"{name}  (here)" : name;
-			btn.Disabled = (id == currentRoomId); // can't move to where you already are
+
+			if (id == currentRoomId)      btn.Text = $"{name}  (here)";
+			else if (!explored)           btn.Text = $"{name}  (unexplored)";
+			else                          btn.Text = name;
+
+			btn.Disabled = (id == currentRoomId);
 
 			string capturedId = id;
 			btn.Pressed += () => EmitSignal(SignalName.RoomChosen, capturedId);
