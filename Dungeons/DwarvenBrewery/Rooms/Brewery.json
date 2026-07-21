@@ -1,13 +1,12 @@
 {
 	"id": "Brewery",
-	"name": "Central Hyrdaulic System",
+	"name": "Brewery",
 	"description": 
-		["Towering copper vats rise toward the ceiling, connected by polished pipes and curious glass vessels stained ",
-		 "with the memory of countless brews. Ancient presses, mills, and fermentation casks remain remarkably intact, ",
-		 "while small maintenance machines continue to wipe away dust from equipment no one has used in generations.",
-		 "The dwarves did not simply make beer, they perfected it.TODO: AI Text"
+		["Towering copper vats rise toward the ceiling, connected by polished pipes and curious glass tubing. ",
+		 "Ancient presses, mills, and fermentation casks remain remarkably intact, ",
+		 "while small maintenance machines continue to wipe away dust from equipment no one has used in generations."
 		 ],
-	"image": "res://Dungeons/DwarvenBrewery/Images/Engineering.png",
+	"image": "res://Dungeons/DwarvenBrewery/Images/Brewery.png",
 	"unique": true,
 	"minOccurrences": 1,
 	"maxOccurrences": 1,
@@ -17,8 +16,8 @@
 	"exits": [
 		{
 			"direction": "West",
-			"target": "HarvestHall",
-			"state": "Open",
+			"target": "EntryHall",
+			"state": "Blocked",
 			"corridorLength": 2,
 			"travelTime": 1.5
 		},
@@ -33,7 +32,7 @@
 			"direction": "South",
 			"target": "FungalGardens",
 			"state": "Open",
-			"corridorLength": 3,
+			"corridorLength": 2,
 			"travelTime" : 3.0
 		},
 		{

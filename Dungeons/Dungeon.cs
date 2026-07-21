@@ -15,6 +15,7 @@ public partial class Dungeon : Control
 	private List<string> _dungeonLog = new List<string>();
 	private CompassWidget _compass;
 	private VBoxContainer _actionsList;   // grab in _Ready
+	private Label _timeLabel;
 	
 	private GameState _gameState;
 
@@ -36,6 +37,10 @@ public partial class Dungeon : Control
 		_compass.DirectionPressed += OnCompassDirection;
 
 		_gameState = GetNode<GameState>("/root/GameState");
+
+		_timeLabel = GetNode<Label>("TimeLabel");
+		DungeonClock.Changed = RefreshTime;
+		RefreshTime();
 
 		_moveMenu = new MoveMenu();
 		_moveMenu.Visible = false;
@@ -138,8 +143,7 @@ public partial class Dungeon : Control
 		var room = DungeonManager.MoveToRoom(_gameState, roomId);
 		if (room == null) return;
 
-		DungeonLog.Print($"The party moves to {room.Name}.", DungeonLog.Movement);
-		TickExplorationCooldowns();
+		DungeonLog.Print($"The party moves to {room.Name}.", DungeonLog.Movement);		
 		RefreshRoomDisplay();
 	}
 
@@ -181,21 +185,6 @@ public partial class Dungeon : Control
 		_gameState.ReturnToTown();
 		GetNode<Main>("/root/Main").CallDeferred(
 			nameof(Main.SwitchScene), "res://Town/Town.tscn");
-	}
-
-	// --- Helpers ---
-
-	private void TickExplorationCooldowns()
-	{
-		foreach (var c in _gameState.Party)
-		{
-			var keys = new List<string>(c.ExplorationCooldowns.Keys);
-			foreach (var key in keys)
-			{
-				if (c.ExplorationCooldowns[key] > 0)
-					c.ExplorationCooldowns[key]--;
-			}
-		}
 	}
 
 	private void AutoFormParty()
@@ -281,6 +270,8 @@ public partial class Dungeon : Control
 	{
 		if (DungeonLog.Sink == AddLogMessage)
 			DungeonLog.Sink = null;
+			
+		if (DungeonClock.Changed == RefreshTime) DungeonClock.Changed = null;
 	}
 	
 	private void OnCompassDirection(int dir) => TryMove((Direction)dir);
@@ -306,9 +297,14 @@ public partial class Dungeon : Control
 		var room = DungeonManager.MoveThroughExit(_gameState, dir);
 		if (room == null) return;
 
-		TickExplorationCooldowns();
+		DungeonClock.Advance(_gameState, exit.TravelTime, $"move {dir}");
 		DungeonLog.Print($"The party moves {dir.ToString().ToLower()} to {room.Name}.",
 						 DungeonLog.Movement);
 		RefreshRoomDisplay();
+	}
+	
+	private void RefreshTime()
+	{
+		_timeLabel.Text = DungeonClock.Format(DungeonClock.GetTicks(_gameState));
 	}
 }

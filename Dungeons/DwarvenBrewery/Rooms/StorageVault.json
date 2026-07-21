@@ -21,7 +21,7 @@
 		{
 			"direction": "West",
 			"target": "MaintenanceGallery",
-			"state": "Open",
+			"state": "Locked",
 			"corridorLength": 1,
 			"travelTime": 0.5
 		}

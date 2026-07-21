@@ -29,7 +29,7 @@
 		{
 			"direction": "East",
 			"target": "StorageVault",
-			"state": "Closed",
+			"state": "Locked",
 			"corridorLength": 1,
 			"travelTime" : 0.5
 		}

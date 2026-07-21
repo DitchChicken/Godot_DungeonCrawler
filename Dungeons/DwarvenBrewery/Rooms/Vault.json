@@ -1,0 +1,23 @@
+{
+	"id": "Vault",
+	"name": "Vault of Sacred Relics",
+	"description": [
+		"Todo"
+		],
+	"image": "res://Dungeons/DwarvenBrewery/Images/Valut.png",
+	"unique": true,
+	"minOccurrences": 1,
+	"maxOccurrences": 1,
+	"spawnChance": 1.0,
+	"actions" : [
+	],
+	"exits" : [
+		{
+			"direction": "West",
+			"target": "HarvestHall",
+			"state": "Open",
+			"corridorLength": 1,
+			"travelTime": 1.0
+		}
+	]
+}

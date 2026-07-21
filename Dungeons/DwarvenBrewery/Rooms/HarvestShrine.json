@@ -23,11 +23,11 @@
 	"combat" : "todo",
 		"exits": [
 		{
-			"direction": "North",
-			"target": "HarvestHall",
+			"direction": "South",
+			"target": "SunGallery",
 			"state": "Open",
 			"corridorLength": 1,
-			"travelTime": 0.5
+			"travelTime": 3.0
 		}
 	]
 }

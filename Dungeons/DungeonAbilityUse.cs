@@ -48,7 +48,8 @@ public static class DungeonAbilityUse
 
 		// Set exploration cooldown (combat cooldown ignored out of combat)
 		if (_pendingAbility.ExplorationCooldown > 0)
-			_caster.ExplorationCooldowns[_pendingAbility.Id] = _pendingAbility.ExplorationCooldown;
+			_caster.ExplorationCooldowns[_pendingAbility.Id] =
+				DungeonClock.Current + _pendingAbility.ExplorationCooldown;
 
 		DungeonAbilityResolver.Resolve(_pendingAbility, _caster, target);
 

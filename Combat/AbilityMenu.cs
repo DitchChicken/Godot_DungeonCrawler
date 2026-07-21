@@ -128,8 +128,9 @@ public partial class AbilityMenu : PanelContainer
 			var btn = new Button();
 			string label = $"{ability.Name}  ({ability.ManaCost} MP)";
 
-			if (_caster.ExplorationCooldowns.TryGetValue(ability.Id, out int cd) && cd > 0)
-				label += $"  [CD {cd}]";
+			float remaining = _caster.GetExplorationCooldownRemaining(ability.Id);
+			if (remaining > 0f)
+				label += $"  [CD {remaining:0.#}]";
 			if (!ability.CanUseIn("Dungeon"))
 				label += "  (combat only)";
 

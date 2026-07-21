@@ -16,24 +16,18 @@
 	"exits": [
 		{
 			"direction": "West",
-			"target": "EntryHall",
+			"target": "SunGallery",
 			"state": "Blocked",
 			"corridorLength": 1,
 			"travelTime": 1.5
 		},
 		{
 			"direction": "East",
-			"target": "Brewery",
-			"state": "Open",
-			"corridorLength": 2,
-			"travelTime" : 1.5
-		},
-		{
-			"direction": "South",
-			"target": "HarvestShrine",
+			"target": "Vault",
 			"state": "Open",
 			"corridorLength": 1,
-			"travelTime" : 0.5
+			"travelTime" : 1.0
 		}
+		
 	]
 }

@@ -66,7 +66,7 @@ public partial class Character : GodotObject
 	//Abilities
 	public List<string> KnownAbilities { get; set; } = new List<string>();
 	public Dictionary<string, int> CombatCooldowns { get; set; } = new Dictionary<string, int>();
-	public Dictionary<string, int> ExplorationCooldowns { get; set; } = new Dictionary<string, int>();
+	public Dictionary<string, float> ExplorationCooldowns { get; set; } = new Dictionary<string, float>();
 
 
 	// Current weapon — main hand, or null
@@ -253,7 +253,13 @@ public partial class Character : GodotObject
 		if (!ability.CanUseIn("Dungeon")) return false;
 		if (CurrentMana < ability.ManaCost) return false;
 		if (CurrentHP <= ability.HealthCost) return false;
-		if (ExplorationCooldowns.TryGetValue(ability.Id, out int cd) && cd > 0) return false;
+		if (GetExplorationCooldownRemaining(ability.Id) > 0f) return false;
 		return true;
+	}
+	
+	public float GetExplorationCooldownRemaining(string abilityId)
+	{
+		if (!ExplorationCooldowns.TryGetValue(abilityId, out float expiry)) return 0f;
+		return Mathf.Max(0f, expiry - DungeonClock.Current);
 	}
 }

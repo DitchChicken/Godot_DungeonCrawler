@@ -438,7 +438,11 @@ public partial class Combat : Control
 		_gameState.CurrentEncounterInstance = null;
 		
 		StatusProcessor.ClearCombatEffects(_gameState.Party);
-		
+
+		//Advance clock		
+		if (!string.IsNullOrEmpty(_gameState.CurrentDungeon))
+			DungeonClock.Advance(_gameState, _combatState.CurrentRound, "combat");
+
 		if (_combatState.CurrentPhase == CombatState.Phase.Victory)
 		{
 			var loot = LootCalculator.Calculate(
@@ -1106,6 +1110,9 @@ public partial class Combat : Control
 		// All hits resolved — wait for the floating numbers to breathe
 		await ToSignal(GetTree().CreateTimer(2.0f), "timeout");
 
+		// TODO: flee penalty is a flat 10 ticks for now — revisit once the clock
+		// drives wandering monsters, so a botched escape costs meaningful time.
+		DungeonClock.Advance(_gameState, _combatState.CurrentRound + 10, "flee");
 		ShowFleeScreen();
 	}
 

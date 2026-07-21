@@ -77,6 +77,8 @@ public partial class GameState : Node
 		CurrentDungeon = "";
 		CurrentRoom = null;
 		DungeonStates.Clear();  // wipes ALL dungeon states, fresh run next entry
+		foreach (var c in Party) c.ExplorationCooldowns.Clear();
+		foreach (var c in Stable) c.ExplorationCooldowns.Clear();
 	}
 	
 	public DungeonState GetDungeonState(string dungeonId)

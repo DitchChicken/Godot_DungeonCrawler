@@ -23,6 +23,25 @@ grow_vertical = 2
 expand_mode = 1
 stretch_mode = 5
 
+[node name="TimeBackdrop" type="ColorRect" parent="." unique_id=100000302]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.42
+anchor_right = 0.58
+anchor_bottom = 0.03
+grow_horizontal = 2
+color = Color(0.1, 0.1, 0.1, 0.8)
+
+[node name="TimeLabel" type="Label" parent="." unique_id=100000301]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.42
+anchor_right = 0.58
+anchor_bottom = 0.03
+grow_horizontal = 2
+text = "Shift 0 — 0:0:0"
+horizontal_alignment = 1
+
 [node name="RoomPanel" type="ColorRect" parent="." unique_id=637889071]
 layout_mode = 1
 anchors_preset = -1

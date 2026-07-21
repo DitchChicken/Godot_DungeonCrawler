@@ -8,6 +8,8 @@ public class DungeonState
 	public List<string> ExploredRooms { get; set; } = new List<string>();
 	public HashSet<string> Flags { get; set; } = new HashSet<string>();
 	
+	public float Ticks { get; set; } = 0f;
+	
 	public Dictionary<string, RoomState> RoomStates { get; set; } = new Dictionary<string, RoomState>();
 
 	public EncounterManager Encounters { get; set; } = new EncounterManager();

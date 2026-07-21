@@ -53,6 +53,9 @@ public static class InteractionResolver
 		foreach (var outcome in outcomes)
 			ApplyOutcome(outcome, gs);
 
+		if (action.TimeCost > 0f)
+			DungeonClock.Advance(gs, action.TimeCost, $"action: {action.Id}");
+
 		if (action.OneShot)
 			roomState.CompletedActions.Add(action.Id);
 	}
@@ -192,4 +195,6 @@ public static class InteractionResolver
 		if (backExit != null && backExit.TargetRoomId == roomId)
 			backExit.State = newState;
 	}
+	
+	
 }

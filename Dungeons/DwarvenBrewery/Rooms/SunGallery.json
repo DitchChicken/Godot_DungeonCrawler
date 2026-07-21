@@ -34,7 +34,7 @@
 		},
 		{
 			"direction": "East",
-			"target": "WardenRoom",
+			"target": "HarvestHall",
 			"state": "Open",
 			"corridorLength": 1,
 			"travelTime" : 2.0
@@ -42,6 +42,13 @@
 		{
 			"direction": "South",
 			"target": "Engineering",
+			"state": "Open",
+			"corridorLength": 1,
+			"travelTime" : 2.0
+		},
+		{
+			"direction": "North",
+			"target": "HarvestShrine",
 			"state": "Open",
 			"corridorLength": 1,
 			"travelTime" : 2.0

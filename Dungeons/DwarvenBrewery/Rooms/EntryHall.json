@@ -16,6 +16,7 @@
 			"id": "activateConsole",
 			"name": "Activate the Bronze Console",
 			"oneShot": true,
+			"timeCost": 2.0,
 			"outcomes": [
 				{ "type": "ShowText", "text": "Gears grind. Somewhere close, stone slides against stone." },
 				{ "type": "SetExitState", "direction": "East", "state": "Open" },
@@ -33,7 +34,7 @@
 		},
 		{
 			"direction": "East",
-			"target": "HarvestHall",
+			"target": "Brewery",
 			"state": "Blocked",
 			"corridorLength": 1,
 			"travelTime" : 1.5
