@@ -23,5 +23,13 @@
 		}
 		
 	],
-	"nextRoom" : "SunGallery"
+	"exits": [
+		{
+			"direction": "East",
+			"target": "FungalGardens",
+			"state": "Open",
+			"corridorLength": 1,
+			"travelTime": 1.5
+		}
+	]
 }

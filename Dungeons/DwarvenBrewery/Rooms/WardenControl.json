@@ -18,6 +18,13 @@
 			"name" : "Examine"
 		}
 	],
-	"combat" : "todo",
-	"nextRoom" : "HarvestHall"
+	"exits" : [
+		{
+			"direction": "East",
+			"target": "Engineering",
+			"state": "Open",
+			"corridorLength": 1,
+			"travelTime": 1.0
+		}
+	]
 }

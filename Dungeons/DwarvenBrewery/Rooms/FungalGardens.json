@@ -26,6 +26,20 @@
 		}
 		
 	],
-	"combat" : "todo",
-	"nextRoom" : "Engineering"
+	"exits": [
+		{
+			"direction": "West",
+			"target": "GoblinHearth",
+			"state": "Open",
+			"corridorLength": 1,
+			"travelTime": 1.5
+		},
+		{
+			"direction": "North",
+			"target": "Brewery",
+			"state": "Open",
+			"corridorLength": 2,
+			"travelTime" : 2.0
+		}
+	]
 }

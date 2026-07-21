@@ -37,8 +37,16 @@ public static class DungeonManager
 		string json = file.GetAsText();
 		file.Close();
 
-		return JsonSerializer.Deserialize<RoomData>(json,
-			new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+		try
+		{
+			return JsonSerializer.Deserialize<RoomData>(json,
+				new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+		}
+		catch (JsonException ex)
+		{
+			GD.PrintErr($"JSON error in {path}\n  {ex.Message}");
+			return null;
+		}
 	}
 
 	public static RoomData EnterDungeon(string dungeonId, GameState gameState)

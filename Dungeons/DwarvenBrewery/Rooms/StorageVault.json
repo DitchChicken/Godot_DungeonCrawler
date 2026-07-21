@@ -17,6 +17,13 @@
 			"name" : "Lockpick"
 		}		
 	],
-	"combat" : "todo",
-	"nextRoom" : "HarvestShrine"
+	"exits": [
+		{
+			"direction": "West",
+			"target": "MaintenanceGallery",
+			"state": "Open",
+			"corridorLength": 1,
+			"travelTime": 0.5
+		}
+	]
 }

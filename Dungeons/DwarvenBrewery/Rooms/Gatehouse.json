@@ -1,25 +1,18 @@
 {
 	"id": "Gatehouse",
 	"name": "The Gatehouse",
-	"description": ["The broad stone stair descends into cool, dry air carrying the faint scent of grain and damp earth. ",
-					"Enormous bronze doors stand frozen open, their counterweights locked in place by mechanisms that still hum ",
-					"with quiet purpose. Carved reliefs depict dwarves harvesting wheat, tending strange gardens, and raising overflowing mugs in celebration.",
-					"Whatever this place once was, it was built for honest work rather than war. TODO: AI Text"
+	"description": ["Immense stone blocks form the gatehouse before you; workmanship built to outlast kingdoms, ",
+					"not mere generations.  Enormous bronze doors stand open.  If ever they were intended to ",
+					"close to the outside then their counterweights are long locked in place. The few carved ",
+					"reliefs depict dwarves: harvesting wheat, tending strange gardens, raising overflowing mugs. ",
+					"Moss and lichen have taken hold where they dare. ",
+					"Stairs descend into silence below."
 					],
 	"image": "res://Dungeons/DwarvenBrewery/Images/GateHouse.png",
 	"unique": true,
 	"minOccurrences": 1,
 	"maxOccurrences": 1,
 	"spawnChance": 1.0,
-	"actions" : [
-		{
-			"name" : "Read Inscription"
-		},
-		{
-			"name" : "Examine Bronze Mechanisms"
-		}
-		
-	],
 	"exits": [
 		{
 			"direction": "East",

@@ -55,6 +55,23 @@ size_flags_horizontal = 3
 size_flags_vertical = 0
 autowrap_mode = 3
 
+[node name="LogSeparator" type="HSeparator" parent="RoomPanel/VBoxContainer" unique_id=100000101]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="LogScroll" type="ScrollContainer" parent="RoomPanel/VBoxContainer" unique_id=100000102]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LogLabel" type="RichTextLabel" parent="RoomPanel/VBoxContainer/LogScroll" unique_id=100000103]
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
 [node name="ActionsPanel" type="PanelContainer" parent="." unique_id=810056749]
 layout_mode = 1
 anchors_preset = -1
@@ -83,6 +100,9 @@ text = "Return to Town"
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Combat"
+
+[node name="ActionList" type="VBoxContainer" parent="ActionsPanel/ButtonRow" unique_id=1546847335]
+layout_mode = 2
 
 [node name="DungeonTargetController" type="Control" parent="." unique_id=1685510114]
 anchors_preset = 0

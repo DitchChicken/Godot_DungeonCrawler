@@ -13,10 +13,27 @@
 	"minOccurrences": 1,
 	"maxOccurrences": 1,
 	"spawnChance": 1.0,
-	"actions" : [
+	"exits": [
 		{
-			"name" : "Examine"
+			"direction": "West",
+			"target": "EntryHall",
+			"state": "Closed",
+			"corridorLength": 1,
+			"travelTime": 1.5
+		},
+		{
+			"direction": "East",
+			"target": "Brewery",
+			"state": "Open",
+			"corridorLength": 2,
+			"travelTime" : 1.5
+		},
+		{
+			"direction": "South",
+			"target": "HarvestShrine",
+			"state": "Open",
+			"corridorLength": 1,
+			"travelTime" : 0.5
 		}
-	],
-	"combat" : "todo"
+	]
 }

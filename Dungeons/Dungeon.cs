@@ -10,7 +10,12 @@ public partial class Dungeon : Control
 	private Button _townButton;
 	private Button _combatButton;
 	private MoveMenu _moveMenu;
+	private ScrollContainer _logScroll;
+	private RichTextLabel  _logLabel;
+	private List<string> _dungeonLog = new List<string>();
 
+	private VBoxContainer _actionsList;   // grab in _Ready
+	
 	private GameState _gameState;
 
 	public override void _Ready()
@@ -21,7 +26,8 @@ public partial class Dungeon : Control
 		_moveButton      = GetNode<Button>("ActionsPanel/ButtonRow/MoveButton");
 		_townButton      = GetNode<Button>("ActionsPanel/ButtonRow/TownButton");
 		_combatButton    = GetNode<Button>("ActionsPanel/ButtonRow/CombatButton");
-
+		_actionsList     = GetNode<VBoxContainer>("ActionsPanel/ButtonRow/ActionList");
+		
 		_combatButton.Pressed += TryCombat;
 		_moveButton.Pressed   += OnMovePressed;
 
@@ -33,6 +39,13 @@ public partial class Dungeon : Control
 		AddChild(_moveMenu);
 		_moveMenu.RoomChosen += OnMoveToRoom;
 		_moveMenu.Cancelled  += OnMoveCancelled;
+
+		//Output to log
+		_logScroll = GetNode<ScrollContainer>("RoomPanel/VBoxContainer/LogScroll");
+		_logLabel  = GetNode<RichTextLabel>("RoomPanel/VBoxContainer/LogScroll/LogLabel");
+		_logLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
+		// Register so other systems can log here
+		DungeonLog.Sink = AddLogMessage;
 
 		// Debug: auto form party if empty
 		if (DebugFlags.AutoFormPartyOnEmbark && _gameState.Party.Count == 0)
@@ -63,6 +76,8 @@ public partial class Dungeon : Control
 			_roomImage.Texture = GD.Load<Texture2D>(room.Image);
 		else
 			_roomImage.Texture = null;
+			
+		RefreshActions();
 	}
 
 	// --- Movement ---
@@ -92,6 +107,7 @@ public partial class Dungeon : Control
 		var room = DungeonManager.MoveToRoom(_gameState, roomId);
 		if (room == null) return;
 
+		DungeonLog.Print($"The party moves to {room.Name}.", DungeonLog.Movement);
 		TickExplorationCooldowns();
 		RefreshRoomDisplay();
 	}
@@ -170,5 +186,67 @@ public partial class Dungeon : Control
 
 		GD.Print($"Debug: Auto-formed party with {_gameState.Party.Count} members");
 		GetNode<PartyHUD>("/root/PartyHud").Refresh();
+	}
+	
+	private void RefreshActions()
+	{
+		foreach (Node c in _actionsList.GetChildren()) c.QueueFree();
+
+		var room = _gameState.CurrentRoom;
+		if (room?.Actions == null) return;
+
+		var state     = _gameState.GetDungeonState(_gameState.CurrentDungeon);
+		var roomState = state.GetRoomState(room.Id);
+
+		foreach (var action in room.Actions)
+		{
+			if (!InteractionResolver.IsAvailable(action, _gameState, roomState)) continue;
+
+			var btn = new Button();
+			btn.Text = action.Name;
+			var captured = action;
+			btn.Pressed += () => OnActionPressed(captured);
+			_actionsList.AddChild(btn);
+		}
+	}
+
+	private void OnActionPressed(Interaction action)
+	{
+		var state     = _gameState.GetDungeonState(_gameState.CurrentDungeon);
+		var roomState = state.GetRoomState(_gameState.CurrentRoom.Id);
+
+		InteractionResolver.Execute(action, _gameState, roomState);
+
+		foreach (var msg in InteractionResolver.LastMessages)
+			DungeonLog.Print(msg, DungeonLog.Interaction);
+
+		RefreshActions();                                  // one-shots vanish
+		GetNode<PartyHUD>("/root/PartyHud").Refresh();     // heal/damage outcomes
+	}
+	
+	public void AddLogMessage(string message, Color? color = null)
+	{
+		if (string.IsNullOrWhiteSpace(message)) return;
+
+		string line = color.HasValue
+			? $"[color=#{color.Value.ToHtml(false)}]{message}[/color]"
+			: message;
+
+		_dungeonLog.Add(line);
+		_logLabel.Text = string.Join("\n", _dungeonLog);
+		CallDeferred(nameof(ScrollLogToBottom));
+	}
+
+	private async void ScrollLogToBottom()
+	{
+		await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+		var vbar = _logScroll.GetVScrollBar();
+		_logScroll.ScrollVertical = (int)vbar.MaxValue;
+	}
+	
+	public override void _ExitTree()
+	{
+		if (DungeonLog.Sink == AddLogMessage)
+			DungeonLog.Sink = null;
 	}
 }

@@ -24,6 +24,27 @@
 		}
 		
 	],
-	"combat" : "todo",
-	"nextRoom" : "FungalGardens"
+	"exits" : [
+		{
+			"direction": "West",
+			"target": "Brewery",
+			"state": "Open",
+			"corridorLength": 3,
+			"travelTime": 4.0
+		},
+		{
+			"direction": "East",
+			"target": "WardenRoom",
+			"state": "Open",
+			"corridorLength": 1,
+			"travelTime" : 2.0
+		},
+		{
+			"direction": "South",
+			"target": "Engineering",
+			"state": "Open",
+			"corridorLength": 1,
+			"travelTime" : 2.0
+		}
+	]
 }

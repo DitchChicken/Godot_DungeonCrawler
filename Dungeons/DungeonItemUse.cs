@@ -35,6 +35,7 @@ public static class DungeonItemUse
 	{
 		if (_pendingItem == null || _pendingAbility == null) return;
 
+		DungeonLog.Print($"{_sourceCharacter?.Name} uses {_pendingItem.Name}.",  DungeonLog.Interaction);
 		// Resolve the ability on the target (out of combat — no combat state)
 		DungeonAbilityResolver.Resolve(_pendingAbility, _sourceCharacter, target);
 

@@ -92,18 +92,15 @@ public static class DebugCommands
 
 		// --- Dungeon / encounters ---
 
-		c.Register("rooms", args =>
+		c.Register("map", args =>
 		{
-			if (string.IsNullOrEmpty(gameState.CurrentDungeon))
-				return "Not in a dungeon.";
-
 			var state = gameState.GetDungeonState(gameState.CurrentDungeon);
-			return $"Dungeon: {gameState.CurrentDungeon}\n" +
-				   $"Current: {gameState.CurrentRoom?.Id}\n" +
-				   $"Explored: {string.Join(", ", state.ExploredRooms)}\n" +
-				   $"Pool remaining: {state.RoomPool.Count}\n" +
-				   $"Pending next: {(string.IsNullOrEmpty(state.PendingNextRoom) ? "none" : state.PendingNextRoom)}";
-		}, "Show dungeon and room state");
+			if (state?.Map == null) return "No map.";
+			var lines = state.Map.Rooms.Values.Select(r =>
+				$"  {r.RoomId,-16} {r.Coordinates}  exits: " +
+				string.Join(", ", r.Exits.Select(e => $"{e.Direction}→{e.TargetRoomId}[{e.State}]")));
+			return $"Map ({state.Map.Rooms.Count} rooms):\n" + string.Join("\n", lines);
+		}, "Dump the dungeon map graph");
 
 		c.Register("encounters", args =>
 		{

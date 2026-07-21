@@ -14,6 +14,34 @@
 	"spawnChance": 1.0,
 	"actions" : [
 	],
-	"combat" : "todo",
-	"nextRoom" : "Brewery"
+	"exits": [
+		{
+			"direction": "West",
+			"target": "HarvestHall",
+			"state": "Open",
+			"corridorLength": 2,
+			"travelTime": 1.5
+		},
+		{
+			"direction": "East",
+			"target": "SunGallery",
+			"state": "Open",
+			"corridorLength": 3,
+			"travelTime" : 4.0
+		},
+		{
+			"direction": "South",
+			"target": "FungalGardens",
+			"state": "Open",
+			"corridorLength": 3,
+			"travelTime" : 3.0
+		},
+		{
+			"direction": "North",
+			"target": "MaintenanceGallery",
+			"state": "Open",
+			"corridorLength": 2,
+			"travelTime" : 2.0
+		}
+	]
 }

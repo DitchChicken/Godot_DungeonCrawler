@@ -6,6 +6,7 @@ public class DungeonState
 	public List<string> UniqueRoomsFound { get; set; }    = new List<string>();
 	public string LastRoomId { get; set; }                = "";
 	public List<string> ExploredRooms { get; set; } = new List<string>();
+	public HashSet<string> Flags { get; set; } = new HashSet<string>();
 	
 	public Dictionary<string, RoomState> RoomStates { get; set; } = new Dictionary<string, RoomState>();
 

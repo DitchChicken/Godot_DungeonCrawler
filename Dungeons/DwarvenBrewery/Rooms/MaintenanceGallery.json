@@ -18,6 +18,20 @@
 			"name" : "Examine"
 		}
 	],
-	"combat" : "todo",
-	"nextRoom" : "WardenControl"
+	"exits": [
+		{
+			"direction": "South",
+			"target": "Brewery",
+			"state": "Open",
+			"corridorLength": 2,
+			"travelTime": 2.0
+		},
+		{
+			"direction": "East",
+			"target": "StorageVault",
+			"state": "Closed",
+			"corridorLength": 1,
+			"travelTime" : 0.5
+		}
+	]
 }

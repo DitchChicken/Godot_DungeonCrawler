@@ -20,14 +20,9 @@ public class RoomData
 	public List<RoomEncounterEntry> Encounters { get; set; } = new List<RoomEncounterEntry>();
 
 	// New fields — loaded now, used later
-	public List<RoomAction> Actions { get; set; } = new List<RoomAction>();
+	public List<Interaction> Actions { get; set; } = new List<Interaction>();
 	public List<ExitDef> Exits { get; set; } = new List<ExitDef>();
 
 	// Convenience — joins the description lines into one string
 	public string GetDescriptionText() => string.Join("", Description);
-}
-
-public class RoomAction
-{
-	public string Name { get; set; }
 }

@@ -21,5 +21,13 @@
 		}
 	],
 	"combat" : "todo",
-	"nextRoom" : "MaintenanceGallery"
+		"exits": [
+		{
+			"direction": "North",
+			"target": "HarvestHall",
+			"state": "Open",
+			"corridorLength": 1,
+			"travelTime": 0.5
+		}
+	]
 }

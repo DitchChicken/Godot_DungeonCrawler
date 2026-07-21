@@ -11,7 +11,7 @@ public static class DungeonAbilityResolver
 				int before = target.CurrentHP;
 				target.CurrentHP = System.Math.Min(target.MaxHP, target.CurrentHP + ability.Power);
 				int healed = target.CurrentHP - before;
-				GD.Print($"{target.Name} healed for {healed} (dungeon)");
+				DungeonLog.Print($"{target.Name} was healed for {healed}.", DungeonLog.Healing);
 				break;
 
 			case AbilityEffectType.CureStatus:

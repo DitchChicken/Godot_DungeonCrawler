@@ -15,6 +15,20 @@
 	"actions" : [
 		{"name" : "Explore"}
 	],
-	"combat" : "todo",
-	"nextRoom" : "StorageVault"
+	"exits" : [
+		{
+			"direction": "West",
+			"target": "WardenControl",
+			"state": "Open",
+			"corridorLength": 1,
+			"travelTime": 1.0
+		},
+		{
+			"direction": "North",
+			"target": "SunGallery",
+			"state": "Open",
+			"corridorLength": 1,
+			"travelTime" : 2.0
+		}
+	]
 }
