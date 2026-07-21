@@ -17,7 +17,7 @@
 		{
 			"direction": "West",
 			"target": "EntryHall",
-			"state": "Closed",
+			"state": "Blocked",
 			"corridorLength": 1,
 			"travelTime": 1.5
 		},

@@ -129,7 +129,13 @@ public static class DungeonManager
 		state.LastRoomId = roomId;
 
 		var mapRoom = state.Map?.GetRoom(roomId);
-		if (mapRoom != null) mapRoom.Discovered = true;
+		if (mapRoom == null) return;
+
+		mapRoom.Discovered = true;
+
+		// Entering a room reveals its obvious exits; hidden ones need searching
+		foreach (var exit in mapRoom.Exits)
+			if (exit.IsVisibleToParty) exit.Discovered = true;
 	}
 
 	// Are there any passable exits from the current room?

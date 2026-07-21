@@ -9,6 +9,7 @@ public partial class DebugConsole : CanvasLayer
 	private RichTextLabel _output;
 	private LineEdit _input;
 	private bool _isOpen = false;
+	public bool IsOpen => _isOpen;
 
 	// Command registry: name → (handler, help text)
 	private Dictionary<string, (Func<string[], string> handler, string help)> _commands

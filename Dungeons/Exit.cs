@@ -14,6 +14,7 @@ public class Exit
 	public ExitState State { get; set; } = ExitState.Open;
 	public string KeyId { get; set; } = "";
 	public string Label { get; set; } = "";
+	public bool Discovered { get; set; } = false;
 
 	// Map spacing — how many cells of corridor between the two rooms
 	public int CorridorLength { get; set; } = 1;

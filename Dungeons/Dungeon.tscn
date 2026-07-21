@@ -84,7 +84,7 @@ grow_vertical = 2
 [node name="ButtonRow" type="VBoxContainer" parent="ActionsPanel" unique_id=400292985]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 0
+size_flags_vertical = 3
 
 [node name="MoveButton" type="Button" parent="ActionsPanel/ButtonRow" unique_id=551308957]
 layout_mode = 2
@@ -103,6 +103,10 @@ text = "Combat"
 
 [node name="ActionList" type="VBoxContainer" parent="ActionsPanel/ButtonRow" unique_id=1546847335]
 layout_mode = 2
+
+[node name="Spacer" type="Control" parent="ActionsPanel/ButtonRow" unique_id=100000201]
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="DungeonTargetController" type="Control" parent="." unique_id=1685510114]
 anchors_preset = 0

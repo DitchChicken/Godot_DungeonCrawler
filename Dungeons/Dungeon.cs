@@ -13,7 +13,7 @@ public partial class Dungeon : Control
 	private ScrollContainer _logScroll;
 	private RichTextLabel  _logLabel;
 	private List<string> _dungeonLog = new List<string>();
-
+	private CompassWidget _compass;
 	private VBoxContainer _actionsList;   // grab in _Ready
 	
 	private GameState _gameState;
@@ -30,6 +30,10 @@ public partial class Dungeon : Control
 		
 		_combatButton.Pressed += TryCombat;
 		_moveButton.Pressed   += OnMovePressed;
+
+		_compass = new CompassWidget();
+		GetNode<VBoxContainer>("ActionsPanel/ButtonRow").AddChild(_compass);
+		_compass.DirectionPressed += OnCompassDirection;
 
 		_gameState = GetNode<GameState>("/root/GameState");
 
@@ -63,12 +67,37 @@ public partial class Dungeon : Control
 		RefreshRoomDisplay();
 	}
 
+	public override void _Input(InputEvent @event)
+	{
+		if (@event is not InputEventKey key || !key.Pressed || key.Echo) return;
+
+		// Don't steal keys from the console or an open menu
+		if (DebugConsole.Instance != null && DebugConsole.Instance.IsOpen) return;
+		if (_moveMenu.Visible) return;
+
+		Direction? dir = key.Keycode switch
+		{
+			Key.Up       => Direction.North,
+			Key.Down     => Direction.South,
+			Key.Left     => Direction.West,
+			Key.Right    => Direction.East,
+			Key.Pageup   => Direction.Up,
+			Key.Pagedown => Direction.Down,
+			_ => null
+		};
+
+		if (dir.HasValue)
+		{
+			TryMove(dir.Value);
+			GetViewport().SetInputAsHandled();
+		}
+	}
 	// Single source of truth for drawing the current room
 	private void RefreshRoomDisplay()
 	{
 		var room = _gameState.CurrentRoom;
 		if (room == null) return;
-
+		
 		_roomName.Text        = room.Name;
 		_roomDescription.Text = room.GetDescriptionText();
 
@@ -76,7 +105,9 @@ public partial class Dungeon : Control
 			_roomImage.Texture = GD.Load<Texture2D>(room.Image);
 		else
 			_roomImage.Texture = null;
-			
+
+		var state = _gameState.GetDungeonState(_gameState.CurrentDungeon);
+		_compass?.Refresh(state?.Map?.GetRoom(room.Id));			
 		RefreshActions();
 	}
 
@@ -208,6 +239,8 @@ public partial class Dungeon : Control
 			btn.Pressed += () => OnActionPressed(captured);
 			_actionsList.AddChild(btn);
 		}
+		
+		_compass?.Refresh(state?.Map?.GetRoom(room.Id));
 	}
 
 	private void OnActionPressed(Interaction action)
@@ -248,5 +281,34 @@ public partial class Dungeon : Control
 	{
 		if (DungeonLog.Sink == AddLogMessage)
 			DungeonLog.Sink = null;
+	}
+	
+	private void OnCompassDirection(int dir) => TryMove((Direction)dir);
+
+	private void TryMove(Direction dir)
+	{
+		var state = _gameState.GetDungeonState(_gameState.CurrentDungeon);
+		var here  = state?.Map?.GetRoom(_gameState.CurrentRoom?.Id);
+		var exit  = here?.GetExit(dir);
+
+		if (exit == null || !exit.Discovered)
+		{
+			DungeonLog.Print($"There is no way {dir.ToString().ToLower()} from here.");
+			return;
+		}
+		if (!exit.IsPassable)
+		{
+			string why = exit.State == ExitState.Locked ? "locked" : "blocked";
+			DungeonLog.Print($"The way {dir.ToString().ToLower()} is {why}.", DungeonLog.Damage);
+			return;
+		}
+
+		var room = DungeonManager.MoveThroughExit(_gameState, dir);
+		if (room == null) return;
+
+		TickExplorationCooldowns();
+		DungeonLog.Print($"The party moves {dir.ToString().ToLower()} to {room.Name}.",
+						 DungeonLog.Movement);
+		RefreshRoomDisplay();
 	}
 }
