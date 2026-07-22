@@ -146,6 +146,13 @@ public static class DebugCommands
 				p.GainExperience(amount);
 			return $"Granted {amount} XP to the party.";
 		}, "xp <amount> — grant experience to the party");
+		
+		c.Register("search", args =>
+		{
+			var state = gameState.GetDungeonState(gameState.CurrentDungeon);
+			var rs    = state?.GetRoomState(gameState.CurrentRoom?.Id);
+			return rs == null ? "Not in a room." : $"Search level: {rs.Searched}";
+		}, "Show the current room's search state");
 	}
 
 	private static void RefreshHud()
