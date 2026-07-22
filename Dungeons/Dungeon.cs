@@ -218,6 +218,14 @@ public partial class Dungeon : Control
 		var state     = _gameState.GetDungeonState(_gameState.CurrentDungeon);
 		var roomState = state.GetRoomState(room.Id);
 
+		if (SearchController.CanSearch(roomState))
+		{
+			var searchBtn = new Button();
+			searchBtn.Text = SearchController.LabelFor(room, roomState);
+			searchBtn.Pressed += OnSearchPressed;
+			_actionsList.AddChild(searchBtn);
+		}
+		
 		foreach (var action in room.Actions)
 		{
 			if (!InteractionResolver.IsAvailable(action, _gameState, roomState)) continue;
@@ -306,5 +314,18 @@ public partial class Dungeon : Control
 	private void RefreshTime()
 	{
 		_timeLabel.Text = DungeonClock.Format(DungeonClock.GetTicks(_gameState));
+	}
+	
+	private void OnSearchPressed()
+	{
+		var room      = _gameState.CurrentRoom;
+		var state     = _gameState.GetDungeonState(_gameState.CurrentDungeon);
+		var roomState = state.GetRoomState(room.Id);
+
+		SearchController.Execute(room, roomState, _gameState);
+
+		RefreshActions();                                  // relabel or hide the button
+		_compass?.Refresh(state.Map?.GetRoom(room.Id));    // a reveal may have lit a direction
+		GetNode<PartyHUD>("/root/PartyHud").Refresh();
 	}
 }

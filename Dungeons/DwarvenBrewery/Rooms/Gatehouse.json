@@ -21,5 +21,28 @@
 			"corridorLength": 1,
 			"travelTime": 2.0
 		}
-	]
+	],
+	"search": {
+		"quickTime": 2.0,
+		"thoroughTime": 10.0,
+		"quick": {
+			"id": "gatehouseQuick",
+			"outcomes": [
+				{ "type": "ShowText", "text": "Dust, and the smell of old grain. Nothing obvious." }
+			]
+		},
+		"thorough": {
+			"id": "gatehouseThorough",
+			"check": { "stat": "Wisdom", "difficulty": 12 },
+			"checkOutcomes": {
+				"success": [
+					{ "type": "ShowText", "text": "Behind a fallen relief, a narrow gap in the stone." },
+					{ "type": "RevealExit", "direction": "South" }
+				],
+				"failure": [
+					{ "type": "ShowText", "text": "You turn over every stone. Nothing." }
+				]
+			}
+		}
+	}
 }

@@ -2,9 +2,9 @@
 	"id": "Brewery",
 	"name": "Brewery",
 	"description": 
-		["Towering copper vats rise toward the ceiling, connected by polished pipes and curious glass tubing. ",
+		["Towering copper vats rise toward the ceiling, connected by polished pipes and curious translucent tubing. ",
 		 "Ancient presses, mills, and fermentation casks remain remarkably intact, ",
-		 "while small maintenance machines continue to wipe away dust from equipment no one has used in generations."
+		 "while small maintenance machines continue to wipe dust from equipment unused for generations."
 		 ],
 	"image": "res://Dungeons/DwarvenBrewery/Images/Brewery.png",
 	"unique": true,

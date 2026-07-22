@@ -6,6 +6,7 @@ public class Interaction
 	public string Name { get; set; }              // button label
 	public bool OneShot { get; set; } = true;
 	public float TimeCost { get; set; } = 1.0f;
+	public bool Hidden { get; set; } = false;
 
 	// Requirements to show/enable (empty = always available)
 	public List<Requirement> Requires { get; set; } = new List<Requirement>();
@@ -51,4 +52,5 @@ public class Outcome
 	public string ItemId { get; set; } = "";
 	public int Amount { get; set; } = 0;
 	public string EncounterId { get; set; } = "";
+	public string ActionId { get; set; } = "";
 }

@@ -9,6 +9,10 @@ public static class InteractionResolver
 
 	public static bool IsAvailable(Interaction action, GameState gs, RoomState roomState)
 	{
+		// Hidden until explicitly revealed this run
+		if (action.Hidden && !roomState.RevealedActions.Contains(action.Id))
+			return false;
+		
 		if (action.OneShot && roomState.CompletedActions.Contains(action.Id))
 			return false;
 
@@ -51,7 +55,7 @@ public static class InteractionResolver
 			: ResolveCheck(action, gs);
 
 		foreach (var outcome in outcomes)
-			ApplyOutcome(outcome, gs);
+			ApplyOutcome(outcome, gs, roomState);
 
 		if (action.TimeCost > 0f)
 			DungeonClock.Advance(gs, action.TimeCost, $"action: {action.Id}");
@@ -95,7 +99,7 @@ public static class InteractionResolver
 		_ => 0
 	};
 
-	private static void ApplyOutcome(Outcome outcome, GameState gs)
+	private static void ApplyOutcome(Outcome outcome, GameState gs, RoomState roomState)
 	{
 		var dungeonState = gs.GetDungeonState(gs.CurrentDungeon);
 
@@ -146,6 +150,33 @@ public static class InteractionResolver
 					c.CurrentHP = System.Math.Max(0, c.CurrentHP - outcome.Amount);
 				break;
 
+			case "RevealAction":
+				roomState.RevealedActions.Add(outcome.ActionId);
+				break;
+				
+			case "RevealExit":
+				if (!System.Enum.TryParse<Direction>(outcome.Direction, true, out var revealDir)) break;
+
+				string rid  = string.IsNullOrEmpty(outcome.Room) ? gs.CurrentRoom?.Id : outcome.Room;
+				var mapRoom = dungeonState.Map?.GetRoom(rid);
+				var revealed = mapRoom?.GetExit(revealDir);
+				if (revealed == null) break;
+
+				revealed.Discovered = true;
+				if (revealed.State == ExitState.HiddenToParty)
+					revealed.State = ExitState.Open;
+
+				// Mirror on the far side
+				var far     = dungeonState.Map.GetRoom(revealed.TargetRoomId);
+				var farExit = far?.GetExit(revealDir.Opposite());
+				if (farExit != null && farExit.TargetRoomId == rid)
+				{
+					farExit.Discovered = true;
+					if (farExit.State == ExitState.HiddenToParty)
+						farExit.State = ExitState.Open;
+				}
+				break;
+				
 			default:
 				GD.PrintErr($"Unknown outcome type: {outcome.Type}");
 				break;

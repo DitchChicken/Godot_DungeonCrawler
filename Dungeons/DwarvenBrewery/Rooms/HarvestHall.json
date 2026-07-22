@@ -17,14 +17,14 @@
 		{
 			"direction": "West",
 			"target": "SunGallery",
-			"state": "Blocked",
+			"state": "Open",
 			"corridorLength": 1,
 			"travelTime": 1.5
 		},
 		{
 			"direction": "East",
 			"target": "Vault",
-			"state": "Open",
+			"state": "Blocked",
 			"corridorLength": 1,
 			"travelTime" : 1.0
 		}

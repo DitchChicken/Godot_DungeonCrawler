@@ -15,8 +15,9 @@
 		{
 			"id": "activateConsole",
 			"name": "Activate the Bronze Console",
+			"hidden": true,
 			"oneShot": true,
-			"timeCost": 2.0,
+			"timeCost": 1.0,
 			"outcomes": [
 				{ "type": "ShowText", "text": "Gears grind. Somewhere close, stone slides against stone." },
 				{ "type": "SetExitState", "direction": "East", "state": "Open" },
@@ -39,5 +40,15 @@
 			"corridorLength": 1,
 			"travelTime" : 1.5
 		}
-	]
+	],
+	"search": {
+		"quickTime": 3.0,
+		"quick": {
+			"id": "entryHallQuick",
+			"outcomes": [
+				{ "type": "ShowText", "text": "Among the rubble, your fingers find a bronze console.  The dust covering it has been disturbed.  A single lever sits in the middle." },
+				{ "type": "RevealAction", "actionId": "activateConsole" }
+			]
+		}
+	}
 }
