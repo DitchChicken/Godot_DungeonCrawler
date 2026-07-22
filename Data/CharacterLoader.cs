@@ -25,8 +25,11 @@ public static class CharacterLoader
 			if (!dir.CurrentIsDir() && fileName.EndsWith(".json"))
 			{
 				var character = LoadCharacter($"res://Data/Characters/{fileName}");
-				if (character != null)
+				if (character != null) {
 					characters.Add(character);
+					foreach (var skill in character.Skills.Keys)
+						SkillRegistry.Validate(skill, $"character '{character.Name}'");
+				}
 			}
 			fileName = dir.GetNext();
 		}

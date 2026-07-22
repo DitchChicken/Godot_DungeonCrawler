@@ -17,6 +17,7 @@ public partial class Character : GodotObject
 	
 	// Identity
 	public string Name { get; set; }
+	public string FullName { get; set; }
 	public Race Race { get; set; }
 	public ClassType ClassType { get; set; }
 	public Alignment Alignment { get; set; } = Alignment.Neutral;
@@ -36,6 +37,11 @@ public partial class Character : GodotObject
 	public int Wisdom { get; set; }
 	public int Charisma { get; set; }
 
+	//Skills
+	public Dictionary<string, int> Skills { get; set; } = new Dictionary<string, int>();
+	public int GetSkillLevel(string skill) => Skills.TryGetValue(skill, out int lvl) ? lvl : 0;
+	public static int StatModifier(int statValue) => (int)System.Math.Floor((statValue - 10) / 2.0);
+	
 	// Progression
 	public int Level { get; set; } = 1;
 	public int Experience { get; set; } = 0;

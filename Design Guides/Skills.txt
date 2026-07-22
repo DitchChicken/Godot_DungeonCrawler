@@ -1,0 +1,50 @@
+Survival
+
+	Stealth
+	Athletics
+	Tracking
+
+Mechanisms
+
+	Lockpicking	
+	Traps
+	Tinkering
+	Engineering
+
+Scholarly
+
+	History
+	Linguistics
+	Astronomy
+	Medicine
+
+Magecraft
+
+	Wards and Bindings
+	Ritual
+	Resonance
+	
+Natural World
+
+	Alchemy
+	Mycology
+	Botany
+	Zoology
+
+Social
+
+	Diplomacy
+	Intimidation
+	Commerce
+
+Legacy
+
+	Legacy Lore
+	Legacy Tech
+	Xenology
+	Relics
+
+Religious
+
+	Theology    - Knowledge
+	Sacrements  - Performance

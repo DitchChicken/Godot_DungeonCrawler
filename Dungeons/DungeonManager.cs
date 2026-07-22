@@ -39,8 +39,10 @@ public static class DungeonManager
 
 		try
 		{
-			return JsonSerializer.Deserialize<RoomData>(json,
+			RoomData room = JsonSerializer.Deserialize<RoomData>(json,
 				new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+			ValidateRoomSkills(room, roomId);
+			return room;
 		}
 		catch (JsonException ex)
 		{
@@ -156,5 +158,25 @@ public static class DungeonManager
 		if (here == null) return new List<Exit>();
 
 		return here.Exits.FindAll(e => e.IsPassable && e.IsVisibleToParty);
+	}
+	
+	private static void ValidateRoomSkills(RoomData room, string roomId)
+	{
+		if (room?.Actions == null) return;
+
+		foreach (var action in room.Actions)
+			ValidateInteractionSkill(action, roomId);
+
+		if (room.Search?.Quick != null)    ValidateInteractionSkill(room.Search.Quick, roomId);
+		if (room.Search?.Thorough != null) ValidateInteractionSkill(room.Search.Thorough, roomId);
+	}
+
+	private static void ValidateInteractionSkill(Interaction action, string roomId)
+	{
+		if (action?.Check == null) return;
+		// Empty skill = level-0 check, no skill required — valid by design
+		if (string.IsNullOrEmpty(action.Check.Skill)) return;
+
+		SkillRegistry.Validate(action.Check.Skill, $"room '{roomId}' action '{action.Id}'");
 	}
 }

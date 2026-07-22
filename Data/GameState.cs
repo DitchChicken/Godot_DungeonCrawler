@@ -63,6 +63,8 @@ public partial class GameState : Node
 	
 	public override void _Ready()
 	{
+		SkillRegistry.Load();
+		
 		var roster = CharacterLoader.LoadRoster();
 		foreach (var character in roster)
 			AddToStable(character);

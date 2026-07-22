@@ -1,0 +1,10 @@
+Stat Guidelines
+
+Poor	7-8	A noticeable weakness.
+Below Average	9-10	Functional, but not a strength.
+Good	11-12	Better than most.
+Excellent	13-14	A defining strength.
+Exceptional	15-16	Rare in the starting roster.
+Heroic	17-18	Avoid at the start. Earned through progression.
+
+I'd actually make 15-16 the ceiling for Adventure 0. That leaves plenty of room for level-ups, equipment, and meta unlocks to matter.
