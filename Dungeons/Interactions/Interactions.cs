@@ -29,8 +29,11 @@ public class Requirement
 
 public class Check
 {
+	public string Skill { get; set; } = "";      // "" = no skill gate (level 0)
 	public string Stat { get; set; } = "Intelligence";
-	public int Difficulty { get; set; } = 10;
+	public int Difficulty { get; set; } = 10;     // DC
+	public int Level { get; set; } = 0;           // required skill level to attempt
+	public int CriticalThreshold { get; set; } = -1; // -1 = no crit tier
 }
 
 public class TieredOutcomes

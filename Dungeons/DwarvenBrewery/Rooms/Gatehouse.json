@@ -36,8 +36,7 @@
 			"check": { "stat": "Wisdom", "difficulty": 12 },
 			"checkOutcomes": {
 				"success": [
-					{ "type": "ShowText", "text": "Behind a fallen relief, a narrow gap in the stone." },
-					{ "type": "RevealExit", "direction": "South" }
+					{ "type": "ShowText", "text": "Humanoid footprints of various sizes can be spotted leading into and away from the doors." }
 				],
 				"failure": [
 					{ "type": "ShowText", "text": "You turn over every stone. Nothing." }

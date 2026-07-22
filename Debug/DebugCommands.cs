@@ -153,6 +153,17 @@ public static class DebugCommands
 			var rs    = state?.GetRoomState(gameState.CurrentRoom?.Id);
 			return rs == null ? "Not in a room." : $"Search level: {rs.Searched}";
 		}, "Show the current room's search state");
+		
+		c.Register("skill", args =>
+		{
+			if (args.Length < 3) return "usage: skill <name> <skill> <level>";
+			var ch = gameState.Party.FirstOrDefault(p =>
+				p.Name.ToLower().StartsWith(args[0].ToLower()));
+			if (ch == null) return $"No party member: {args[0]}";
+			ch.Skills[args[1]] = int.Parse(args[2]);
+			return $"{ch.Name} now has {args[1]} at level {args[2]}.";
+		}, "skill <name> <skill> <level> — set a character's skill level");
+
 	}
 
 	private static void RefreshHud()

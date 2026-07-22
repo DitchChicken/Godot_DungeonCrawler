@@ -75,6 +75,7 @@ public static class CharacterLoader
 			SpriteTopOffset   = def.SpriteTopOffset,
 			SpriteRightOffset = def.SpriteRightOffset,
 			KnownAbilities    = def.KnownAbilities ?? new List<string>(),
+			Skills = def.Skills ?? new Dictionary<string, int>(),
 		};
 		
 		c.Initialize();
@@ -134,4 +135,5 @@ public class CharacterDef
 	public float SpriteTopOffset { get; set; } = 0f;
 	public float SpriteRightOffset { get; set; } = 0f;
 	public List<string> KnownAbilities { get; set; } = new List<string>();
+	public Dictionary<string, int> Skills { get; set; } = new Dictionary<string, int>();
 }
