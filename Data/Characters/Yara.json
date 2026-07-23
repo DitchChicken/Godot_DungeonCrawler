@@ -14,7 +14,7 @@
 	"intelligence": 10,
 	"wisdom": 14,
 	"charisma": 12,
-	"skills" : {
+	"domains" : {
 		"Theology": 1, 
 		"Sacraments": 1, 
 		"Diplomacy": 1

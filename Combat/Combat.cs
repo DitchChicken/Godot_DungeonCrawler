@@ -17,7 +17,7 @@ public partial class Combat : Control
 	private Label _logLabel;
 	private ScrollContainer _scrollContainer;
 	private Button _attackButton;
-	private Button _spellSkillButton;
+	private Button _spellSkillButton;  //Note:  We should rename this but I'm lazy
 	private Button _itemButton;
 	private Button _rowSwitchButton;
 	private Button _fleeButton;

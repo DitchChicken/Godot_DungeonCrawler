@@ -24,6 +24,23 @@ public partial class CharacterSheet : CanvasLayer
 	private Label _backstoryLabel;
 	private Label _encumbranceLabel;
 	
+	public enum SheetTab { Equipment, Spells, Techniques, Domains }
+
+	private SheetTab _currentTab = SheetTab.Equipment;
+	private VBoxContainer _tabColumn;
+	private VBoxContainer _rightPanel;
+
+	// Tab content roots
+	private VBoxContainer _equipmentView;
+	private VBoxContainer _spellsView;
+	private VBoxContainer _techniquesView;
+	private VBoxContainer _domainsView;
+
+	private AbilityIconGrid _spellGrid;
+	private AbilityIconGrid _techniqueGrid;
+	private DomainPanel _domainPanel;
+	private AbilityTooltip _tooltip;
+
 	// Right panel
 	private EquipmentDoll _equipmentDoll;
 	private InventoryPanel _inventoryPanel;
@@ -35,7 +52,6 @@ public partial class CharacterSheet : CanvasLayer
 		// Wire up all nodes
 		string left = "Panel/MainContainer/LeftPanel/";
 		string stats = left + "StatsPanel/";
-		//string right = "Panel/MainContainer/RightPanel/EquipmentPanel/";
 
 		_portrait          = GetNode<TextureRect>(left + "Portrait");
 		_nameLabel         = GetNode<Label>(stats + "NameLabel");
@@ -51,47 +67,25 @@ public partial class CharacterSheet : CanvasLayer
 		_chaLabel          = GetNode<Label>(stats + "ChaLabel");
 		_hpLabel           = GetNode<Label>(stats + "HpLabel");
 		_manaLabel         = GetNode<Label>(stats + "ManaLabel");
-		_backstoryLabel    = GetNode<Label>(left + "BackstoryLabel");		
-	
-		// Replace right panel with doll
-		var rightPanel = GetNode<VBoxContainer>("Panel/MainContainer/RightPanel");
-		
-		// Remove old equipment labels
-		foreach (Node child in rightPanel.GetChildren())
+		_backstoryLabel    = GetNode<Label>(left + "BackstoryLabel");
+
+		_rightPanel = GetNode<VBoxContainer>("Panel/MainContainer/RightPanel");
+		foreach (Node child in _rightPanel.GetChildren())
 			child.QueueFree();
 
-		// Equipment doll - top portion
-		_equipmentDoll = new EquipmentDoll();
-		_equipmentDoll.SizeFlagsHorizontal = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
-		_equipmentDoll.SizeFlagsVertical   = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
-		_equipmentDoll.SlotClicked        += OnSlotClicked;
-		_equipmentDoll.SlotDoubleClicked  += OnSlotDoubleClicked;
-		rightPanel.AddChild(_equipmentDoll);
+		BuildTabColumn();
+		BuildEquipmentView();
+		BuildSpellsView();
+		BuildTechniquesView();
+		BuildDomainsView();
 
-		// Separator
-		var separator = new HSeparator();
-		rightPanel.AddChild(separator);
+		// Tooltip sits on the CanvasLayer so it floats above the panel
+		_tooltip = new AbilityTooltip();
+		AddChild(_tooltip);
+		_spellGrid.Setup(AbilityType.Spell, _tooltip);
+		_techniqueGrid.Setup(AbilityType.Technique, _tooltip);
 
-		// Encumbrance label
-		_encumbranceLabel = new Label();
-		_encumbranceLabel.HorizontalAlignment = HorizontalAlignment.Center;
-		_encumbranceLabel.AddThemeColorOverride("font_color", new Color(0.9f, 0.9f, 0.7f));
-		rightPanel.AddChild(_encumbranceLabel);
-		
-		// Inventory label
-		var label = new Label();
-		label.Text                = "Inventory";
-		label.HorizontalAlignment = HorizontalAlignment.Center;
-		rightPanel.AddChild(label);
-
-		// Inventory panel - bottom portion
-		_inventoryPanel = new InventoryPanel();
-		_inventoryPanel.SizeFlagsHorizontal = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
-		_inventoryPanel.SizeFlagsVertical   = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
-		_inventoryPanel.ItemClicked        += OnInventoryItemClicked;
-		_inventoryPanel.ItemDoubleClicked  += OnInventoryItemDoubleClicked;
-		rightPanel.AddChild(_inventoryPanel);		
-
+		SetTab(SheetTab.Equipment);
 		Hide();
 	}
 
@@ -222,9 +216,12 @@ public partial class CharacterSheet : CanvasLayer
 		// Backstory
 		_backstoryLabel.Text = character.Backstory ?? "";
 		
-		// Load doll
+		// Load menus
 		_equipmentDoll.LoadCharacter(character);
 		_inventoryPanel.LoadCharacter(character);
+		_spellGrid.LoadCharacter(character);
+		_techniqueGrid.LoadCharacter(character);
+		_domainPanel.LoadCharacter(character);
 	}
 
 	private void _on_back_button_pressed()
@@ -258,4 +255,133 @@ public partial class CharacterSheet : CanvasLayer
 		else
 			_encumbranceLabel.AddThemeColorOverride("font_color", new Color(0.9f, 0.9f, 0.7f));
 	}
+	
+	private void BuildTabColumn()
+	{
+		// Insert the tab column beside the portrait, in the left panel's parent HBox
+		var mainContainer = GetNode<HBoxContainer>("Panel/MainContainer");
+
+		_tabColumn = new VBoxContainer();
+		_tabColumn.AddThemeConstantOverride("separation", 4);
+		_tabColumn.SizeFlagsVertical = Control.SizeFlags.ShrinkBegin;
+
+		AddTabButton("E", SheetTab.Equipment);
+		AddTabButton("S", SheetTab.Spells);
+		AddTabButton("T", SheetTab.Techniques);
+		AddTabButton("D", SheetTab.Domains);
+
+		// Place between LeftPanel and RightPanel
+		mainContainer.AddChild(_tabColumn);
+		mainContainer.MoveChild(_tabColumn, 1);
+	}
+
+	private void AddTabButton(string letter, SheetTab tab)
+	{
+		var btn = new Button();
+		btn.Text = letter;
+		btn.CustomMinimumSize = new Vector2(32, 32);
+		btn.ToggleMode = true;
+		var captured = tab;
+		btn.Pressed += () => SetTab(captured);
+		btn.SetMeta("tab", (int)tab);
+		_tabColumn.AddChild(btn);
+	}
+
+	private void BuildEquipmentView()
+	{
+		_equipmentView = new VBoxContainer();
+		_equipmentView.SizeFlagsHorizontal = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
+		_equipmentView.SizeFlagsVertical   = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
+		_rightPanel.AddChild(_equipmentView);
+
+		_equipmentDoll = new EquipmentDoll();
+		_equipmentDoll.SizeFlagsHorizontal = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
+		_equipmentDoll.SizeFlagsVertical   = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
+		_equipmentDoll.SlotClicked        += OnSlotClicked;
+		_equipmentDoll.SlotDoubleClicked  += OnSlotDoubleClicked;
+		_equipmentView.AddChild(_equipmentDoll);
+
+		_equipmentView.AddChild(new HSeparator());
+
+		_encumbranceLabel = new Label();
+		_encumbranceLabel.HorizontalAlignment = HorizontalAlignment.Center;
+		_encumbranceLabel.AddThemeColorOverride("font_color", new Color(0.9f, 0.9f, 0.7f));
+		_equipmentView.AddChild(_encumbranceLabel);
+
+		var invLabel = new Label();
+		invLabel.Text = "Inventory";
+		invLabel.HorizontalAlignment = HorizontalAlignment.Center;
+		_equipmentView.AddChild(invLabel);
+
+		_inventoryPanel = new InventoryPanel();
+		_inventoryPanel.SizeFlagsHorizontal = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
+		_inventoryPanel.SizeFlagsVertical   = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
+		_inventoryPanel.ItemClicked        += OnInventoryItemClicked;
+		_inventoryPanel.ItemDoubleClicked  += OnInventoryItemDoubleClicked;
+		_equipmentView.AddChild(_inventoryPanel);
+	}
+
+	private void BuildSpellsView()
+	{
+		_spellsView = new VBoxContainer();
+		_spellsView.SizeFlagsHorizontal = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
+		_rightPanel.AddChild(_spellsView);
+
+		var header = new Label();
+		header.Text = "Spells";
+		header.HorizontalAlignment = HorizontalAlignment.Center;
+		_spellsView.AddChild(header);
+		_spellsView.AddChild(new HSeparator());
+
+		_spellGrid = new AbilityIconGrid();
+		_spellsView.AddChild(_spellGrid);
+	}
+
+	private void BuildTechniquesView()
+	{
+		_techniquesView = new VBoxContainer();
+		_techniquesView.SizeFlagsHorizontal = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
+		_rightPanel.AddChild(_techniquesView);
+
+		var header = new Label();
+		header.Text = "Techniques";
+		header.HorizontalAlignment = HorizontalAlignment.Center;
+		_techniquesView.AddChild(header);
+		_techniquesView.AddChild(new HSeparator());
+
+		_techniqueGrid = new AbilityIconGrid();
+		_techniquesView.AddChild(_techniqueGrid);
+	}
+
+	private void BuildDomainsView()
+	{
+		_domainsView = new VBoxContainer();
+		_domainsView.SizeFlagsHorizontal = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
+		_rightPanel.AddChild(_domainsView);
+
+		var header = new Label();
+		header.Text = "Domains";
+		header.HorizontalAlignment = HorizontalAlignment.Center;
+		_domainsView.AddChild(header);
+		_domainsView.AddChild(new HSeparator());
+
+		_domainPanel = new DomainPanel();
+		_domainsView.AddChild(_domainPanel);
+	}
+
+	private void SetTab(SheetTab tab)
+	{
+		_currentTab = tab;
+		_tooltip?.HideTooltip();
+
+		_equipmentView.Visible  = tab == SheetTab.Equipment;
+		_spellsView.Visible     = tab == SheetTab.Spells;
+		_techniquesView.Visible = tab == SheetTab.Techniques;
+		_domainsView.Visible    = tab == SheetTab.Domains;
+
+		// Sync the toggle state on the buttons
+		foreach (Node child in _tabColumn.GetChildren())
+			if (child is Button b && b.HasMeta("tab"))
+				b.ButtonPressed = (int)b.GetMeta("tab") == (int)tab;
+	}	
 }
