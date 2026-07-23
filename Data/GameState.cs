@@ -64,7 +64,8 @@ public partial class GameState : Node
 	public override void _Ready()
 	{
 		DomainRegistry.Load();
-		
+		CheckOddsTable.Load();
+
 		var roster = CharacterLoader.LoadRoster();
 		foreach (var character in roster)
 			AddToStable(character);

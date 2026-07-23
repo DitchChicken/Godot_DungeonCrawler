@@ -9,8 +9,9 @@ public class RoomState
 	public SearchLevel Searched { get; set; } = SearchLevel.Unsearched;
 		
 	// Unclaimed loot left behind in this room
-	public List<Equipment> LootPile { get; set; } = new List<Equipment>();
-
+	public Inventory LootPile { get; set; } = new Inventory(64, 0, 0);
+	public bool HasLoot => LootPile.UsedSlots > 0;
+	
 	// Room interactions already performed (for the `actions` field later)
 	public HashSet<string> RevealedActions { get; set; } = new HashSet<string>();
 	public HashSet<string> CompletedActions { get; set; } = new HashSet<string>();

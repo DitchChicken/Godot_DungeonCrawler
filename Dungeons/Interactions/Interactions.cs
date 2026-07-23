@@ -56,4 +56,5 @@ public class Outcome
 	public int Amount { get; set; } = 0;
 	public string EncounterId { get; set; } = "";
 	public string ActionId { get; set; } = "";
+	public string AmountDice { get; set; } = "";   // "3d10"; takes precedence over Amount
 }

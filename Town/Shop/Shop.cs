@@ -111,6 +111,7 @@ public partial class Shop : Control
 			? InventoryDragData.SourceType.Shop
 			: InventoryDragData.SourceType.Vault;
 		slot.CustomMinimumSize = new Vector2(64, 64);
+		slot.CustomMaximumSize = new Vector2(64, 64);
 		slot.ExpandIcon    = true;
 		slot.IconAlignment = HorizontalAlignment.Center;
 		slot.MouseFilter   = Control.MouseFilterEnum.Stop;

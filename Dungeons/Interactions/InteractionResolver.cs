@@ -184,6 +184,26 @@ public static class InteractionResolver
 				}
 				break;
 				
+			case "AddLoot":
+				{
+					int amount = !string.IsNullOrEmpty(outcome.AmountDice)
+						? Dice.Roll(outcome.AmountDice)
+						: System.Math.Max(1, outcome.Amount);
+
+					if (amount <= 0) break;
+
+					var lootItem = EquipmentLoader.LoadEquipment(outcome.ItemId);
+					if (lootItem == null)
+					{
+						GD.PrintErr($"AddLoot: unknown item '{outcome.ItemId}'");
+						break;
+					}
+
+					roomState.LootPile.AddItem(lootItem, amount);
+					LastMessages.Add($"{amount} {lootItem.Name} spills onto the floor.");
+					break;
+				}
+
 			default:
 				GD.PrintErr($"Unknown outcome type: {outcome.Type}");
 				break;

@@ -165,7 +165,7 @@ public partial class InventorySlotButton : Button
 		var vault = GetTree().Root.GetNodeOrNull<Vault>("Vault");
 		vault?.RefreshAll();
 
-		VictoryScreen.RefreshLootCallback?.Invoke();
+		LootContext.Refresh();
 	}
 
 	private void RemoveFromSource(InventoryDragData dragData)

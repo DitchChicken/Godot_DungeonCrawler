@@ -57,16 +57,24 @@ public static class CheckResolver
 	// Qualified = viable AND (level 0 check OR has the domain at required level)
 	private static Character PickAttempter(Check check, GameState gs)
 	{
-		var qualified = gs.Party.Where(c =>
-			c.CanAct() &&
-			(check.Level == 0 || c.GetDomainLevel(check.Domain) >= check.Level));
+		Character best = null;
+		double bestChance = -1.0;
 
-		// Heuristic score: DomainLevel * 2 + StatModifier
-		return qualified
-			.OrderByDescending(c =>
-				c.GetDomainLevel(check.Domain) * 2
-				+ Character.StatModifier(GetStat(c, check.Stat)))
-			.FirstOrDefault();
+		foreach (var c in gs.Party)
+		{
+			// Hard gate — domain level must meet the requirement
+			if (!c.CanAct()) continue;
+			if (check.Level > 0 && c.GetDomainLevel(check.Domain) < check.Level) continue;
+
+			double chance = ChanceFor(c, check);
+			if (chance > bestChance)
+			{
+				bestChance = chance;
+				best = c;
+			}
+		}
+
+		return best;
 	}
 
 	// Roll 3d6, then reroll the lowest die up to domainLevel times, keeping the better result each time
@@ -106,4 +114,14 @@ public static class CheckResolver
 		"charisma"     => c.TotalCharisma(),
 		_ => 10
 	};
+	
+	// Success chance for one character attempting this check
+	public static double ChanceFor(Character c, Check check)
+	{
+		int statMod  = Character.StatModifier(GetStat(c, check.Stat));
+		int equipMod = GetEquipmentModifier(c, check);
+		int effDC    = check.Difficulty - statMod - equipMod;
+
+		return CheckOddsTable.SuccessChance(effDC, c.GetDomainLevel(check.Domain));
+	}
 }

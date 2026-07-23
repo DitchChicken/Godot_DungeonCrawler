@@ -16,6 +16,7 @@ public partial class Dungeon : Control
 	private CompassWidget _compass;
 	private VBoxContainer _actionsList;   // grab in _Ready
 	private Label _timeLabel;
+	private RoomLootPanel _lootPanel;
 	
 	private GameState _gameState;
 
@@ -67,6 +68,10 @@ public partial class Dungeon : Control
 		AddChild(abilityMenu);
 		DungeonAbilityUse.Menu = abilityMenu;
 
+		_lootPanel = new RoomLootPanel();
+		AddChild(_lootPanel);
+		_lootPanel.Closed += RefreshActions;
+		
 		// Enter the dungeon
 		DungeonManager.EnterDungeon("DwarvenBrewery", _gameState);
 		RefreshRoomDisplay();
@@ -114,6 +119,7 @@ public partial class Dungeon : Control
 		var state = _gameState.GetDungeonState(_gameState.CurrentDungeon);
 		_compass?.Refresh(state?.Map?.GetRoom(room.Id));			
 		RefreshActions();
+		if (_lootPanel != null && _lootPanel.Visible) _lootPanel.Close();
 	}
 
 	// --- Movement ---
@@ -217,6 +223,13 @@ public partial class Dungeon : Control
 
 		var state     = _gameState.GetDungeonState(_gameState.CurrentDungeon);
 		var roomState = state.GetRoomState(room.Id);
+
+		var floorBtn = new Button();
+		floorBtn.Text = roomState.HasLoot ? "Examine the Floor  (items here)" : "Examine the Floor";
+		// Dimmed when empty, but still usable for dropping
+		floorBtn.Modulate = roomState.HasLoot ? Colors.White : new Color(0.6f, 0.6f, 0.6f);
+		floorBtn.Pressed += OnFloorPressed;
+		_actionsList.AddChild(floorBtn);
 
 		if (SearchController.CanSearch(roomState))
 		{
@@ -327,5 +340,14 @@ public partial class Dungeon : Control
 		RefreshActions();                                  // relabel or hide the button
 		_compass?.Refresh(state.Map?.GetRoom(room.Id));    // a reveal may have lit a direction
 		GetNode<PartyHUD>("/root/PartyHud").Refresh();
+	}
+	
+	private void OnFloorPressed()
+	{
+		var room      = _gameState.CurrentRoom;
+		var state     = _gameState.GetDungeonState(_gameState.CurrentDungeon);
+		var roomState = state.GetRoomState(room.Id);
+
+		_lootPanel.Open(roomState.LootPile, room.Name);
 	}
 }

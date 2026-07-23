@@ -43,5 +43,33 @@
 				]
 			}
 		}
-	}
+	},
+	"actions" : [
+		{
+			"id": "moveBarrel",
+			"name": "Shift the Heavy Barrel",
+			"oneShot": true,
+			"timeCost": 2.0,
+			"check": {
+				"domain": "Athletics",
+				"stat": "Strength",
+				"difficulty": 10,
+				"level": 0,
+				"criticalThreshold": 6
+			},
+			"checkOutcomes": {
+				"criticalSuccess": [
+					{ "type": "ShowText", "text": "The barrel goes over easily — and its false bottom gives way, scattering coin across the flagstones." },
+					{ "type": "AddLoot", "itemId": "Gold", "amountDice": "3d10+10" }
+				],
+				"success": [
+					{ "type": "ShowText", "text": "The barrel grinds aside. A few coins roll loose from beneath it." },
+					{ "type": "AddLoot", "itemId": "Gold", "amountDice": "3d10" }
+				],
+				"failure": [
+					{ "type": "ShowText", "text": "The barrel refuses to budge, and you nearly wrench your back trying." }
+				]
+			}
+		}
+	]	
 }

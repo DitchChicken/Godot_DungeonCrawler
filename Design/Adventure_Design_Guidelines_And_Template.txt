@@ -1,0 +1,19 @@
+Adventure Length
+	Starter
+		25–30 min
+	Tier 1
+		35 min
+	Tier 2
+		40 min
+	Tier 3
+		45 min
+	Tier 4
+		50 min
+
+Questions:
+	What was this place originally built to do?
+	Why did it fail or become abandoned?
+	Who lives here now, and why?
+	What changes permanently when the player completes it?
+	What mystery does it introduce that won't be answered until a later tier?
+

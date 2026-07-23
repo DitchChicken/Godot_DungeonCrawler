@@ -37,6 +37,7 @@ public partial class InventoryPanel : Control
 			btn.SizeFlagsHorizontal = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
 			btn.SizeFlagsVertical   = Control.SizeFlags.Fill | Control.SizeFlags.Expand;
 			btn.CustomMinimumSize   = new Vector2(48, 48);
+			btn.CustomMaximumSize   = new Vector2(96, 96);
 			btn.ExpandIcon          = true;
 			btn.IconAlignment       = HorizontalAlignment.Center;
 			btn.MouseFilter         = Control.MouseFilterEnum.Stop;

@@ -50,7 +50,7 @@ public static class InventoryTransfer
 		}
 		else if (dragData.Source == InventoryDragData.SourceType.Loot)
 		{
-			VictoryScreen.ActiveLootInventory?.RemoveItem(dragData.Item, count);
+			LootContext.Active?.RemoveItem(dragData.Item, count);
 		}
 		else
 		{
@@ -69,7 +69,7 @@ public static class InventoryTransfer
 				return 0;
 
 			case TransferTarget.TargetType.Loot:
-				VictoryScreen.ActiveLootInventory?.AddItem(item, count);
+				LootContext.Active?.AddItem(item, count);
 				return 0;
 				
 			case TransferTarget.TargetType.PersonalInventory:
