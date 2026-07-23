@@ -11,7 +11,7 @@ public class Interaction
 	// Requirements to show/enable (empty = always available)
 	public List<Requirement> Requires { get; set; } = new List<Requirement>();
 
-	// Optional skill check. Null = automatic success, use Outcomes.
+	// Optional domain check. Null = automatic success, use Outcomes.
 	public Check Check { get; set; }
 
 	// Flat outcomes when there's no check
@@ -29,8 +29,11 @@ public class Requirement
 
 public class Check
 {
+	public string Domain { get; set; } = "";      // "" = no domain gate (level 0)
 	public string Stat { get; set; } = "Intelligence";
-	public int Difficulty { get; set; } = 10;
+	public int Difficulty { get; set; } = 10;     // DC
+	public int Level { get; set; } = 0;           // required domain level to attempt
+	public int CriticalThreshold { get; set; } = -1; // -1 = no crit tier
 }
 
 public class TieredOutcomes

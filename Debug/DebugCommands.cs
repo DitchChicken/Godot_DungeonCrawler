@@ -153,6 +153,17 @@ public static class DebugCommands
 			var rs    = state?.GetRoomState(gameState.CurrentRoom?.Id);
 			return rs == null ? "Not in a room." : $"Search level: {rs.Searched}";
 		}, "Show the current room's search state");
+		
+		c.Register("domain", args =>
+		{
+			if (args.Length < 3) return "usage: domain <name> <domain> <level>";
+			var ch = gameState.Party.FirstOrDefault(p =>
+				p.Name.ToLower().StartsWith(args[0].ToLower()));
+			if (ch == null) return $"No party member: {args[0]}";
+			ch.Domains[args[1]] = int.Parse(args[2]);
+			return $"{ch.Name} now has {args[1]} at level {args[2]}.";
+		}, "domain <name> <domain> <level> — set a character's domain level");
+
 	}
 
 	private static void RefreshHud()

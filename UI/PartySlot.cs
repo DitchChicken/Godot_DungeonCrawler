@@ -10,7 +10,7 @@ public partial class PartySlot : PanelContainer
 	
 	//Icons
 	private TextureButton _spellIcon;
-	private TextureButton _skillIcon;
+	private TextureButton _techniqueIcon;
 	private HBoxContainer _abilityIconRow;
 
 	public Character Character { get; private set; }
@@ -229,10 +229,10 @@ public partial class PartySlot : PanelContainer
 		_abilityIconRow.AddThemeConstantOverride("separation", 4);
 
 		_spellIcon = MakeAbilityIcon("res://UI/Icons/SpellIcon.png", AbilityType.Spell);
-		_skillIcon = MakeAbilityIcon("res://UI/Icons/SkillIcon.png", AbilityType.Skill);
+		_techniqueIcon = MakeAbilityIcon("res://UI/Icons/TechniqueIcon.png", AbilityType.Technique);
 
 		_abilityIconRow.AddChild(_spellIcon);
-		_abilityIconRow.AddChild(_skillIcon);
+		_abilityIconRow.AddChild(_techniqueIcon);
 
 		var vbox = GetNode<VBoxContainer>("HBoxContainer/VBoxContainer");
 		vbox.AddChild(_abilityIconRow);
@@ -272,19 +272,19 @@ public partial class PartySlot : PanelContainer
 		var abilities = AbilityLoader.LoadAbilities(Character.KnownAbilities);
 
 		bool hasSpells = abilities.Exists(a => a.Type == AbilityType.Spell);
-		bool hasSkills = abilities.Exists(a => a.Type == AbilityType.Skill);
+		bool hasTechniques = abilities.Exists(a => a.Type == AbilityType.Technique);
 
 		_spellIcon.Visible = hasSpells;
-		_skillIcon.Visible = hasSkills;
-		_abilityIconRow.Visible = hasSpells || hasSkills;
+		_techniqueIcon.Visible = hasTechniques;
+		_abilityIconRow.Visible = hasSpells || hasTechniques;
 
 		// Gray out if nothing of that type is currently usable in the dungeon
 		bool anySpellUsable = abilities.Exists(a =>
 			a.Type == AbilityType.Spell && Character.CanUseAbilityInDungeon(a));
-		bool anySkillUsable = abilities.Exists(a =>
-			a.Type == AbilityType.Skill && Character.CanUseAbilityInDungeon(a));
+		bool anyTechniqueUsable = abilities.Exists(a =>
+			a.Type == AbilityType.Technique && Character.CanUseAbilityInDungeon(a));
 
 		_spellIcon.Modulate = anySpellUsable ? Colors.White : new Color(0.4f, 0.4f, 0.4f);
-		_skillIcon.Modulate = anySkillUsable ? Colors.White : new Color(0.4f, 0.4f, 0.4f);
+		_techniqueIcon.Modulate = anyTechniqueUsable ? Colors.White : new Color(0.4f, 0.4f, 0.4f);
 	}
 }

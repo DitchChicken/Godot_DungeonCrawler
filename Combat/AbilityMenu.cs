@@ -60,7 +60,7 @@ public partial class AbilityMenu : PanelContainer
 			child.QueueFree();
 
 		var title = new Label();
-		title.Text = "Spells & Skills";
+		title.Text = "Spells & Techniques";
 		title.HorizontalAlignment = HorizontalAlignment.Center;
 		_list.AddChild(title);
 
@@ -115,7 +115,7 @@ public partial class AbilityMenu : PanelContainer
 		foreach (Node child in _list.GetChildren()) child.QueueFree();
 
 		var title = new Label();
-		title.Text = _filterType == AbilityType.Spell ? "Spells" : "Skills";
+		title.Text = _filterType == AbilityType.Spell ? "Spells" : "Techniques";
 		title.HorizontalAlignment = HorizontalAlignment.Center;
 		_list.AddChild(title);
 

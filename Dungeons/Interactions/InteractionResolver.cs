@@ -67,20 +67,27 @@ public static class InteractionResolver
 	// Picks the best-qualified character and rolls. Stub tiers for now.
 	private static List<Outcome> ResolveCheck(Interaction action, GameState gs)
 	{
-		var best = PickBestCharacter(action.Check.Stat, gs);
-		if (best == null) return action.CheckOutcomes?.Failure ?? new List<Outcome>();
-
-		int statValue = GetStat(best, action.Check.Stat);
-		int roll      = new System.Random().Next(1, 21) + statValue;
-		int diff      = action.Check.Difficulty;
-
-		LastMessages.Add($"{best.Name} attempts the task...");
-
+		var info = CheckResolver.Resolve(action.Check, gs);
 		var tiers = action.CheckOutcomes ?? new TieredOutcomes();
-		if (roll >= diff + 10) return tiers.CriticalSuccess.Count > 0 ? tiers.CriticalSuccess : tiers.Success;
-		if (roll >= diff)      return tiers.Success;
-		if (roll <= diff - 10) return tiers.CriticalFailure.Count > 0 ? tiers.CriticalFailure : tiers.Failure;
-		return tiers.Failure;
+
+		if (info.Result == CheckResult.NoQualifiedCharacter)
+		{
+			LastMessages.Add("No one in the party is skilled enough to attempt this.");
+			return tiers.Failure;
+		}
+
+		LastMessages.Add($"{info.Attempter.Name} attempts the task... " +
+						 $"(rolled {info.Total} vs DC {action.Check.Difficulty})");
+
+		return info.Result switch
+		{
+			CheckResult.CriticalSuccess =>
+				tiers.CriticalSuccess.Count > 0 ? tiers.CriticalSuccess : tiers.Success,
+			CheckResult.Success         => tiers.Success,
+			CheckResult.CriticalFailure =>
+				tiers.CriticalFailure.Count > 0 ? tiers.CriticalFailure : tiers.Failure,
+			_                           => tiers.Failure
+		};
 	}
 
 	private static Character PickBestCharacter(string stat, GameState gs)

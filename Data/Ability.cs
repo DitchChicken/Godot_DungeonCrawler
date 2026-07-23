@@ -1,7 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 
-public enum AbilityType { Spell, Skill }
+public enum AbilityType { Spell, Technique }
 public enum AbilityTargetType { SingleEnemy, AllEnemies, EnemyRow, SingleAlly, AllAllies, Self }
 public enum AbilityEffectType { Damage, Heal, ApplyStatus, CureStatus, Buff }
 

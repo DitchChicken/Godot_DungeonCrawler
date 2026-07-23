@@ -27,8 +27,8 @@ public static class CharacterLoader
 				var character = LoadCharacter($"res://Data/Characters/{fileName}");
 				if (character != null) {
 					characters.Add(character);
-					foreach (var skill in character.Skills.Keys)
-						SkillRegistry.Validate(skill, $"character '{character.Name}'");
+					foreach (var domain in character.Domains.Keys)
+						DomainRegistry.Validate(domain, $"character '{character.Name}'");
 				}
 			}
 			fileName = dir.GetNext();
@@ -78,6 +78,7 @@ public static class CharacterLoader
 			SpriteTopOffset   = def.SpriteTopOffset,
 			SpriteRightOffset = def.SpriteRightOffset,
 			KnownAbilities    = def.KnownAbilities ?? new List<string>(),
+			Domains = def.Domains ?? new Dictionary<string, int>(),
 		};
 		
 		c.Initialize();
@@ -137,4 +138,5 @@ public class CharacterDef
 	public float SpriteTopOffset { get; set; } = 0f;
 	public float SpriteRightOffset { get; set; } = 0f;
 	public List<string> KnownAbilities { get; set; } = new List<string>();
+	public Dictionary<string, int> Domains { get; set; } = new Dictionary<string, int>();
 }

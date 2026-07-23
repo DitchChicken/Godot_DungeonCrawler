@@ -46,7 +46,8 @@
 		"quick": {
 			"id": "entryHallQuick",
 			"outcomes": [
-				{ "type": "ShowText", "text": "Among the rubble, your fingers find a bronze console.  The dust covering it has been disturbed.  A single lever sits in the middle." },
+				{ "type": "ShowText", 
+				  "text": "Among the rubble, your fingers find a bronze console.  The dust covering it has been disturbed.  A single lever sits in the middle." },
 				{ "type": "RevealAction", "actionId": "activateConsole" }
 			]
 		}

@@ -63,7 +63,7 @@ public partial class GameState : Node
 	
 	public override void _Ready()
 	{
-		SkillRegistry.Load();
+		DomainRegistry.Load();
 		
 		var roster = CharacterLoader.LoadRoster();
 		foreach (var character in roster)
