@@ -1,21 +1,27 @@
 {
 	"name": "Ezren",
+	"fullname": "Ezren Harrowmont",
 	"race": "Human",
 	"classType": "Mage",
 	"gender": "Male",
 	"age": 33,
 	"height": 70,
 	"weight": 148,
-	"backstory": "A scholar who ran out of books and decided the dungeon would teach him things no library could.",
+	"backstory": "An archeologist training himself to uncover the past and restore connections severed by aeons",
 	"strength": 7,
 	"constitution": 9,
-	"dexterity": 12,
-	"intelligence": 18,
+	"dexterity": 11,
+	"intelligence": 16,
 	"wisdom": 13,
-	"charisma": 11,
+	"charisma": 12,
 	"startingEquipment": [
 		{ "id": "Dagger", "count": 1 }
 	],
+	"domains": {
+		"Resonance": 1,
+		"History": 1,
+		"Linguistics": 1
+	},
 	"portrait": "res://Data/Characters/Ezren_Portrait.png",
 	"battleSprite": "res://Data/Characters/Ezren_BattleSprite.png",	
 	"spriteRightOffset": 335,

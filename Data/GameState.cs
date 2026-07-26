@@ -1,5 +1,6 @@
 using Godot;
 using System.Collections.Generic;
+using System.Linq;
 
 public partial class GameState : Node
 {
@@ -8,7 +9,13 @@ public partial class GameState : Node
 	public List<Character> Stable = new List<Character>();
 
 	public Inventory PartyVault = new Inventory(1024, 0, 0);
-	
+
+	private static readonly string[] StarterParty =
+	{
+		"Aldric", "Torik", "Yara",    // front row (slots 0–2)
+		"Ezren",  "Nix",   "Selyth"   // back row  (slots 3–5)
+	};
+
 	// Economy
 	public int Gold = 1000;
 
@@ -70,6 +77,9 @@ public partial class GameState : Node
 		foreach (var character in roster)
 			AddToStable(character);
 			
+		if (Party.Count == 0)
+			FormStarterParty();
+	
 		if (DebugFlags.AutoFormPartyOnEmbark)
 			AutoFormParty();
 	}
@@ -143,4 +153,21 @@ public partial class GameState : Node
 			GD.Print($"Converted treasure to {totalValue} gold. Party total: {Gold}");
 		}
 	}
+	
+	public void FormStarterParty()
+	{
+		Party.Clear();
+
+		foreach (var name in StarterParty)
+		{
+			var character = Stable.FirstOrDefault(c =>
+				c.Name.Equals(name, System.StringComparison.OrdinalIgnoreCase));
+
+			if (character != null)
+				AddToParty(character);
+			else
+				GD.PrintErr($"Starter party: '{name}' not found in stable");
+		}
+	}
+	
 }

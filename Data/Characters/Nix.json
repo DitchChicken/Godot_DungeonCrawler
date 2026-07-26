@@ -1,5 +1,6 @@
 {
 	"name": "Nix",
+	"fullname": "Nix Willowmere",
 	"race": "Halfling",
 	"classType": "Thief",
 	"gender": "Female",
@@ -8,15 +9,20 @@
 	"weight": 68,
 	"backstory": "Grew up picking locks for fun. The dungeon is just a bigger lock.",
 	"strength": 8,
-	"constitution": 10,
-	"dexterity": 18,
+	"constitution": 11,
+	"dexterity": 16,
 	"intelligence": 12,
 	"wisdom": 10,
-	"charisma": 12,
+	"charisma": 11,
 	"startingEquipment": [
 		{ "id": "Dagger", "count": 1 },
 		{ "id": "Arrows", "count": 25 }
 	],
+	"domains" : {
+		"Lock Picking": 1,
+		"Athletics": 1,
+		"Stealth": 1
+	},
 	"portrait": "res://Data/Characters/Nix_Portrait.png",
 	"battleSprite": "res://Data/Characters/Nix_BattleSprite.png",
 	"spriteRightOffset": 330,

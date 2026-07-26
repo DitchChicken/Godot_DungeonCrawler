@@ -1,8 +1,8 @@
 using Godot;
 using System.Collections.Generic;
 
-public enum Race { Human, Dwarf, Halfling }
-public enum ClassType { Fighter, Thief, Priest, Mage }
+public enum Race { Human, Dwarf, Halfling, Goblin, Pilot }
+public enum ClassType { Fighter, Thief, Priest, Mage, Tinkerer, Mycologist }
 public enum Alignment { Good, Neutral, Evil }
 public enum Status { Ok, Asleep, Paralyzed, Poisoned, Dead, Ashes, Lost }
 public enum Location { Party, Stable, Dungeon }
