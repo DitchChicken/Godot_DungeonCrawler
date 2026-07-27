@@ -1,5 +1,6 @@
 {
 	"name": "Aldric",
+	"fullname": "Aldric Harrow",
 	"race": "Human",
 	"classType": "Fighter",
 	"gender": "Male",
@@ -7,12 +8,12 @@
 	"height": 72,
 	"weight": 190,
 	"backstory": "A veteran soldier seeking fortune in the depths.",
-	"strength": 16,
-	"constitution": 14,
+	"strength": 14,
+	"constitution": 13,
 	"dexterity": 11,
-	"intelligence": 9,
-	"wisdom": 10,
-	"charisma": 11,
+	"intelligence": 11,
+	"wisdom": 12,
+	"charisma": 7,
 	"startingEquipment": [
 		{ "id": "ShortSword", "count": 1 },
 		{ "id": "Buckler", "count": 1 },
@@ -20,6 +21,10 @@
 		{ "id": "Arrows", "count": 25 },
 		{ "id": "HealingPotion", "count": 1}
 	],
+	"domains" : {
+		"Athletics": 1, 
+		"Tracking": 1
+	},
 	"portrait": "res://Data/Characters/Aldric_Portrait.png",
 	"battleSprite": "res://Data/Characters/Aldric_BattleSprite.png",
 	"spriteTopOffset": 250,

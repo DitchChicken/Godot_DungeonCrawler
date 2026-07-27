@@ -1,0 +1,58 @@
+RACE: Coloquial Name / Formal Name
+
+1. Who were they before the Fall of the Legacy?
+2. What role did they play in the ancient world?
+3. What fragment of that civilization do they still preserve?
+4. What does the average member of this race look like? (silhouette, posture, clothing, colors)
+5. How do they build, craft, or otherwise solve practical problems?
+6. What is their relationship with technology and the Legacy?
+7. How do they view magic? Is there even a distinction?
+8. What virtues does their culture admire? What behaviors are looked down upon?
+9. What occupations, skills, and talents are they naturally drawn toward?
+10. What does one of their settlements feel like? (architecture, lighting, sounds, smells)
+11. What does their art, music, and decoration emphasize?
+12. What foods do they grow, gather, or prepare?
+13. How do they name individuals and places? What does their language sound like?
+14. Why would one of them leave home to become an adventurer?
+15. How do the other races misunderstand them?
+16. What mystery about their past is still unsolved?
+17. What visual motif should immediately identify their civilization or ruins?
+18. If this race vanished tomorrow, what unique piece of the world would be lost forever?
+
+
+
+
+Humans / Humans
+	Default
+	Lost their technology?
+	Adaptable
+
+Pilot / Aurelith
+	Mycanoid - human hybrid
+	Biologicaly adapted Technology
+	Excels underground, in void
+	
+	Sample Names:
+		(PC) Selyth Who Listens Below
+
+Dwarves / *
+	Sturdy and stocky humanoids
+	Built technology
+	
+	Sample Names:
+		(PC) Yara Embervein
+
+Halflings / *
+	Smaller humanoids, robust and of good cheer
+	Comfortable technology
+	
+Goblins / *
+	Humanoid with adaptations related to technology
+	Reclaim technology
+	Survivalists
+
+Lizardmen / Silurians
+	Lizard people, freaking sweet
+	Were engineered as technology
+	Value purpose and drive, honor
+
