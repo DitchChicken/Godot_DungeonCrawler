@@ -1,0 +1,28 @@
+{
+	"name": "Selyth",
+	"race": "Pilot",
+	"classType": "Mycologist",
+	"gender": "Male",
+	"age": 63,
+	"height": 1,
+	"weight": 1,
+	"backstory": "",
+	"strength": 8,
+	"constitution": 10,
+	"dexterity": 12,
+	"intelligence": 16,
+	"wisdom": 13,
+	"charisma": 9,
+	"startingEquipment": [
+		{ "id": "Dagger", "count": 1 }
+	],
+	"domains" : {
+		"Mycology": 1, 
+		"Alchemy": 1, 
+		"Zoology": 1
+	},
+	"portrait": "res://Data/Characters/Selyth_Portrait.png",
+	"battleSprite": "res://Data/Characters/Selyth_BattleSprite.png",
+	"spriteRightOffset": 331,
+	"spriteTopOffset": 255
+}

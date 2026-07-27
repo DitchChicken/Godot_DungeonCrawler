@@ -1,0 +1,29 @@
+{
+	"name": "Torik",
+	"fullname": "Torik Pinmaker",
+	"race": "Goblin",
+	"classType": "Tinkerer",
+	"gender": "Male",
+	"age": 32,
+	"height": 40,
+	"weight": 68,
+	"backstory": "Salvager who ran the caravan roads",
+	"strength": 9,
+	"constitution": 11,
+	"dexterity": 14,
+	"intelligence": 14,
+	"wisdom": 11,
+	"charisma": 9,
+	"startingEquipment": [
+		{ "id": "Dagger", "count": 1 }
+	],
+	"domains" : {
+		"Tinkering": 1,
+		"Engineering": 1,
+		"Commerce": 1
+	},
+	"portrait": "res://Data/Characters/Torik_Portrait.png",
+	"battleSprite": "res://Data/Characters/Torik_BattleSprite.png",
+	"spriteRightOffset": 330,
+	"spriteTopOffset": 527
+}
