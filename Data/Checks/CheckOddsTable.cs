@@ -48,8 +48,7 @@ public static class CheckOddsTable
 
 		try
 		{
-			var def = JsonSerializer.Deserialize<TableDef>(json,
-				new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+			var def = JsonSerializer.Deserialize<TableDef>(json, JsonConfig.Options);
 
 			_odds = new double[MaxRerolls + 1][];
 			for (int r = 0; r <= MaxRerolls; r++)

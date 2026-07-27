@@ -1,0 +1,33 @@
+Adventure Length
+	Starter x 1
+		25–30 min
+	Tier 1 x4
+		35 min
+	Tier 2 x5
+		40 min
+	Tier 3 x5
+		45 min
+	Tier 4 x4
+		50 min
+
+19 Total
+
+Questions:
+	What was this place originally built to do?
+	Why did it fail or become abandoned?
+	Who lives here now, and why?
+	What changes permanently when the player completes it?
+	What mystery does it introduce that won't be answered until a later tier?
+
+
+
+Budget	        Target
+--------        ------
+Gold			400
+Experience		250
+Equipment		2–3 items
+Consumables		4–6
+Knowledge		2 discoveries
+Secrets			2
+Mastery Reward	1
+

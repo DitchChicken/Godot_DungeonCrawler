@@ -204,6 +204,11 @@ public static class InteractionResolver
 					break;
 				}
 
+			case "IdentifyItem":
+				gs.IdentifyItemType(outcome.ItemId);
+				LastMessages.Add($"Identified: {EquipmentLoader.LoadEquipment(outcome.ItemId)?.Name}.");
+				break;
+
 			default:
 				GD.PrintErr($"Unknown outcome type: {outcome.Type}");
 				break;

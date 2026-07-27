@@ -39,6 +39,14 @@ public partial class GameState : Node
 	public List<List<string>> CurrentEncounter = new List<List<string>>();
 	public EncounterInstance CurrentEncounterInstance { get; set; }
 	
+	// Item type-ids the party has identified this run
+	public HashSet<string> IdentifiedItems { get; set; } = new HashSet<string>();
+	public bool IsItemIdentified(Equipment item)
+		=> item.IsIdentified || IdentifiedItems.Contains(item.Id);
+	public void IdentifyItemType(string itemId) => IdentifiedItems.Add(itemId);
+	public string DisplayNameFor(Equipment item)
+		=> IsItemIdentified(item) ? item.Name : item.UnknownName;
+		
 	public void SetEncounter(List<List<string>> formation)
 	{
 		CurrentEncounter = formation;
@@ -168,6 +176,5 @@ public partial class GameState : Node
 			else
 				GD.PrintErr($"Starter party: '{name}' not found in stable");
 		}
-	}
-	
+	}	
 }

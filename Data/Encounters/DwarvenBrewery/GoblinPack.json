@@ -1,0 +1,16 @@
+{
+	"id": "GoblinPack",
+	"name": "Goblin Squatters",
+	"disposition": "Neutral",
+	"interactionRequirement": "Mandatory",
+	"sceneId": "GoblinPack",
+	"overlayImage": "res://Dungeons/DwarvenBrewery/Images/GoblinsOverlay.png",
+	"overlayX": 0.5,
+	"overlayY": 0.6,
+	"overlayScale": 1.0,
+	"formation": [
+		["Goblin", "Goblin"],
+		["Goblin", "Goblin", "Goblin"]
+	],
+	"rewards": { }
+}

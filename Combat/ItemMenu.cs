@@ -61,7 +61,7 @@ public partial class ItemMenu : PanelContainer
 		foreach (var item in usable)
 		{
 			var btn = new Button();
-			btn.Text = $"{item.Name}  x{item.StackCount}";
+			btn.Text = $"{item.DisplayName}  x{item.StackCount}";
 			string capturedId = item.Id;
 			btn.Pressed += () => EmitSignal(SignalName.ItemSelected, capturedId);
 			_list.AddChild(btn);

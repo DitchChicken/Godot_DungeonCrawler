@@ -14,6 +14,10 @@ public static class DungeonAbilityResolver
 				DungeonLog.Print($"{target.Name} was healed for {healed}.", DungeonLog.Healing);
 				break;
 
+			case AbilityEffectType.Message:
+				DungeonLog.Print(ability.Message, DungeonLog.Flavor);
+				break;
+
 			case AbilityEffectType.CureStatus:
 				// Later: remove a status effect
 				break;

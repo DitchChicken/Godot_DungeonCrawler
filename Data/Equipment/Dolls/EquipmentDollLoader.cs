@@ -27,8 +27,7 @@ public static class EquipmentDollLoader
 		string json = file.GetAsText();
 		file.Close();
 
-		var def = JsonSerializer.Deserialize<EquipmentDollDef>(json,
-			new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+		var def = JsonSerializer.Deserialize<EquipmentDollDef>(json, JsonConfig.Options);
 
 		_cache[id] = def;
 		return def;

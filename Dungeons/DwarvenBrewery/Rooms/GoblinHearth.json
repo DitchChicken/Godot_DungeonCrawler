@@ -12,16 +12,9 @@
 	"maxOccurrences": 1,
 	"spawnChance": 1.0,
 	"actions" : [
-		{
-			"name" : "Trade"
-		},
-		{
-			"name" : "Converse"
-		},
-		{
-			"name" : "Attack"
-		}
-		
+	],
+	"encounters": [
+		{ "id": "GoblinPack", "chance": 1.0 }
 	],
 	"exits": [
 		{

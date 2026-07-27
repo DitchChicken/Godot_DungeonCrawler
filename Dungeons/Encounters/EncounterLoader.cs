@@ -26,8 +26,7 @@ public static class EncounterLoader
 		string json = file.GetAsText();
 		file.Close();
 
-		var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-		var data    = JsonSerializer.Deserialize<EncounterData>(json, options);
+		var data    = JsonSerializer.Deserialize<EncounterData>(json, JsonConfig.Options);
 		if (data != null)
 			_cache[key] = data;
 
@@ -67,8 +66,7 @@ public static class EncounterLoader
 		string json = file.GetAsText();
 		file.Close();
 
-		var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-		var table   = JsonSerializer.Deserialize<List<RoomEncounterEntry>>(json, options);
+		var table   = JsonSerializer.Deserialize<List<RoomEncounterEntry>>(json, JsonConfig.Options);
 		if (table == null) return null;
 
 		foreach (var entry in table)

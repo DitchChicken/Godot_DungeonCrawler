@@ -24,8 +24,7 @@ public static class DomainRegistry
 
 		try
 		{
-			var def = JsonSerializer.Deserialize<DomainListDef>(json,
-				new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+			var def = JsonSerializer.Deserialize<DomainListDef>(json, JsonConfig.Options);
 
 			_domains = new HashSet<string>(def.Domains, System.StringComparer.OrdinalIgnoreCase);
 			_loaded = true;

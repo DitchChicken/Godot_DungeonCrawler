@@ -1,0 +1,10 @@
+{
+	"id": "EatFungus",
+	"name": "Eat",
+	"description": "Consume the fungus.",
+	"abilityType": "Technique",
+	"targetType": "Self",
+	"effectType": "Message",
+	"message": "The mushroom tastes of earth.",
+	"usableIn": ["Dungeon"]
+}

@@ -22,8 +22,7 @@ public static class AbilityLoader
 		string json = file.GetAsText();
 		file.Close();
 
-		var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-		var def = JsonSerializer.Deserialize<AbilityDef>(json, options);
+		var def = JsonSerializer.Deserialize<AbilityDef>(json, JsonConfig.Options);
 		if (def == null) return null;
 
 		var ability = new Ability
@@ -43,7 +42,8 @@ public static class AbilityLoader
 			StatusEffect        = def.StatusEffect ?? "",
 			ClassRestriction    = def.ClassRestriction ?? "",
 			UsableIn            = def.UsableIn ?? new List<string>(),
-			Icon                = def.Icon ?? ""
+			Icon                = def.Icon ?? "",
+			Message             = def.Message ?? ""
 		};
 
 		_cache[abilityId] = ability;

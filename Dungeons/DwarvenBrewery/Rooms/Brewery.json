@@ -42,5 +42,15 @@
 			"corridorLength": 2,
 			"travelTime" : 2.0
 		}
-	]
+	],
+	"search": {
+		"quickTime": 3.0,
+		"quick": {
+			"id": "breweryQuick",
+			"outcomes": [
+				{ "type": "ShowText", 
+				  "text": "The brewery equipment itself seems unused for years if not generations.  However one of the casks has had it's lid pried open, to reveal beer remarkably well perserved.  Half the barrel has been drained.  A nearby bowl still smells of the same beer." }
+			]
+		}
+	}
 }

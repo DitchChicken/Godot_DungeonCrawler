@@ -47,7 +47,7 @@
 			"id": "entryHallQuick",
 			"outcomes": [
 				{ "type": "ShowText", 
-				  "text": "Among the rubble, your fingers find a bronze console.  The dust covering it has been disturbed.  A single lever sits in the middle." },
+				  "text": "Among the detritus you find a bronze console.  It appears to have been deliberately obscured under a pile of old carts.  The dust covering the console been disturbed.  A single lever sits in the middle." },
 				{ "type": "RevealAction", "actionId": "activateConsole" }
 			]
 		}

@@ -22,8 +22,7 @@ public static class AttackLoader
 		string json = file.GetAsText();
 		file.Close();
 
-		var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-		var def     = JsonSerializer.Deserialize<AttackDef>(json, options);
+		var def     = JsonSerializer.Deserialize<AttackDef>(json, JsonConfig.Options);
 		if (def == null) return null;
 
 		var attack = new Attack

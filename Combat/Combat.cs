@@ -1340,7 +1340,7 @@ public partial class Combat : Control
 
 		// Consume one from the stack
 		caster.Character.PersonalInventory.RemoveItem(item, 1);
-		AddLog($"{caster.Name} uses {item.Name}.");
+		AddLog($"{caster.Name} uses {item.DisplayName}.");
 
 		_pendingItem    = null;
 		_pendingAbility = null;

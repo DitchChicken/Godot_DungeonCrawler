@@ -43,9 +43,20 @@ public class EncounterManager
 				instance.Formation.Add(monsterRow);
 		}
 
+		instance.Disposition = System.Enum.TryParse<Disposition>(template.Disposition, true, out var d)
+			? d : Disposition.Hostile;
+		instance.Requirement = System.Enum.TryParse<InteractionRequirement>(template.InteractionRequirement, true, out var r)
+			? r : InteractionRequirement.Mandatory;
+		instance.SceneId      = template.SceneId ?? "";
+		instance.OverlayImage = template.OverlayImage ?? "";
+		instance.OverlayX     = template.OverlayX;
+		instance.OverlayY     = template.OverlayY;
+		instance.OverlayScale = template.OverlayScale;
+
 		if (instance.Formation.Count == 0) return null;
 
 		_instances[instance.InstanceId] = instance;
+		
 		return instance;
 	}
 

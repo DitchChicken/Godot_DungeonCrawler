@@ -27,8 +27,7 @@ public static class ShopManager
 		string json = file.GetAsText();
 		file.Close();
 
-		var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-		var def = JsonSerializer.Deserialize<ShopData>(json, options);
+		var def = JsonSerializer.Deserialize<ShopData>(json, JsonConfig.Options);
 		if (def == null) return null;
 
 		var state = new ShopState { Id = def.Id, Name = def.Name };

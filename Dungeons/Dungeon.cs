@@ -4,6 +4,7 @@ using System.Collections.Generic;
 public partial class Dungeon : Control
 {
 	private TextureRect _roomImage;
+	private TextureRect _roomOverlay;
 	private Label _roomName;
 	private Label _roomDescription;
 	private Button _moveButton;
@@ -29,6 +30,16 @@ public partial class Dungeon : Control
 		_townButton      = GetNode<Button>("ActionsPanel/ButtonRow/TownButton");
 		_combatButton    = GetNode<Button>("ActionsPanel/ButtonRow/CombatButton");
 		_actionsList     = GetNode<VBoxContainer>("ActionsPanel/ButtonRow/ActionList");
+		
+		//Room overlay
+		_roomOverlay = new TextureRect();
+		_roomOverlay.Name          = "RoomOverlay";
+		_roomOverlay.MouseFilter   = Control.MouseFilterEnum.Ignore;
+		_roomOverlay.StretchMode    = TextureRect.StretchModeEnum.KeepAspectCentered;
+		_roomOverlay.ExpandMode      = TextureRect.ExpandModeEnum.IgnoreSize;
+		_roomOverlay.Visible        = false;
+		// Add as sibling above the room image
+		_roomImage.GetParent().AddChild(_roomOverlay);
 		
 		_combatButton.Pressed += TryCombat;
 		_moveButton.Pressed   += OnMovePressed;
@@ -119,6 +130,7 @@ public partial class Dungeon : Control
 		var state = _gameState.GetDungeonState(_gameState.CurrentDungeon);
 		_compass?.Refresh(state?.Map?.GetRoom(room.Id));			
 		RefreshActions();
+		RefreshRoomOverlay();
 		if (_lootPanel != null && _lootPanel.Visible) _lootPanel.Close();
 	}
 
@@ -224,19 +236,33 @@ public partial class Dungeon : Control
 		var state     = _gameState.GetDungeonState(_gameState.CurrentDungeon);
 		var roomState = state.GetRoomState(room.Id);
 
-		var floorBtn = new Button();
-		floorBtn.Text = roomState.HasLoot ? "Examine the Floor  (items here)" : "Examine the Floor";
-		// Dimmed when empty, but still usable for dropping
-		floorBtn.Modulate = roomState.HasLoot ? Colors.White : new Color(0.6f, 0.6f, 0.6f);
-		floorBtn.Pressed += OnFloorPressed;
-		_actionsList.AddChild(floorBtn);
 
-		if (SearchController.CanSearch(roomState))
+		var blockingEnc = state.Encounters.GetRoomEncounter(room.Id);
+		bool roomBlocked = blockingEnc != null && blockingEnc.BlocksRoom;
+		
+		if (!roomBlocked) {
+			var floorBtn = new Button();
+			floorBtn.Text = roomState.HasLoot ? "Examine the Floor  (items here)" : "Examine the Floor";
+			// Dimmed when empty, but still usable for dropping
+			floorBtn.Modulate = roomState.HasLoot ? Colors.White : new Color(0.6f, 0.6f, 0.6f);
+			floorBtn.Pressed += OnFloorPressed;
+			_actionsList.AddChild(floorBtn);
+		}
+
+		if (!roomBlocked && SearchController.CanSearch(roomState))
 		{
 			var searchBtn = new Button();
 			searchBtn.Text = SearchController.LabelFor(room, roomState);
 			searchBtn.Pressed += OnSearchPressed;
 			_actionsList.AddChild(searchBtn);
+		}
+		
+		if (blockingEnc != null && !string.IsNullOrEmpty(blockingEnc.SceneId))
+		{
+			var approachBtn = new Button();
+			approachBtn.Text = "Approach the Goblins";   // generalize the label later
+			approachBtn.Pressed += () => OnApproachEncounter(blockingEnc);
+			_actionsList.AddChild(approachBtn);
 		}
 		
 		foreach (var action in room.Actions)
@@ -349,5 +375,46 @@ public partial class Dungeon : Control
 		var roomState = state.GetRoomState(room.Id);
 
 		_lootPanel.Open(roomState.LootPile, room.Name);
+	}
+	
+	private void RefreshRoomOverlay()
+	{
+		_roomOverlay.Visible = false;
+
+		var state  = _gameState.GetDungeonState(_gameState.CurrentDungeon);
+		var roomId = _gameState.CurrentRoom?.Id;
+		if (string.IsNullOrEmpty(roomId)) return;
+
+		var enc = state.Encounters.GetRoomEncounter(roomId);
+		//GD.Print($"Overlay: enc={enc?.InstanceId ?? "null"}, img={enc?.OverlayImage ?? "none"}");
+
+		if (enc == null || string.IsNullOrEmpty(enc.OverlayImage)) return;
+		if (!ResourceLoader.Exists(enc.OverlayImage))
+		{
+			GD.Print($"Overlay image missing: {enc.OverlayImage}");
+			return;
+		}
+
+		var imgRect = _roomImage.GetGlobalRect();
+		//GD.Print($"Room image rect: {imgRect}");
+		_roomOverlay.Texture = GD.Load<Texture2D>(enc.OverlayImage);
+
+		// Position within the room image rect using fractional anchors
+		var tex     = _roomOverlay.Texture;
+		float w = tex.GetWidth()  * enc.OverlayScale;
+		float h = tex.GetHeight() * enc.OverlayScale;
+
+		_roomOverlay.Size     = new Vector2(w, h);
+		_roomOverlay.GlobalPosition = new Vector2(
+			imgRect.Position.X + imgRect.Size.X * enc.OverlayX - w / 2f,
+			imgRect.Position.Y + imgRect.Size.Y * enc.OverlayY - h / 2f);
+
+		_roomOverlay.Visible = true;
+	}
+	
+	private void OnApproachEncounter(EncounterInstance enc)
+	{
+		// Step 2 will open the ScenePanel here. For now, a placeholder.
+		DungeonLog.Print($"[scene {enc.SceneId} would open here]", DungeonLog.Interaction);
 	}
 }

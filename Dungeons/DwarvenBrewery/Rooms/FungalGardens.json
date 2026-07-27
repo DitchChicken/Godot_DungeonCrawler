@@ -1,30 +1,47 @@
 {
 	"id": "FungalGardens",
 	"name": "Fungal Gardens",
-	"description": ["Tier upon tier of shallow stone beds support sprawling mats of pale fungus unlike anything found on the surface. ",
-					"Nestled among them rest curious bulbous creatures whose soft tendrils intertwine with the fungal growth in quiet symbiosis. ",
-					"Warm mist drifts through the chamber, carrying a sweet, earthy fragrance unlike any forest mushroom.",
-					"The entire garden feels less cultivated than carefully maintained.TODO: AI Text"
+	"description": ["Tier upon tier of shallow stone beds support sprawling mats of pale fungus. ",
+					"Nestled among them rest curious bulbous creatures whose soft tendrils intertwine with the fungal growth. ",
+					"Warm mist drifts through the chamber. The room smells of a not unpleasent earthiness. "
 					],
 	"image": "res://Dungeons/DwarvenBrewery/Images/FungalGardens.png",
 	"unique": true,
 	"minOccurrences": 1,
 	"maxOccurrences": 1,
 	"spawnChance": 1.0,
-	"actions" : [
+	"actions": [
 		{
-			"name" : "Harvest"
+			"id": "harvestFungus",
+			"name": "Harvest the Fungus",
+			"oneShot": false,
+			"timeCost": 2.0,
+			"outcomes": [
+				{ "type": "ShowText", "text": "You gather a cluster of the pale growth." },
+				{ "type": "AddLoot", "itemId": "BrewersBoon", "amount": 10 }
+			]
 		},
 		{
-			"name" : "Study"
-		},
-		{
-			"name" : "Repair nutrient flow."
-		},
-		{
-			"name" : "Goblin Workers"
+			"id": "studyFungus",
+			"name": "Study the Fungus",
+			"oneShot": true,
+			"timeCost": 8.0,
+			"check": {
+				"domain": "Mycology",
+				"stat": "Intelligence",
+				"difficulty": 12,
+				"level": 1
+			},
+			"checkOutcomes": {
+				"success": [
+					{ "type": "ShowText", "text": "Brewers Boon, edible and mundane.  Used by the Dwarves in some beer recipes." },
+					{ "type": "IdentifyItem", "itemId": "BrewersBoon" }
+				],
+				"failure": [
+					{ "type": "ShowText", "text": "The fungus resists easy classification." }
+				]
+			}
 		}
-		
 	],
 	"exits": [
 		{

@@ -20,8 +20,7 @@ public static class DungeonManager
 		string json = file.GetAsText();
 		file.Close();
 
-		return JsonSerializer.Deserialize<DungeonData>(json,
-			new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+		return JsonSerializer.Deserialize<DungeonData>(json, JsonConfig.Options);
 	}
 
 	public static RoomData LoadRoom(string dungeonId, string roomId)
@@ -39,8 +38,7 @@ public static class DungeonManager
 
 		try
 		{
-			RoomData room = JsonSerializer.Deserialize<RoomData>(json,
-				new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+			RoomData room = JsonSerializer.Deserialize<RoomData>(json, JsonConfig.Options);
 			ValidateRoomDomains(room, roomId);
 			return room;
 		}

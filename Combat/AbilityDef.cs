@@ -9,7 +9,7 @@ public class AbilityDef
 	public string AbilityType { get; set; } = "Spell";
 	public string TargetType { get; set; }
 	public string EffectType { get; set; }
-	public int Power { get; set; }
+	public int Power { get; set; }	
 	public int ManaCost { get; set; }
 	public int HealthCost { get; set; }
 	public int CombatCooldown { get; set; } = 0;
@@ -18,5 +18,6 @@ public class AbilityDef
 	public string StatusEffect { get; set; } = "";
 	public string ClassRestriction { get; set; } = "";
 	public string Icon { get; set; } = "";
+	public string Message { get; set; } = "";
 	public List<string> UsableIn { get; set; } = new List<string>();
 }

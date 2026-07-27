@@ -1,0 +1,15 @@
+{
+	"id": "DwarvenFungus",
+	"name": "Brewers Boon",
+	"unknownName": "Unknown Dwarven Fungus",
+	"isIdentified": false,
+	"description": "A pale, earthy fungus that grows in the dark.",
+	"slot": "None",
+	"consumableType": "Potion",
+	"useAbility": "EatBrewersBoon",
+	"isStackable": true,
+	"maxStack": 10,
+	"weight": 10,
+	"goldCost": 0,
+	"icon": "res://Data/Equipment/Consumables/BrewersBoon.png"
+}

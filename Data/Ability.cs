@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public enum AbilityType { Spell, Technique }
 public enum AbilityTargetType { SingleEnemy, AllEnemies, EnemyRow, SingleAlly, AllAllies, Self }
-public enum AbilityEffectType { Damage, Heal, ApplyStatus, CureStatus, Buff }
+public enum AbilityEffectType { Damage, Heal, ApplyStatus, CureStatus, Buff, Message }
 
 public class Ability
 {
@@ -28,4 +28,5 @@ public class Ability
 	public string ClassRestriction { get; set; } = "";
 
 	public string Icon { get; set; } = "";
+	public string Message { get; set; } = "";
 }
