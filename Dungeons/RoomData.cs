@@ -7,6 +7,7 @@ public class SearchData
 {
 	public float QuickTime { get; set; } = 2.0f;
 	public float ThoroughTime { get; set; } = 8.0f;
+	public SearchLevel InitialLevel { get; set; } = SearchLevel.Unsearched;
 
 	// Interactions run on each pass — reuses checks and outcomes wholesale
 	public Interaction Quick { get; set; }

@@ -78,7 +78,7 @@ public static class DungeonManager
 		if (currentRoom == null) return null;
 
 		gameState.CurrentRoom = currentRoom;
-		MarkExplored(state, currentRoom.Id);
+		MarkExplored(state, dungeonId, currentRoom.Id);
 
 		return currentRoom;
 	}
@@ -118,26 +118,32 @@ public static class DungeonManager
 		if (room == null) return null;
 
 		gameState.CurrentRoom = room;
-		MarkExplored(state, room.Id);
+		MarkExplored(state, dungeonId, room.Id);
 
 		return room;
 	}
 
-	private static void MarkExplored(DungeonState state, string roomId)
+	private static void MarkExplored(DungeonState state, string dungeonId, string roomId)
 	{
-		if (!state.ExploredRooms.Contains(roomId))
-			state.ExploredRooms.Add(roomId);
+		bool firstVisit = !state.ExploredRooms.Contains(roomId);
+		if (firstVisit) state.ExploredRooms.Add(roomId);
 
 		state.LastRoomId = roomId;
 
 		var mapRoom = state.Map?.GetRoom(roomId);
-		if (mapRoom == null) return;
+		if (mapRoom != null)
+		{
+			mapRoom.Discovered = true;
+			foreach (var exit in mapRoom.Exits)
+				if (exit.IsVisibleToParty) exit.Discovered = true;
+		}
 
-		mapRoom.Discovered = true;
-
-		// Entering a room reveals its obvious exits; hidden ones need searching
-		foreach (var exit in mapRoom.Exits)
-			if (exit.IsVisibleToParty) exit.Discovered = true;
+		if (firstVisit)
+		{
+			var roomData = LoadRoom(dungeonId, roomId);
+			if (roomData?.Search != null)
+				state.GetRoomState(roomId).Searched = roomData.Search.InitialLevel;
+		}
 	}
 
 	// Are there any passable exits from the current room?

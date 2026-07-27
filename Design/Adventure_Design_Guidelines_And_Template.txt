@@ -1,14 +1,16 @@
 Adventure Length
-	Starter
+	Starter x 1
 		25–30 min
-	Tier 1
+	Tier 1 x4
 		35 min
-	Tier 2
+	Tier 2 x5
 		40 min
-	Tier 3
+	Tier 3 x5
 		45 min
-	Tier 4
+	Tier 4 x4
 		50 min
+
+19 Total
 
 Questions:
 	What was this place originally built to do?
