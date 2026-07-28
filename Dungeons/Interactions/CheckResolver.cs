@@ -77,6 +77,27 @@ public static class CheckResolver
 		return best;
 	}
 
+	// Qualified = viable AND (level 0 check OR has the domain at required level)
+	public static double BestChance(Check check, GameState gs)
+	{
+		double bestChance = 0.0;
+
+		foreach (var c in gs.Party)
+		{
+			// Hard gate — domain level must meet the requirement
+			if (!c.CanAct()) continue;
+			if (check.Level > 0 && c.GetDomainLevel(check.Domain) < check.Level) continue;
+
+			double chance = ChanceFor(c, check);
+			if (chance > bestChance)
+			{
+				bestChance = chance;
+			}
+		}
+
+		return bestChance;
+	}
+	
 	// Roll 3d6, then reroll the lowest die up to domainLevel times, keeping the better result each time
 	private static int RollWithRerolls(int domainLevel)
 	{

@@ -49,6 +49,7 @@ public class Outcome
 	public string Type { get; set; }        // see OutcomeType strings below
 	public string Text { get; set; } = "";
 	public string Room { get; set; } = "";
+	public string Value {get; set; } = "";
 	public string Direction { get; set; } = "";
 	public string State { get; set; } = "";
 	public string Flag { get; set; } = "";

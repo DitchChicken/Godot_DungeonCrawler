@@ -19,6 +19,10 @@ public partial class Dungeon : Control
 	private Label _timeLabel;
 	private RoomLootPanel _lootPanel;
 	
+	//Scene
+	private ScenePanel _scenePanel;
+	private EncounterInstance _sceneEncounter;
+	
 	private GameState _gameState;
 
 	public override void _Ready()
@@ -40,6 +44,12 @@ public partial class Dungeon : Control
 		_roomOverlay.Visible        = false;
 		// Add as sibling above the room image
 		_roomImage.GetParent().AddChild(_roomOverlay);
+		
+		//Scene
+		_scenePanel = new ScenePanel();
+		AddChild(_scenePanel);
+		_scenePanel.SceneClosed   += OnSceneClosed;
+		_scenePanel.CombatStarted += OnSceneCombat;
 		
 		_combatButton.Pressed += TryCombat;
 		_moveButton.Pressed   += OnMovePressed;
@@ -196,10 +206,17 @@ public partial class Dungeon : Control
 			nameof(Main.SwitchScene), "res://Combat/Combat.tscn");
 	}
 
-	// --- Town ---
-
 	private void _on_town_button_pressed()
 	{
+		var state = _gameState.GetDungeonState(_gameState.CurrentDungeon);
+		var blockingEnc = state?.Encounters?.GetRoomEncounter(_gameState.CurrentRoom?.Id);
+		if (blockingEnc != null && blockingEnc.BlocksRoom)
+		{
+			DungeonLog.Print("You can't retreat to town — there's no leaving this behind.",
+							 DungeonLog.Damage);
+			return;
+		}
+
 		_gameState.ReturnToTown();
 		GetNode<Main>("/root/Main").CallDeferred(
 			nameof(Main.SwitchScene), "res://Town/Town.tscn");
@@ -329,6 +346,15 @@ public partial class Dungeon : Control
 		var here  = state?.Map?.GetRoom(_gameState.CurrentRoom?.Id);
 		var exit  = here?.GetExit(dir);
 
+		// A mandatory encounter pins the party in the room
+		var blockingEnc = state?.Encounters?.GetRoomEncounter(_gameState.CurrentRoom?.Id);
+		if (blockingEnc != null && blockingEnc.BlocksRoom)
+		{
+			DungeonLog.Print("You can't leave — you must deal with what's here first.",
+							 DungeonLog.Damage);
+			return;
+		}
+		
 		if (exit == null || !exit.Discovered)
 		{
 			DungeonLog.Print($"There is no way {dir.ToString().ToLower()} from here.");
@@ -410,11 +436,27 @@ public partial class Dungeon : Control
 			imgRect.Position.Y + imgRect.Size.Y * enc.OverlayY - h / 2f);
 
 		_roomOverlay.Visible = true;
-	}
+	}	
 	
 	private void OnApproachEncounter(EncounterInstance enc)
 	{
-		// Step 2 will open the ScenePanel here. For now, a placeholder.
-		DungeonLog.Print($"[scene {enc.SceneId} would open here]", DungeonLog.Interaction);
+		var scene = SceneLoader.Load(enc.SceneId);
+		if (scene == null) return;
+		_sceneEncounter = enc;
+		_scenePanel.Open(scene, enc, _gameState);
+	}
+
+	private void OnSceneClosed()
+	{
+		RefreshActions();          // requirement may have flipped to Optional → room unblocks
+		RefreshRoomOverlay();
+		GetNode<PartyHUD>("/root/PartyHud").Refresh();
+	}
+
+	private void OnSceneCombat()
+	{
+		_gameState.CurrentEncounterInstance = _sceneEncounter;
+		GetNode<Main>("/root/Main").CallDeferred(
+			nameof(Main.SwitchScene), "res://Combat/Combat.tscn");
 	}
 }

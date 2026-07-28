@@ -6,7 +6,7 @@ public static class InteractionResolver
 {
 	// Text produced by the last resolve, for the dungeon UI to display
 	public static List<string> LastMessages { get; private set; } = new List<string>();
-
+	
 	public static bool IsAvailable(Interaction action, GameState gs, RoomState roomState)
 	{
 		// Hidden until explicitly revealed this run
@@ -19,30 +19,9 @@ public static class InteractionResolver
 		var dungeonState = gs.GetDungeonState(gs.CurrentDungeon);
 
 		foreach (var req in action.Requires)
-		{
-			switch (req.Type)
-			{
-				case "Flag":
-					if (!dungeonState.Flags.Contains(req.Value)) return false;
-					break;
-				case "NotFlag":
-					if (dungeonState.Flags.Contains(req.Value)) return false;
-					break;
-				case "ActionCompleted":
-					if (!roomState.CompletedActions.Contains(req.Value)) return false;
-					break;
-				case "ClassInParty":
-					if (!gs.Party.Any(c => c.IsAlive
-						&& c.ClassType.ToString().Equals(req.Value, System.StringComparison.OrdinalIgnoreCase)))
-						return false;
-					break;
-				case "Item":
-					if (!gs.Party.Any(c => c.PersonalInventory.HasItem(req.Value))
-						&& !gs.PartyVault.HasItem(req.Value))
-						return false;
-					break;
-			}
-		}
+			if (!RequirementMet(req, gs, roomState))
+			return false;
+
 		return true;
 	}
 
@@ -259,5 +238,32 @@ public static class InteractionResolver
 			backExit.State = newState;
 	}
 	
-	
+	public static void ApplyOutcomeExternal(Outcome outcome, GameState gs, RoomState rs, ScenePanel panel)
+	{
+		if (outcome.Type == "ShowText") { panel.AppendText(outcome.Text); return; }
+		ApplyOutcome(outcome, gs, rs);   // existing private method
+	}	
+		
+	public static bool RequirementMet(Requirement req, GameState gs, RoomState roomState)
+	{
+		var dungeonState = gs.GetDungeonState(gs.CurrentDungeon);
+
+		switch (req.Type)
+		{
+			case "Flag":
+				return dungeonState.Flags.Contains(req.Value);
+			case "NotFlag":
+				return !dungeonState.Flags.Contains(req.Value);
+			case "ActionCompleted":
+				return roomState.CompletedActions.Contains(req.Value);
+			case "ClassInParty":
+				return gs.Party.Any(c => c.IsAlive
+					&& c.ClassType.ToString().Equals(req.Value, System.StringComparison.OrdinalIgnoreCase));
+			case "Item":
+				return gs.Party.Any(c => c.PersonalInventory.HasItem(req.Value))
+					|| gs.PartyVault.HasItem(req.Value);
+			default:
+				return true;
+		}
+	}
 }
