@@ -221,6 +221,9 @@ public static class InteractionResolver
 			case "Item":
 				return gs.Party.Any(c => c.PersonalInventory.HasItem(req.Value))
 					|| gs.PartyVault.HasItem(req.Value);
+			case "RaceInParty":
+				return gs.Party.Any(c => c.CanAct()
+					&& c.Race.ToString().Equals(req.Value, System.StringComparison.OrdinalIgnoreCase));					
 			default:
 				return true;
 		}

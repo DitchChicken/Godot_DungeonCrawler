@@ -11,8 +11,16 @@ public class Door
 {
 	public bool Exists { get; set; } = true;    // false once broken down
 	public bool Locked { get; set; } = false;
-	public bool Open   { get; set; } = false;   // cosmetic/for monsters; party passes regardless when unlocked
-
+	private bool _open = false;
+	public bool Open
+	{
+		get => _open;
+		set
+		{
+			_open = value;
+			if (value) Locked = false;   // an open door cannot be locked
+		}
+	}
 	public string KeyId { get; set; } = "";
 	public int LockDC  { get; set; } = 0;       // 0 = cannot be picked
 	public int BreakDC { get; set; } = 0;       // 0 = cannot be broken

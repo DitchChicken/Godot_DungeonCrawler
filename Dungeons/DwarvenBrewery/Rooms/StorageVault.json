@@ -1,26 +1,80 @@
 {
 	"id": "StorageVault",
-	"name": "StorageVault",
+	"name": "Storage Vault",
 	"description": [
 		"Heavy stone shelves line the walls from floor to ceiling, many still neatly stocked with sealed crates and ",
 		"ceramic jars bearing faded dwarven markings. Thick iron doors and sturdy locks suggest this room once protected ",
-		"goods of exceptional value, though time has claimed much of what was left behind.",
-		"Not everything has been forgotten.TODO: AI Text"
+		"goods of exceptional value, though time has claimed much of what was left behind. ",
+		"An obvious reinforced strongbox sits on the floor underneath the shelving."
 		],
 	"image": "res://Dungeons/DwarvenBrewery/Images/StorageVault.png",
-	"unique": true,
-	"minOccurrences": 1,
-	"maxOccurrences": 1,
-	"spawnChance": 1.0,
-	"actions" : [	
-	],
 	"exits": [
 		{
 			"direction": "West",
 			"target": "MaintenanceGallery",
-			"state": "Open",
 			"corridorLength": 0,
 			"travelTime": 0.2
+		}
+	],
+	"search": {
+		"initialLevel": "Quick",
+		"thoroughTime": 8.0,
+		"thorough": {
+			"id": "storageVaultThorough",
+			"outcomes": [
+				{ "type": "ShowText", "text": "You comb the shelves and prise open several crates, but find nothing out of the ordinary among the dust and debris." }
+			]
+		}
+	},
+	"actions": [
+		{
+			"id": "pickStrongbox",
+			"name": "Lockpick the Strongbox",
+			"oneShot": true,
+			"timeCost": 4.0,
+			"requires": [ { "type": "NotFlag", "value": "strongboxOpen" } ],
+			"check": { "domain": "Lock Picking", "stat": "Dexterity", "difficulty": 15, "level": 1 },
+			"checkOutcomes": {
+				"success": [
+					{ "type": "ShowText", "text": "The strongbox's lock yields to your picks and springs open to reveal gold coins and an ancient ledger." },
+					{ "type": "AddLoot", "itemId": "Gold", "amountDice": "4d10+120" },
+					{ "type": "SetFlag", "flag": "strongboxOpen" },
+					{ "type": "RevealAction", "actionId": "readLedger" }
+				],
+				"failure": [
+					{ "type": "ShowText", "text": "The strongbox's lock is beyond your skill." }
+				]
+			}
+		},
+		{
+			"id": "smashStrongbox",
+			"name": "Smash the Strongbox",
+			"oneShot": true,
+			"timeCost": 3.0,
+			"requires": [ { "type": "NotFlag", "value": "strongboxOpen" } ],
+			"check": { "domain": "Athletics", "stat": "Strength", "difficulty": 18, "level": 0 },
+			"checkOutcomes": {
+				"success": [
+					{ "type": "ShowText", "text": "The strongbox buckles and bursts open under repeated blows to reveal gold coins and an ancient ledger." },
+					{ "type": "AddLoot", "itemId": "Gold", "amountDice": "4d10+120" },
+					{ "type": "SetFlag", "flag": "strongboxOpen" },
+					{ "type": "RevealAction", "actionId": "readLedger" }
+				],
+				"failure": [
+					{ "type": "ShowText", "text": "You batter the strongbox, but it holds firm." }
+				]
+			}
+		},
+		{
+			"id": "readLedger",
+			"name": "Read the Ancient Ledger",
+			"hidden": true,
+			"oneShot": true,
+			"timeCost": 2.0,
+			"requires": [ { "type": "RaceInParty", "value": "Dwarf" } ],
+			"outcomes": [
+				{ "type": "ShowText", "text": "The ledger contains a list of names and wages earned and claimed." }
+			]
 		}
 	]
 }
