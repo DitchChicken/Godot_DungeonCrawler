@@ -36,7 +36,6 @@ public partial class GameState : Node
 	public bool IsIronMan { get; set; } = false;
 
 	// Current combat encounter
-	public List<List<string>> CurrentEncounter = new List<List<string>>();
 	public EncounterInstance CurrentEncounterInstance { get; set; }
 	
 	// Item type-ids the party has identified this run
@@ -46,11 +45,11 @@ public partial class GameState : Node
 	public void IdentifyItemType(string itemId) => IdentifiedItems.Add(itemId);
 	public string DisplayNameFor(Equipment item)
 		=> IsItemIdentified(item) ? item.Name : item.UnknownName;
-		
-	public void SetEncounter(List<List<string>> formation)
-	{
-		CurrentEncounter = formation;
-	}
+
+	//Keys
+	public HashSet<string> Keyring { get; set; } = new HashSet<string>();
+	public bool HasKey(string keyId) => Keyring.Contains(keyId);
+	public void AddKey(string keyId) => Keyring.Add(keyId);
 
 	// Party management
 	public bool AddToParty(Character character)
@@ -98,6 +97,7 @@ public partial class GameState : Node
 		CurrentDungeon = "";
 		CurrentRoom = null;
 		DungeonStates.Clear();  // wipes ALL dungeon states, fresh run next entry
+		Keyring.Clear();
 		foreach (var c in Party) c.ExplorationCooldowns.Clear();
 		foreach (var c in Stable) c.ExplorationCooldowns.Clear();
 	}

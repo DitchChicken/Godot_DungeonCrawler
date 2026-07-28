@@ -362,7 +362,9 @@ public partial class Dungeon : Control
 		}
 		if (!exit.IsPassable)
 		{
-			string why = exit.State == ExitState.Locked ? "locked" : "blocked";
+			string why = exit.Door is { Locked: true } ? "locked"
+			   : exit.Door is { Exists: true, Open: false } ? "closed"
+			   : "blocked";
 			DungeonLog.Print($"The way {dir.ToString().ToLower()} is {why}.", DungeonLog.Damage);
 			return;
 		}

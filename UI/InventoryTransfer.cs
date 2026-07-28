@@ -211,6 +211,14 @@ public static class InventoryTransfer
 		if (item == null || count <= 0)
 			return false;
 
+		if (dragData.Item.IsKey && target.Type == TransferTarget.TargetType.PersonalInventory)
+		{
+			gameState.AddKey(dragData.Item.KeyId);
+			RemoveFromSource(dragData, dragData.Count, gameState);  // take it off the floor/source
+			DungeonLog.Print($"{dragData.Item.Name} added to your keyring.");
+			return true;
+		}
+
 		// --- SHOP BUY: source is shop, target is inventory/vault ---
 		if (dragData.Source == InventoryDragData.SourceType.Shop)
 		{

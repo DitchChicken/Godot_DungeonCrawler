@@ -2,21 +2,118 @@
 	"id": "MaintenanceGallery",
 	"name": "Maintenance Gallery",
 	"description": [
-		"Narrow service passages weave between exposed pipes, crystalline conduits, and humming ",
-		"mechanisms hidden behind walls never meant for public eyes. Small articulated machines tirelessly ",
-		"inspect joints, polish fittings, and replace worn components without acknowledging your presence. ",
-		"None appear aware that the civilization they serve vanished ages ago.",
-		"Their work never ended.TODO: AI Text"
+		"Narrow service passages weave between exposed pipes and crystalline conduits. ",
+		"This space here is much more confined and practically laid out. Small articulated machines tirelessly ",
+		"polish and inspect the machinery without acknowledging your presence. ",
+		"They appear unaware that the civilization they serve vanished ages ago."
 		],
 	"image": "res://Dungeons/DwarvenBrewery/Images/MaintenanceGallery.png",
 	"unique": true,
 	"minOccurrences": 1,
 	"maxOccurrences": 1,
 	"spawnChance": 1.0,
-	"actions" : [
+	"exits": [
 		{
-			"id": "moveBarrel",
+			"direction": "South",
+			"target": "Brewery",
+			"state": "Open",
+			"corridorLength": 2,
+			"travelTime": 2.0
+		},
+		{
+			"direction": "East", 
+			"target": "StorageVault",
+  			"door": {
+				"locked": true,
+				"keyId": "StorageVaultKey",
+				"lockDC": 13,
+				"breakDC": 15,
+				"unlockFlag": "storageVaultDoorOpen"
+			},
+			"corridorLength": 1,
+			"travelTime" : 0.2
+		}
+	],
+	"search": {
+		"quickTime": 3.0,
+		"quick": {
+			"id": "maintainceGalleryQuick",
+			"outcomes": [
+				{ "type": "ShowText", "text": "A sturdy door bars the way east. It features an obvious keyhole. Listening at the door reveals nothing but silence on the other side." },
+				{ "type": "RevealAction", "actionId": "pickLock" },
+				{ "type": "RevealAction", "actionId": "breakDoor" }
+			]
+		},
+		"thoroughTime": 8.0,
+		"thorough": {
+			"id": "maintainceGalleryThorough",
+			"outcomes": [
+				{ "type": "ShowText", "text": "Scuff marks on the bottom of a heavy barrel in an alcove differentiate it from the others back here." },
+				{ "type": "RevealAction", "actionId": "openBarrel" },
+				{ "type": "RevealAction", "actionId": "shiftBarrel" }
+			]
+		}
+	},
+	"actions": [
+		{
+			"id": "pickLock",
+			"name": "Pick the Lock",
+			"hidden": true,
+			"oneShot": true,
+			"timeCost": 4.0,
+			"check": { "domain": "Lock Picking", "stat": "Dexterity", "difficulty": 13, "level": 1 },
+			"requires": [ { "type": "NotFlag", "value": "storageVaultDoorOpen" } ],
+			"checkOutcomes": {
+				"success": [
+					{ "type": "ShowText", "text": "The tumblers give with a soft click. The way east is open." },
+					{ "type": "UnlockDoor", "direction": "East" },
+					{ "type": "SetFlag", "flag": "storageVaultDoorOpen" }
+				],
+				"failure": [
+					{ "type": "ShowText", "text": "The lock is beyond your skill." }
+				]
+			}
+		},
+		{
+			"id": "breakDoor",
+			"name": "Break Down the Door",
+			"hidden": true,
+			"oneShot": true,
+			"timeCost": 8.0,
+			"check": { "domain": "Athletics", "stat": "Strength", "difficulty": 15, "level": 0 },
+			"requires": [ { "type": "NotFlag", "value": "storageVaultDoorOpen" } ],
+			"checkOutcomes": {
+				"success": [
+					{ "type": "ShowText", "text": "Wood splinters and the door bursts inward. The way east is open." },
+					{ "type": "BreakDoor", "direction": "East" },
+					{ "type": "SetFlag", "flag": "storageVaultDoorOpen" }
+				],
+				"failure": [
+					{ "type": "ShowText", "text": "You throw your weight against it, but the door holds." }
+				]
+			}
+		},
+		{
+			"id": "openBarrel",
+			"name": "Open the Scuffed Barrel",
+			"hidden": true,
+			"oneShot": true,
+			"timeCost": 2.0,
+			"check": { "domain": "Athletics", "stat": "Strength", "difficulty": 8, "level": 0 },
+			"checkOutcomes": {
+				"success": [
+					{ "type": "ShowText", "text": "The lid pries free. Inside, nestled in straw, lie pristine components of an unknown nature." },
+					{ "type": "AddLoot", "itemId": "UnknownComponent", "amount": 10 }
+				],
+				"failure": [
+					{ "type": "ShowText", "text": "The lid won't budge." }
+				]
+			}
+		},
+		{
+			"id": "shfitBarrel",
 			"name": "Shift the Heavy Barrel",
+			"hidden": true,
 			"oneShot": true,
 			"timeCost": 2.0,
 			"check": {
@@ -39,22 +136,6 @@
 					{ "type": "ShowText", "text": "The barrel refuses to budge, and you nearly wrench your back trying." }
 				]
 			}
-		}
-	],
-	"exits": [
-		{
-			"direction": "South",
-			"target": "Brewery",
-			"state": "Open",
-			"corridorLength": 2,
-			"travelTime": 2.0
-		},
-		{
-			"direction": "East",
-			"target": "StorageVault",
-			"state": "Locked",
-			"corridorLength": 1,
-			"travelTime" : 0.5
 		}
 	]
 }

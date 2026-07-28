@@ -76,7 +76,7 @@ public static class DungeonManager
 		if (currentRoom == null) return null;
 
 		gameState.CurrentRoom = currentRoom;
-		MarkExplored(state, dungeonId, currentRoom.Id);
+		MarkExplored(state, dungeonId, currentRoom.Id, gameState);
 
 		return currentRoom;
 	}
@@ -92,14 +92,14 @@ public static class DungeonManager
 		if (here == null) return null;
 
 		var exit = here.GetExit(direction);
-		if (exit == null)
-		{
-			GD.Print($"No exit {direction} from {here.RoomId}");
-			return null;
-		}
+		if (exit == null) { DungeonLog.Print($"No exit {direction}."); return null; }
+
+		if (exit.Door != null && !exit.Door.Exists) { /* walk through the broken doorway — passable */ }
+
 		if (!exit.IsPassable)
 		{
-			GD.Print($"The {direction} exit is {exit.State}.");
+			string why = exit.Door is { Locked: true } ? "locked" : "blocked";
+			DungeonLog.Print($"The way {direction.ToString().ToLower()} is {why}.", DungeonLog.Damage);
 			return null;
 		}
 
@@ -116,12 +116,12 @@ public static class DungeonManager
 		if (room == null) return null;
 
 		gameState.CurrentRoom = room;
-		MarkExplored(state, dungeonId, room.Id);
+		MarkExplored(state, dungeonId, room.Id, gameState);
 
 		return room;
 	}
 
-	private static void MarkExplored(DungeonState state, string dungeonId, string roomId)
+	private static void MarkExplored(DungeonState state, string dungeonId, string roomId, GameState gameState)
 	{
 		bool firstVisit = !state.ExploredRooms.Contains(roomId);
 		if (firstVisit) state.ExploredRooms.Add(roomId);
@@ -141,6 +141,17 @@ public static class DungeonManager
 			var roomData = LoadRoom(dungeonId, roomId);
 			if (roomData?.Search != null)
 				state.GetRoomState(roomId).Searched = roomData.Search.InitialLevel;
+		}
+		
+		foreach (var exit in mapRoom.Exits)
+		{
+			var door = exit.Door;
+			if (door == null || !door.Locked) continue;
+			if (string.IsNullOrEmpty(door.KeyId) || !gameState.HasKey(door.KeyId)) continue;
+
+			door.Locked = false;
+			if (!string.IsNullOrEmpty(door.UnlockFlag))
+				state.Flags.Add(door.UnlockFlag);
 		}
 	}
 

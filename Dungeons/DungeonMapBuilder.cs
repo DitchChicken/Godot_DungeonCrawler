@@ -36,19 +36,24 @@ public static class DungeonMapBuilder
 					GD.PrintErr($"Map build: bad direction '{def.Direction}' in {roomId}");
 					continue;
 				}
-				if (!Enum.TryParse<ExitState>(def.State ?? "Open", true, out var state))
-					state = ExitState.Open;
+				if (!System.Enum.TryParse<ExitVisibility>(def.Visibility ?? "Visible", true, out var vis))
+					vis = ExitVisibility.Visible;
 
 				var exit = new Exit
-				{
-					Direction      = dir,
-					TargetRoomId   = def.Target,
-					State          = state,
-					KeyId          = def.KeyId ?? "",
-					Label          = def.Label ?? "",
-					CorridorLength = Math.Max(1, def.CorridorLength),
-					TravelTime     = def.TravelTime
-				};
+					{
+						Direction      = dir,
+						TargetRoomId   = def.Target,
+						Visibility     = vis,
+						Label          = def.Label ?? "",
+						CorridorLength = System.Math.Max(1, def.CorridorLength),
+						TravelTime     = def.TravelTime,
+						// Visible exits are known from the start; hidden ones must be found
+						Discovered     = (vis == ExitVisibility.Visible)
+					};
+					
+			   if (def.Door != null)
+	  			  exit.Door = BuildDoor(def.Door);
+
 				mapRoom.Exits.Add(exit);
 
 				// Place the neighbour, offset by corridor length
@@ -60,6 +65,28 @@ public static class DungeonMapBuilder
 				}
 			}
 
+			// Share door instances across reciprocal exits: whichever side declared the
+			// door owns it; the other side points at the same object.
+			foreach (var room in map.Rooms.Values)
+			{
+				foreach (var exit in room.Exits)
+				{
+					if (exit.Door == null) continue;
+
+					var farRoom = map.GetRoom(exit.TargetRoomId);
+					var backExit = farRoom?.GetExit(exit.Direction.Opposite());
+					if (backExit == null) continue;
+
+					// If the far side didn't declare its own door, share this one
+					if (backExit.Door == null)
+						backExit.Door = exit.Door;
+					// If both declared, that's an authoring error — warn
+					else if (!ReferenceEquals(backExit.Door, exit.Door))
+						GD.PrintErr($"Door declared on both sides of {room.RoomId}<->{exit.TargetRoomId}; " +
+									$"using {room.RoomId}'s.");
+				}
+			}
+			
 			map.Rooms[roomId] = mapRoom;
 		}
 
@@ -98,5 +125,20 @@ public static class DungeonMapBuilder
 								$"has no matching return exit");
 			}
 		}
+	}
+	
+	private static Door BuildDoor(DoorDef def)
+	{
+		System.Enum.TryParse<ClosedPassRule>(def.ClosedRule ?? "None", true, out var rule);
+		return new Door
+		{
+			Locked     = def.Locked,
+			Open       = def.Open,
+			KeyId      = def.KeyId ?? "",
+			LockDC     = def.LockDC,
+			BreakDC    = def.BreakDC,
+			UnlockFlag = def.UnlockFlag ?? "",
+			ClosedRule = rule
+		};
 	}
 }

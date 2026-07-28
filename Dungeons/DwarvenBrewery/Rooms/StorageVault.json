@@ -12,18 +12,15 @@
 	"minOccurrences": 1,
 	"maxOccurrences": 1,
 	"spawnChance": 1.0,
-	"actions" : [
-		{
-			"name" : "Lockpick"
-		}		
+	"actions" : [	
 	],
 	"exits": [
 		{
 			"direction": "West",
 			"target": "MaintenanceGallery",
-			"state": "Locked",
-			"corridorLength": 1,
-			"travelTime": 0.5
+			"state": "Open",
+			"corridorLength": 0,
+			"travelTime": 0.2
 		}
 	]
 }

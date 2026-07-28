@@ -96,9 +96,11 @@ public static class DebugCommands
 		{
 			var state = gameState.GetDungeonState(gameState.CurrentDungeon);
 			if (state?.Map == null) return "No map.";
+
 			var lines = state.Map.Rooms.Values.Select(r =>
 				$"  {r.RoomId,-16} {r.Coordinates}  exits: " +
-				string.Join(", ", r.Exits.Select(e => $"{e.Direction}→{e.TargetRoomId}[{e.State}]")));
+				string.Join(", ", r.Exits.Select(e => $"{e.Direction}→{e.TargetRoomId}[{DescribeExit(e)}]")));
+
 			return $"Map ({state.Map.Rooms.Count} rooms):\n" + string.Join("\n", lines);
 		}, "Dump the dungeon map graph");
 
@@ -171,5 +173,19 @@ public static class DebugCommands
 		var hud = ((SceneTree)Engine.GetMainLoop()).Root
 			.GetNodeOrNull<PartyHUD>("/root/PartyHud");
 		hud?.Refresh();
+	}
+	
+	static string DescribeExit(Exit e)
+	{
+		string vis = e.Discovered ? "seen" : "unseen";
+		if (e.Door == null) return $"{vis},open";
+
+		var d = e.Door;
+		string doorState =
+			!d.Exists ? "broken" :
+			d.Locked  ? "locked" :
+			d.Open    ? "door-open" : "door-closed";
+
+		return $"{vis},{doorState}";
 	}
 }

@@ -20,7 +20,8 @@
 			"timeCost": 1.0,
 			"outcomes": [
 				{ "type": "ShowText", "text": "Gears grind. Somewhere close, stone slides against stone." },
-				{ "type": "SetExitState", "direction": "East", "state": "Open" },
+				{ "type": "ToggleDoor", "direction": "East"},
+				{ "type": "UnlockDoor", "direction": "East" },
 				{ "type": "SetFlag", "flag": "gatehouseConsoleActivated" }
 			]
 		}
@@ -36,7 +37,14 @@
 		{
 			"direction": "East",
 			"target": "Brewery",
-			"state": "Blocked",
+			"state": "Open",
+			"door": {
+				"locked": true,
+				"keyId": "",
+				"lockDC": 0,
+				"breakDC": 0,
+				"unlockFlag": "entryHallDoorOpen"
+			},
 			"corridorLength": 1,
 			"travelTime" : 1.5
 		}

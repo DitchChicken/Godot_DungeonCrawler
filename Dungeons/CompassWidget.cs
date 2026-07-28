@@ -78,9 +78,9 @@ public partial class CompassWidget : VBoxContainer
 			var exit = room?.GetExit(kv.Key);
 
 			Color color;
-			if (exit == null || !exit.Discovered)      color = ColorNone;
-			else if (exit.State == ExitState.Open)     color = ColorOpen;
-			else                                       color = ColorBlocked;
+			if (exit == null || !exit.Discovered)  color = ColorNone;
+			else if (exit.IsPassable)              color = ColorOpen;
+			else                                   color = ColorBlocked;
 
 			kv.Value.Modulate = color;
 		}

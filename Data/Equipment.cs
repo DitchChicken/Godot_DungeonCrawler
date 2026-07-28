@@ -59,6 +59,9 @@ public class Equipment
 	//Stacking
 	public int MaxStack { get; set; } = 1;      // 1 = not stackable
 	public int StackCount { get; set; } = 1;    // current stack size
+
+	public bool IsKey { get; set; } = false;
+	public string KeyId { get; set; } = "";   // which lock it opens
 	
 	// Special abilities
 	public List<string> Abilities { get; set; } = new List<string>();

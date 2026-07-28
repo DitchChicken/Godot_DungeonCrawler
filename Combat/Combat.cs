@@ -550,7 +550,7 @@ public partial class Combat : Control
 				float t = count == 1 ? 0.5f : (float)i / (count - 1);
 				float y = topY + t * (bottomY - topY);
 				allPositions.Add((new Vector2(rowX, y), rowMonsters[i]));
-				GD.Print("Added to position");
+				//GD.Print("Added to position");
 			}
 		}
 

@@ -1,29 +1,26 @@
-public enum ExitState
+public enum ExitVisibility
 {
-	Open,           // passable
-	Locked,         // visible, needs a key
-	HiddenToParty,  // exists, findable by searching
-	Hidden,         // exists, needs a specific trigger to reveal
-	Blocked         // visible, impassable
+	Visible,        // party can see it
+	HiddenToParty,  // findable by searching
+	Hidden          // needs a trigger to reveal
 }
 
 public class Exit
 {
 	public Direction Direction { get; set; }
 	public string TargetRoomId { get; set; }
-	public ExitState State { get; set; } = ExitState.Open;
-	public string KeyId { get; set; } = "";
+	public ExitVisibility Visibility { get; set; } = ExitVisibility.Visible;
 	public string Label { get; set; } = "";
-	public bool Discovered { get; set; } = false;
-
-	// Map spacing — how many cells of corridor between the two rooms
 	public int CorridorLength { get; set; } = 1;
-
-	// Minutes (or whatever unit) to traverse — for the future time system
 	public float TravelTime { get; set; } = 1.0f;
 
-	public bool IsPassable => State == ExitState.Open;
-	public bool IsVisibleToParty => State == ExitState.Open
-								 || State == ExitState.Locked
-								 || State == ExitState.Blocked;
+	public Door Door { get; set; }   // null = open passage, no door
+
+	public bool Discovered { get; set; } = true;
+
+	// Party can go this way: discovered, and either no door or an unlocked/destroyed one
+	public bool IsPassable => Discovered && (Door == null || Door.PartyCanPass);
+
+	// Shown on the compass (discovered, regardless of whether it's currently passable)
+	public bool IsVisibleToParty => Discovered && Visibility == ExitVisibility.Visible;
 }

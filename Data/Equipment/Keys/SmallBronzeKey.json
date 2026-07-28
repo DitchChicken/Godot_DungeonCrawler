@@ -1,0 +1,10 @@
+{
+    "id": "SmallBronzeKey",
+    "name": "Small Bronze Key",
+    "isKey": true,
+    "keyId": "StorageVaultKey",
+    "slot": "None",
+    "weight": 0,
+    "goldCost": 0,
+    "icon": "res://Data/Equipment/Keys/Key_01.png"
+}

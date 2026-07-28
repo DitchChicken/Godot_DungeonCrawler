@@ -95,12 +95,8 @@ public static class InteractionResolver
 				LastMessages.Add(outcome.Text);
 				break;
 
-			case "SetExitState":
-				SetExitState(dungeonState, outcome, gs);
-				break;
-
-			case "ToggleExitState":
-				ToggleExitState(dungeonState, outcome, gs);
+			case "ToggleDoor":
+				DoorOutcome(dungeonState, outcome, gs, d => d.Open = !d.Open);
 				break;
 
 			case "SetFlag":
@@ -140,28 +136,35 @@ public static class InteractionResolver
 				roomState.RevealedActions.Add(outcome.ActionId);
 				break;
 				
+			case "UnlockDoor":   DoorOutcome(dungeonState, outcome, gs, d => d.Locked = false); break;
+			case "BreakDoor":    DoorOutcome(dungeonState, outcome, gs, d => d.Exists = false); break;
+			case "OpenDoor":     DoorOutcome(dungeonState, outcome, gs, d => d.Open   = true);  break;
+			case "CloseDoor":    DoorOutcome(dungeonState, outcome, gs, d => d.Open   = false); break;
+
 			case "RevealExit":
-				if (!System.Enum.TryParse<Direction>(outcome.Direction, true, out var revealDir)) break;
-
-				string rid  = string.IsNullOrEmpty(outcome.Room) ? gs.CurrentRoom?.Id : outcome.Room;
-				var mapRoom = dungeonState.Map?.GetRoom(rid);
-				var revealed = mapRoom?.GetExit(revealDir);
-				if (revealed == null) break;
-
-				revealed.Discovered = true;
-				if (revealed.State == ExitState.HiddenToParty)
-					revealed.State = ExitState.Open;
-
-				// Mirror on the far side
-				var far     = dungeonState.Map.GetRoom(revealed.TargetRoomId);
-				var farExit = far?.GetExit(revealDir.Opposite());
-				if (farExit != null && farExit.TargetRoomId == rid)
 				{
-					farExit.Discovered = true;
-					if (farExit.State == ExitState.HiddenToParty)
-						farExit.State = ExitState.Open;
+					if (!System.Enum.TryParse<Direction>(outcome.Direction, true, out var revealDir)) break;
+
+					string rid   = string.IsNullOrEmpty(outcome.Room) ? gs.CurrentRoom?.Id : outcome.Room;
+					var mapRoom  = dungeonState.Map?.GetRoom(rid);
+					var revealed = mapRoom?.GetExit(revealDir);
+					if (revealed == null) break;
+
+					revealed.Discovered = true;
+					if (revealed.Visibility == ExitVisibility.HiddenToParty)
+						revealed.Visibility = ExitVisibility.Visible;
+
+					// Mirror discovery on the far side — a found passage is found from both rooms
+					var far     = dungeonState.Map.GetRoom(revealed.TargetRoomId);
+					var farExit = far?.GetExit(revealDir.Opposite());
+					if (farExit != null && farExit.TargetRoomId == rid)
+					{
+						farExit.Discovered = true;
+						if (farExit.Visibility == ExitVisibility.HiddenToParty)
+							farExit.Visibility = ExitVisibility.Visible;
+					}
+					break;
 				}
-				break;
 				
 			case "AddLoot":
 				{
@@ -194,50 +197,6 @@ public static class InteractionResolver
 		}
 	}
 
-	// Sets an exit's state AND its reciprocal in the target room.
-	private static void SetExitState(DungeonState state, Outcome outcome, GameState gs)
-	{
-		if (!System.Enum.TryParse<Direction>(outcome.Direction, true, out var dir)) return;
-		if (!System.Enum.TryParse<ExitState>(outcome.State, true, out var newState)) return;
-
-		// Default to the current room when none specified
-		string roomId = string.IsNullOrEmpty(outcome.Room) ? gs.CurrentRoom?.Id : outcome.Room;
-		ApplyExitState(state, roomId, dir, newState);
-	}
-
-	// Flips Open <-> Blocked (for levers)
-	private static void ToggleExitState(DungeonState state, Outcome outcome, GameState gs)
-	{
-		if (!System.Enum.TryParse<Direction>(outcome.Direction, true, out var dir)) return;
-
-		string roomId = string.IsNullOrEmpty(outcome.Room) ? gs.CurrentRoom?.Id : outcome.Room;
-		var room = state.Map?.GetRoom(roomId);
-		var exit = room?.GetExit(dir);
-		if (exit == null) return;
-
-		var newState = exit.State == ExitState.Open ? ExitState.Blocked : ExitState.Open;
-		ApplyExitState(state, roomId, dir, newState);
-	}
-
-	private static void ApplyExitState(DungeonState state, string roomId, Direction dir, ExitState newState)
-	{
-		var room = state.Map?.GetRoom(roomId);
-		var exit = room?.GetExit(dir);
-		if (exit == null)
-		{
-			GD.PrintErr($"SetExitState: no {dir} exit in room '{roomId}'");
-			return;
-		}
-
-		exit.State = newState;
-
-		// Mirror on the far side so the door works from both rooms
-		var target   = state.Map.GetRoom(exit.TargetRoomId);
-		var backExit = target?.GetExit(dir.Opposite());
-		if (backExit != null && backExit.TargetRoomId == roomId)
-			backExit.State = newState;
-	}
-	
 	public static void ApplyOutcomeExternal(Outcome outcome, GameState gs, RoomState rs, ScenePanel panel)
 	{
 		if (outcome.Type == "ShowText") { panel.AppendText(outcome.Text); return; }
@@ -265,5 +224,18 @@ public static class InteractionResolver
 			default:
 				return true;
 		}
+	}
+	
+	private static void DoorOutcome(DungeonState state, Outcome outcome, GameState gs,
+								System.Action<Door> apply)
+	{
+		if (!System.Enum.TryParse<Direction>(outcome.Direction, true, out var dir)) return;
+		string roomId = string.IsNullOrEmpty(outcome.Room) ? gs.CurrentRoom?.Id : outcome.Room;
+		var door = state.Map?.GetRoom(roomId)?.GetExit(dir)?.Door;
+		if (door == null) { GD.PrintErr($"Door outcome: no door {dir} in {roomId}"); return; }
+
+		apply(door);
+		if (!string.IsNullOrEmpty(door.UnlockFlag) && !door.Locked)
+			state.Flags.Add(door.UnlockFlag);
 	}
 }
