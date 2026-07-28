@@ -19,8 +19,11 @@ public class EncounterManager
 		EncounterAttachment attachment)
 	{
 		var template = EncounterLoader.LoadEncounter(dungeonId, encounterId);
-		if (template == null) return null;
-
+		if (template == null) {
+			GD.Print("CreateInstance() - Failed to LoadEncounter");
+			return null;
+		}
+		
 		var instance = new EncounterInstance
 		{
 			InstanceId        = $"enc_{_nextId++}",
@@ -42,7 +45,9 @@ public class EncounterManager
 			if (monsterRow.Count > 0)
 				instance.Formation.Add(monsterRow);
 		}
-
+		GD.Print($"CreateInstance {encounterId}: template rows={template?.Formation?.Count ?? -1}, " +
+				 $"built rows={instance.Formation.Count}");
+				
 		instance.Disposition = System.Enum.TryParse<Disposition>(template.Disposition, true, out var d)
 			? d : Disposition.Hostile;
 		instance.Requirement = System.Enum.TryParse<InteractionRequirement>(template.InteractionRequirement, true, out var r)

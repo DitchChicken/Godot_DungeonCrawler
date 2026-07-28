@@ -18,7 +18,7 @@ public partial class ScenePanel : Control
 
 	[Signal] public delegate void SceneClosedEventHandler();
 	[Signal] public delegate void CombatStartedEventHandler();
-
+	
 	public override void _Ready()
 	{
 		LayoutMode  = 1;

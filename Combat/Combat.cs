@@ -118,6 +118,7 @@ public partial class Combat : Control
 
 	private void LoadCombatants()
 	{
+		//GD.Print("LoadCombatants");
 		LoadParty();		
 		InitializeCombat();
 		LoadEnemies();
@@ -155,47 +156,16 @@ public partial class Combat : Control
 		var instance = _gameState.CurrentEncounterInstance;
 		if (instance == null) { GD.PrintErr("No encounter instance!"); return; }
 
-		// Use the LIVE formation — damage and deaths persist
+		// Use the LIVE formation — damage and deaths persist to the encounter
 		_combatState = new CombatState(_gameState.Party, instance.Formation);
 		_combatState.RollInitiative();
-		
-		var formation = new List<List<Monster>>();
-		foreach (var row in _gameState.CurrentEncounter)
-		{
-			var monsterRow = new List<Monster>();
-			foreach (var id in row)
-			{
-				var monster = MonsterLoader.LoadMonster(id);
-				if (monster != null)
-					monsterRow.Add(monster);
-			}
-			formation.Add(monsterRow);
-		}
 
-		_combatState = new CombatState(_gameState.Party, formation);
-		_combatState.RollInitiative();
-		
 		_turnTracker.Initialize(_combatState, this);
 		_turnTracker.SlotHovered   += OnTrackerSlotHovered;
 		_turnTracker.SlotUnhovered += OnTrackerSlotUnhovered;
 
 		RefreshCombatLog();
 		RefreshPartySprites();
-		
-		/*
-		GD.Print("AllMonsters:");
-		foreach (var m in _combatState.AllMonsters)
-			GD.Print($"  {m.CombatLabel} hash:{m.GetHashCode()}");
-		
-		GD.Print("TurnOrder monsters:");
-		foreach (var c in _combatState.TurnOrder.Where(c => !c.IsParty))
-			GD.Print($"  {c.Monster.CombatLabel} hash:{c.Monster.GetHashCode()}");
-
-		GD.Print("EnemyOrder (after LoadEnemies):"); 
-		// Add this after LoadEnemies() call 
-		foreach (var m in _enemyOrder)
-			GD.Print($"  {m.CombatLabel} hash:{m.GetHashCode()}");
-		*/
 	}
 
 	private void UpdateUI()
@@ -554,7 +524,10 @@ public partial class Combat : Control
 
 		// Use the live instance formation (List<List<Monster>>), not the old ID list
 		var formation = _combatState?.EnemyFormation;
-		if (formation == null || formation.Count == 0) return;
+		if (formation == null || formation.Count == 0) {
+			GD.Print("LoadEnemies() - No formation or no count");
+			return;
+		}
 
 		var containerSize = _enemyContainer.Size;
 		float spriteSize  = containerSize.X * EnemySpriteSize;
@@ -577,6 +550,7 @@ public partial class Combat : Control
 				float t = count == 1 ? 0.5f : (float)i / (count - 1);
 				float y = topY + t * (bottomY - topY);
 				allPositions.Add((new Vector2(rowX, y), rowMonsters[i]));
+				GD.Print("Added to position");
 			}
 		}
 

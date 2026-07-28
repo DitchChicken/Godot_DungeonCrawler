@@ -1,0 +1,46 @@
+{
+	"id": "GoblinPack",
+	"startNode": "intro",
+	"nodes": {
+		"intro": {
+			"id": "intro",
+			"image": "res://Dungeons/DwarvenBrewery/Images/GoblinsScene.png",
+			"text": [
+				"Half a dozen goblins crouch among the broken casks, weapons half-raised.",
+                "Their leader bares yellowed teeth, watching to see what you'll do."
+			],
+			"options": [
+				{
+					"label": "Attack them",
+					"outcomes": [
+						{ "type": "SetDisposition", "value": "Hostile" },
+						{ "type": "StartCombat" }
+					]
+				},
+				{
+					"label": "Try to reason with them",
+					"check": { "domain": "Diplomacy", "stat": "Charisma", "difficulty": 12, "level": 0 },
+					"checkOutcomes": {
+						"success": [
+							{ "type": "ShowText", "text": "The leader grunts, lowers its blade, and waves you past. They'll tolerate you — for now." },
+							{ "type": "SetRequirement", "value": "Optional" },
+							{ "type": "EndScene" }
+						],
+						"failure": [
+							{ "type": "ShowText", "text": "Your words fall flat. Steel rasps as they close in." },
+							{ "type": "SetDisposition", "value": "Hostile" },
+							{ "type": "StartCombat" }
+						]
+					}
+				},
+				{
+					"label": "Back away slowly",
+					"outcomes": [
+						{ "type": "ShowText", "text": "You retreat to the doorway. The goblins settle, still watching." },
+						{ "type": "EndScene" }
+					]
+				}
+			]
+		}
+	}
+}
