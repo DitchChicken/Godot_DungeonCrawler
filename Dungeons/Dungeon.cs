@@ -274,12 +274,29 @@ public partial class Dungeon : Control
 			_actionsList.AddChild(searchBtn);
 		}
 		
-		if (blockingEnc != null && !string.IsNullOrEmpty(blockingEnc.SceneId))
+		if (blockingEnc != null)
 		{
-			var approachBtn = new Button();
-			approachBtn.Text = "Approach the Goblins";   // generalize the label later
-			approachBtn.Pressed += () => OnApproachEncounter(blockingEnc);
-			_actionsList.AddChild(approachBtn);
+			if (!string.IsNullOrEmpty(blockingEnc.SceneId))
+			{
+				// scene-based: approach opens the ScenePanel
+				var approachBtn = new Button();
+				approachBtn.Text = "Approach";
+				approachBtn.Pressed += () => OnApproachEncounter(blockingEnc);
+				_actionsList.AddChild(approachBtn);
+			}
+			else if (blockingEnc.Disposition == Disposition.Hostile)
+			{
+				// no scene, hostile: only option is to fight
+				var fightBtn = new Button();
+				fightBtn.Text = "Fight!";
+				fightBtn.Pressed += () =>
+				{
+					_gameState.CurrentEncounterInstance = blockingEnc;
+					GetNode<Main>("/root/Main").CallDeferred(
+						nameof(Main.SwitchScene), "res://Combat/Combat.tscn");
+				};
+				_actionsList.AddChild(fightBtn);
+			}
 		}
 		
 		foreach (var action in room.Actions)
