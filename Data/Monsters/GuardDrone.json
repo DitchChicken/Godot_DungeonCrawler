@@ -1,0 +1,25 @@
+{
+	"id": "GuardDrone",
+	"name": "GuardDrone",
+	"level": 1,
+	"maxHP": 9,
+	"maxMP": 0,
+	"experienceReward": 25,
+	"goldReward": 0,
+	"initiative": 8,
+	"resistances": {
+		"Slashing": 0.8,
+		"Piercing": 0.8,
+		"Bludgeoning": 0.8,
+		"Fire": 0.2,
+		"Holy": 1.0
+	},
+	"attacks": ["BoneStrike"],
+	"armorClass": 2,
+	"portrait": "",
+	"sprite": "res://Data/Monsters/GuardDrone.png",
+	"drops": [
+	],
+	"spriteRightOffset": 320,
+	"spriteTopOffset": 310	
+}

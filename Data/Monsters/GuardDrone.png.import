@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://qfw4p5qgll06"
-path="res://.godot/imported/goblin.png-0a1fe23dfef6772765a2db0a83a7d62c.ctex"
+uid="uid://col3nmnvhyg4a"
+path="res://.godot/imported/GuardDrone.png-122f27f80fec949cf9c009cdc724a929.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Data/Monsters/goblin.png"
-dest_files=["res://.godot/imported/goblin.png-0a1fe23dfef6772765a2db0a83a7d62c.ctex"]
+source_file="res://Data/Monsters/GuardDrone.png"
+dest_files=["res://.godot/imported/GuardDrone.png-122f27f80fec949cf9c009cdc724a929.ctex"]
 
 [params]
 

@@ -1,0 +1,34 @@
+{
+	"id": "GuardDrones",
+	"startNode": "intro",
+	"nodes": {
+		"intro": {
+			"id": "intro",
+			"image": "res://Dungeons/DwarvenBrewery/Images/GuardDronesOverlay.png",
+			"text": [
+				"The rustling resolves into motion — three brass constructs rise from the wheat, far larger than the little tenders.",
+				"Segmented limbs unfold, and apertures along their casings glow a hostile red as they orient on you.",
+                "There will be no reasoning with these."
+			],
+			"options": [
+				{
+					"label": "Study them before striking",
+					"check": { "domain": "Engineering", "stat": "Intelligence", "difficulty": 12, "level": 1 },
+					"checkOutcomes": {
+						"success": [
+							{ "type": "GoToNode", "value": "assessed" }
+						],
+						"failure": [
+							{ "type": "ShowText", "text": "Their design is beyond a glance. Whatever their weakness, you'll have to find it the hard way." },
+							{ "type": "StartCombat" }
+						]
+					}
+				},
+				{
+					"label": "Ready weapons",
+					"outcomes": [ { "type": "StartCombat" } ]
+				}
+			]
+		}
+	}
+}

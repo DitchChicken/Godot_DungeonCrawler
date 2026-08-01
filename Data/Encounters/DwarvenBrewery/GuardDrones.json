@@ -1,0 +1,16 @@
+{
+	"id": "GuardDrones",
+	"name": "Guard Drones",
+	"disposition": "Hostile",
+	"interactionRequirement": "Mandatory",
+	"sceneId": "GuardDrones",
+	"overlayImage": "res://Dungeons/DwarvenBrewery/Images/GuardDronesOverlay.png",
+	"overlayX": 0.5,
+	"overlayY": 0.55,
+	"overlayScale": 1.0,
+	"formation": [
+		["GuardDrone", "GuardDrone"],
+		["GuardDrone"]
+	],
+	"rewards": { }
+}
